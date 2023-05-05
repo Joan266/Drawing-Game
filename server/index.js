@@ -101,42 +101,33 @@ io.of("/table").on("connection", (socket) => {
     });
 
     socket.on("start-game", () => {
-      findNextPlayer(0, 0);
+      nextTurn(0, 0);
     });
-    const findNextPlayer = (round, turn) => {
-      console.log(round, turn);
-      return new Promise((resolve, reject) => {
-        const res = {
-          json: async (playerInfo) => {
-            if (playerInfo && turn < 9) {
-              console.log(playerInfo);
-              randomwords = randomWords(options);
-              io.of("/table").to(pathroom).emit("mainplayer-info", randomwords);
-            } else {
-              if (round < 4) {
-                await DrawingGame.startNewRound({
-                  tableNumber: room,
-                  round: round + 1
-                }).then((game) => {
-                  findNextPlayer(game.round, game.turn);
-                });
-              } else {
-                await DrawingGame.startNewRound({
-                  tableNumber: room,
-                  round: 0
-                })
-                console.log("Game end");
-              };
 
-            }
-            resolve();
-          },
-          send: (error) => reject(error),
-        };
+    const nextTurn = async (round, turn) => {
+      console.log('round', round, 'turn', turn);
+        const playerInfo = await DrawingGame.maybeSetNextArtist({ tableNumber: room, turn: turn });
+        if (playerInfo && turn < 9) {
+          console.log('playerInfo', playerInfo);
+          randomwords = randomWords(options);
+          io.of("/table").to(pathroom).emit("mainplayer-info", randomwords);
+        } else {
+          if (round < 4) {
+            const game = await DrawingGame.startNewRound({
+              tableNumber: room,
+              round: round + 1
+            })
+              
+            await nextTurn(game.round, game.turn);
+          } else {
+            await DrawingGame.startNewRound({
+              tableNumber: room,
+              round: 0
+            })
+            console.log("Game end");
+          };
 
-        playerController.findnextplayer({ tableNumber: room, turn: turn }, res);
-      });
-
+        }
     };
     socket.on("start-turn", (data) => {
       playerTurn(data.round,data.turn);
@@ -163,7 +154,7 @@ io.of("/table").on("connection", (socket) => {
                     clearInterval(valId);
                     timer = "timer1";
                     counter = remainingTime.timer1;
-                    findNextPlayer(round, turn + 1);
+                    nextTurn(round, turn + 1);
                     resolve();
                   }
                 } else {

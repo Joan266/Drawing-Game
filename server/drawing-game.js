@@ -12,8 +12,34 @@ export class DrawingGame {
         turn: 0,
       },
       { new: true }
-    )
+    );
 
     return game;
+  }
+
+  static async maybeSetNextArtist({ tableNumber, turn }) {
+    const player = await Player.findOneAndUpdate(
+      { playerTurn: false, tableId: tableNumber },
+      { playerTurn: true },
+      { new: true }
+    );
+
+    if (player) {
+      const game = await Game.findOneAndUpdate(
+        { tableId: tableNumber },
+        {
+          mainPlayerId: player._id,
+          turn: turn,
+        },
+        { new: true }
+      );
+
+      console.log('game', game);
+      return {
+        mainPlayerId: player._id,
+        mainPlayerNickname: player.playerNickname,
+        turn: game.turn,
+      };
+    }
   }
 }
