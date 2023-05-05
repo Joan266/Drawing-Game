@@ -3,7 +3,6 @@ import httpServer from "./express.js";
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import tableController from "./controllers/table.js";
-import playerController from "./controllers/player.js";
 import randomWords from "random-words";
 import { DrawingGame } from "./drawing-game.js";
 // import rwe from "random-words-es";
@@ -102,35 +101,14 @@ io.of("/table").on("connection", (socket) => {
      const turnscore = (counter/DRAWING_MAX_TIME)*80 + points.pop();
     });
 
-    socket.on("start-game", () => {
-      prepareNextTurn(0, 0);
+    socket.on("start-game", async () => {
+      const {gameEnd} = await DrawingGame.prepareNextTurn(0, 0, room);
+      if (!gameEnd) {
+        randomwords = randomWords(options);
+        io.of("/table").to(pathroom).emit("mainplayer-info", randomwords);
+      }
     });
 
-    const prepareNextTurn = async (round, turn) => {
-      console.log('round', round, 'turn', turn);
-        const playerInfo = await DrawingGame.maybeSetNextArtist({ tableNumber: room, turn: turn });
-        if (playerInfo && turn < 9) {
-          console.log('playerInfo', playerInfo);
-          randomwords = randomWords(options);
-          io.of("/table").to(pathroom).emit("mainplayer-info", randomwords);
-        } else {
-          if (round < 4) {
-            const game = await DrawingGame.startNewRound({
-              tableNumber: room,
-              round: round + 1
-            })
-              
-            await prepareNextTurn(game.round, game.turn);
-          } else {
-            await DrawingGame.startNewRound({
-              tableNumber: room,
-              round: 0
-            })
-            console.log("Game end");
-          };
-
-        }
-    };
     socket.on("start-turn", (data) => {
       startTurn(data.round,data.turn);
     });
@@ -138,7 +116,7 @@ io.of("/table").on("connection", (socket) => {
       setTimeout(() => {
           io.of("/table").to(pathroom).emit("current-time", { time: counter, fase: timer });
           console.log(timer);
-          function decrementCounter() {
+          async function decrementCounter() {
             if (counter <= 0) {
               if (timer === "timer1") {
                 const randomnumber = getRandomNumber();
@@ -152,7 +130,11 @@ io.of("/table").on("connection", (socket) => {
                 clearInterval(valId);
                 timer = "timer1";
                 counter = SELECT_WORD_MAX_TIME;
-                prepareNextTurn(round, turn + 1);
+                const {gameEnd} = await DrawingGame.prepareNextTurn(round, turn + 1, room);
+                if (!gameEnd) {
+                  randomwords = randomWords(options);
+                  io.of("/table").to(pathroom).emit("mainplayer-info", randomwords);
+                }
               }
             } else {
               counter--;

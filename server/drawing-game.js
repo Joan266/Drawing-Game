@@ -34,12 +34,41 @@ export class DrawingGame {
         { new: true }
       );
 
-      console.log('game', game);
+      console.log("game", game);
       return {
         mainPlayerId: player._id,
         mainPlayerNickname: player.playerNickname,
         turn: game.turn,
       };
+    }
+  }
+
+  static async prepareNextTurn(round, turn, room) {
+    console.log("round", round, "turn", turn);
+    const playerInfo = await DrawingGame.maybeSetNextArtist({
+      tableNumber: room,
+      turn: turn,
+    });
+    if (playerInfo && turn < 9) {
+      console.log("playerInfo", playerInfo);
+
+      return { gameEnd: false };
+    } else {
+      if (round < 4) {
+        const game = await DrawingGame.startNewRound({
+          tableNumber: room,
+          round: round + 1,
+        });
+
+        return await this.prepareNextTurn(game.round, game.turn, room);
+      } else {
+        await DrawingGame.startNewRound({
+          tableNumber: room,
+          round: 0,
+        });
+        console.log("Game end");
+        return { gameEnd: true };
+      }
     }
   }
 }
