@@ -39,7 +39,7 @@ io.of("/table").on("connection", (socket) => {
     const pathroom = "/table/" + room;
     socket.join(pathroom);
 
-    socket.on("messages", (message, nickname) => {
+    socket.on("messages", (message, nickname, playerId) => {
       io.of("/table").to(pathroom).emit("messages", {
         body: message,
         nickname: nickname,
