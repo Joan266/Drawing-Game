@@ -76,8 +76,10 @@ io.of("/table").on("connection", (socket) => {
 
     });
     
-    const remainingTime = { timer1: 10, timer2: 10 };
-    let counter = remainingTime.timer1;
+    const SELECT_WORD_MAX_TIME = 10;
+    const DRAWING_MAX_TIME = 10;
+
+    let counter = SELECT_WORD_MAX_TIME;
     let timer = "timer1";
     const options = {
       exactly: 3,
@@ -90,21 +92,21 @@ io.of("/table").on("connection", (socket) => {
     socket.on("selected-word", (word) => {
       if (timer === "timer1") {
         timer = "timer2";
-        counter = remainingTime.timer2;
+        counter = DRAWING_MAX_TIME;
         io.of("/table").to(pathroom).emit("final-word", word);
         io.of("/table").to(pathroom).emit("current-time", { time: counter, fase: timer });
       }
     });
     const points = [10,20,30,40];
     socket.on("right-answer", (player) => {
-     const turnscore = (counter/remainingTime.timer2)*80 + points.pop();
+     const turnscore = (counter/DRAWING_MAX_TIME)*80 + points.pop();
     });
 
     socket.on("start-game", () => {
-      nextTurn(0, 0);
+      prepareNextTurn(0, 0);
     });
 
-    const nextTurn = async (round, turn) => {
+    const prepareNextTurn = async (round, turn) => {
       console.log('round', round, 'turn', turn);
         const playerInfo = await DrawingGame.maybeSetNextArtist({ tableNumber: room, turn: turn });
         if (playerInfo && turn < 9) {
@@ -118,7 +120,7 @@ io.of("/table").on("connection", (socket) => {
               round: round + 1
             })
               
-            await nextTurn(game.round, game.turn);
+            await prepareNextTurn(game.round, game.turn);
           } else {
             await DrawingGame.startNewRound({
               tableNumber: room,
@@ -130,50 +132,37 @@ io.of("/table").on("connection", (socket) => {
         }
     };
     socket.on("start-turn", (data) => {
-      playerTurn(data.round,data.turn);
+      startTurn(data.round,data.turn);
     });
-    async function playerTurn(round,turn) {
-
-      try {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-           
-              io.of("/table").to(pathroom).emit("current-time", { time: counter, fase: timer });
-              console.log(timer);
-              function decrementCounter() {
-                if (counter <= 0) {
-                  if (timer === "timer1") {
-                    const randomnumber = getRandomNumber();
-                    timer = "timer2";
-                    counter = remainingTime.timer2;
-                    const finalword = randomwords[randomnumber]
-                    io.of("/table").to(pathroom).emit("final-word", finalword);
-                    console.log(timer);
-                  } else if (timer === "timer2") {
-                    console.log("cleared interval");
-                    clearInterval(valId);
-                    timer = "timer1";
-                    counter = remainingTime.timer1;
-                    nextTurn(round, turn + 1);
-                    resolve();
-                  }
-                } else {
-                  counter--;
-                }
-                io.of("/table").to(pathroom).emit("current-time", { time: counter, fase: timer });
-                console.log("Counter:", counter);
+    function startTurn(round,turn) {
+      setTimeout(() => {
+          io.of("/table").to(pathroom).emit("current-time", { time: counter, fase: timer });
+          console.log(timer);
+          function decrementCounter() {
+            if (counter <= 0) {
+              if (timer === "timer1") {
+                const randomnumber = getRandomNumber();
+                timer = "timer2";
+                counter = DRAWING_MAX_TIME;
+                const finalword = randomwords[randomnumber]
+                io.of("/table").to(pathroom).emit("final-word", finalword);
+                console.log(timer);
+              } else if (timer === "timer2") {
+                console.log("cleared interval");
+                clearInterval(valId);
+                timer = "timer1";
+                counter = SELECT_WORD_MAX_TIME;
+                prepareNextTurn(round, turn + 1);
               }
-              const valId = setInterval(decrementCounter, 1000);
-            
-          }, 1000);
-        });
-      } catch (error) {
-        console.log(error);
-        // Handle the error here
-      }
-
+            } else {
+              counter--;
+            }
+            io.of("/table").to(pathroom).emit("current-time", { time: counter, fase: timer });
+            console.log("Counter:", counter);
+          }
+          const valId = setInterval(decrementCounter, 1000);  
+      }, 1000);
     }
-
   });
 });
 
