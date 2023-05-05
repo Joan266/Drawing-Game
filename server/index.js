@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import tableController from "./controllers/table.js";
 import playerController from "./controllers/player.js";
 import randomWords from "random-words";
+import { DrawingGame } from "./drawing-game.js";
 // import rwe from "random-words-es";
 dotenv.config(); // Load environment variables from .env file
 
@@ -99,11 +100,6 @@ io.of("/table").on("connection", (socket) => {
      const turnscore = (counter/remainingTime.timer2)*80 + points.pop();
     });
 
-    const restartRound = (req) => {
-      return new Promise((resolve) => {
-        playerController.restartround(req, { json: resolve });
-      });
-    }
     socket.on("start-game", () => {
       findNextPlayer(0, 0);
     });
@@ -111,21 +107,21 @@ io.of("/table").on("connection", (socket) => {
       console.log(round, turn);
       return new Promise((resolve, reject) => {
         const res = {
-          json: (playerInfo) => {
+          json: async (playerInfo) => {
             if (playerInfo && turn < 9) {
               console.log(playerInfo);
               randomwords = randomWords(options);
               io.of("/table").to(pathroom).emit("mainplayer-info", randomwords);
             } else {
               if (round < 4) {
-                restartRound({
+                await DrawingGame.startNewRound({
                   tableNumber: room,
                   round: round + 1
                 }).then((game) => {
                   findNextPlayer(game.round, game.turn);
                 });
               } else {
-                restartRound({
+                await DrawingGame.startNewRound({
                   tableNumber: room,
                   round: 0
                 })

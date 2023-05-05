@@ -51,30 +51,6 @@ var playerController = {
             })
             .catch((error) => res.json({ message: error }));
     },
-    restartround: (req, res) => {
-        const tableNumber = req.tableNumber;
-        const round = req.round;
-        Player.updateMany(
-            { tableId: tableNumber },
-            { playerTurn: false }
-        )
-            .then(() => {
-                Game.findOneAndUpdate(
-                    { tableId: tableNumber },
-                    {
-                        round: round,
-                        turn: 0
-                    },
-                    { new: true }
-                )
-                    .then((game) => {
-                        res.json(game);
-                    }).catch((error) => res.json({ message: error }));
-            })
-            .catch((error) => {
-                res.json({ message: error });
-            });
-    },
     deleteplayer: (req, res) => {
         const playerId = req.body.playerId;
         const tableNumber = req.body.tableNumber;
