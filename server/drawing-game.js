@@ -71,4 +71,13 @@ export class DrawingGame {
       }
     }
   }
+
+
+  static async gameOn(room) {
+     await Game.findOneAndUpdate(
+      { tableId: room },
+      { gameOn: true },
+      { new: true }
+    )
+  }
 }

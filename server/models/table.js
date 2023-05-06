@@ -11,7 +11,7 @@ const tableSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model('Table', tableSchema, 'Tables', 'Pinturete');
+export default mongoose.model('Table', tableSchema);
 
 
 

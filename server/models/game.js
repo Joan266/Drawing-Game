@@ -20,10 +20,14 @@ const gameSchema = new mongoose.Schema({
     word: {
         type: String,
         default:null
+    },
+    gameOn: {
+        type: Boolean,
+        default:false
     }
 
 
 });
 
-export default mongoose.model('Game', gameSchema, 'Games', 'Pinturete');
+export default mongoose.model('Game', gameSchema);
 

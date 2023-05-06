@@ -1,24 +1,22 @@
 import http from "../http-common";
 
-class PintureteDataService {
-    createTable(data) {
+export default class PintureteDataService {
+    static createTable(data) {
         return http.post("/createtable", data);
     }
-    checkTable(data) {
+    static checkTable(data) {
         return http.post("/checktable", data);
     }
-    createPlayer(data) {
+    static createPlayer(data) {
         return http.post("/createplayer", data);
     }
-    checkPlayers(data) {
+    static checkPlayers(data) {
         return http.post("/checkplayers", data);
     }
-    deletePlayer(data) {
+    static deletePlayer(data) {
         return http.post("/deleteplayer", data);
     }
-    gameInfo(data) {
+    static gameInfo(data) {
         return http.post("/gameinfo", data);
     }
 }
-const pintureteDB = new PintureteDataService();
-export default pintureteDB;

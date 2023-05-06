@@ -10,13 +10,13 @@ const GameHeader = () => {
 
 
     useEffect(() => {
-        if (gameInfo.mainPlayerId) {
-            if (gameInfo.mainPlayerId === myState.playerId) {
+       
+            if (gameInfo?.mainPlayerId === myState.playerId) {
                 setGameInfo({ ...gameInfo, mainPlayer: true });
             } else {
                 setGameInfo({ ...gameInfo, mainPlayer: false, word: null });
             }
-        }
+      
     }, [gameInfo.mainPlayerId])
     useEffect(() => {
         console.log(gameInfo.mainPlayer);

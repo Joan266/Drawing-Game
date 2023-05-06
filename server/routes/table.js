@@ -5,7 +5,7 @@ import gameController from "../controllers/game.js";
 
 const router = express.Router();
 
-router.get('/',(req,res)=>{res.send('hello world')});
+router.get('/', (req, res) => { res.send('hello world') });
 
 router.post('/createtable', tableController.createtable);
 

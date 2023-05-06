@@ -23,7 +23,7 @@ const playerSchema = new mongoose.Schema({
 
 });
 
-export default mongoose.model('Player', playerSchema, 'Players', 'Pinturete');
+export default mongoose.model('Player', playerSchema);
 
 
 

@@ -1,5 +1,5 @@
 import Player from "../models/player.js";
-import io from "../index.js";
+import { io } from "../index.js";
 
 var playerController = {
 

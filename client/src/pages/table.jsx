@@ -25,7 +25,6 @@ const Table = () => {
                 console.log(response); // "got it"
             });
 
-
         });
 
         tableSocket.on("disconnect", () => {
