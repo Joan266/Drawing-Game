@@ -1,22 +1,27 @@
 import React, { useState, useContext } from 'react';
 import TableContext from '../contexts/TableContext.js';
+import PintureteDataService from '../DB_services/pinturete.js';
 
 const ChatInput = () => {
-    const { tableSocket, myState } = useContext(TableContext);
-    const [message, setMessage] = useState('');
-    function handleInputChange(e) {
-        setMessage(e.target.value);
+    const { myState, room } = useContext(TableContext);
+    const [messageInput, setMessageInput] = useState('');
+    function handleMessageInputChange(e) {
+        setMessageInput(e.target.value);
     }
     function handleKeyDown(e) {
-        // const savedState = JSON.parse(localStorage.getItem('myState'));
         if (e.key === 'Enter') {
             if (myState) {
-                // const nickname = savedState.playerNickname;
-                const nickname = myState.playerNickname;
-                const playerId = myState.playerId;
-                tableSocket.emit("messages", message, nickname, playerId);
+                const data = {
+                    tableId: room,
+                    messageInfo: {
+                        playerId: myState.playerId,
+                        nickname: myState.playerNickname,
+                        message: messageInput
+                    }
+                }
+                PintureteDataService.saveMessage(data);
             }
-            setMessage("");
+            setMessageInput("");
         }
     }
 
@@ -26,8 +31,8 @@ const ChatInput = () => {
         <div className="input">
             <input
                 type="text"
-                value={message}
-                onChange={handleInputChange}
+                value={messageInput}
+                onChange={handleMessageInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder='Type something...' />
         </div>

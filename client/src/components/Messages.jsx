@@ -9,12 +9,7 @@ const Messages = () => {
         if (messages) {
 
             const receivedMessage = (message) => {
-                if (message.body === gameInfo.word && gameInfo.word) {
-                    if (gameInfo.mainPlayer) {
-                        tableSocket.emit("right-answer", message.playerId);
-                    }
-                } else { setMessages([...messages, message]) }
-
+                setMessages([...messages, message])
             }
             if (tableSocket) {
                 tableSocket.on('messages', receivedMessage)

@@ -6,7 +6,7 @@ const playerSchema = new mongoose.Schema({
         required: true
     },
     tableId: {
-        type: String,
+        type: Number,
         required: true
     },
     score: {
@@ -14,7 +14,12 @@ const playerSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    playerTurn: {
+    artistTurn: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    chanceGuess: {
         type: Boolean,
         required: true,
         default: false

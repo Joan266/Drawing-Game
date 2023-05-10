@@ -1,7 +1,7 @@
 import Player from "../models/player.js";
 import { io } from "../index.js";
 
-var playerController = {
+export const playerController = {
 
     createplayer: (req, res) => {
         var player = new Player({ ...req.body });
@@ -21,18 +21,17 @@ var playerController = {
     },
     deleteplayer: (req, res) => {
         const playerId = req.body.playerId;
-        const tableNumber = req.body.tableNumber;
+        const room = req.body.tableNumber;
         Player.deleteOne({ _id: playerId })
             .then(() => {
                 res.json({ message: "Player deleted successfully" });
-                io.of("/table").to(tableNumber).emit("deleteplayer");
+                io.of("/table").to(room).emit("deleteplayer");
             })
             .catch((error) => res.json({ message: error }));
     }
 
 }
 
-export default playerController;
 
 
 

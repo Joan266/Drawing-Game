@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { MONGODB_URI } from "./config.js";
-import GameWatch from "./game-logic.js";
+import gameWatch from "./game-watch.js";
+import chatWatch from "./chat-watch.js";
 export const connectDB = async () => {
     try {
         await mongoose.connect(MONGODB_URI, {
@@ -8,7 +9,8 @@ export const connectDB = async () => {
             useUnifiedTopology: true
         })
         console.log("Connected to de DB");
-      GameWatch();
+      gameWatch();
+      chatWatch();
     } catch (error) {
         console.error(error);
     }

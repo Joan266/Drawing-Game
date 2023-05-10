@@ -10,7 +10,7 @@ import TableContext from '../contexts/TableContext.js';
 
 const Table = () => {
     const location = useLocation();
-    const room = location.state.tableId;
+    const room = location.state.room;
     const [myState, setMyState] = useState({ playerNickname: null, playerId: null });
     const [gameInfo, setGameInfo] = useState({ mainPlayer: false, word: null, round: null });
     const [tableSocket, setTableSocket] = useState(null);
@@ -20,10 +20,8 @@ const Table = () => {
         // client-side
         tableSocket.on("connect", () => {
             console.log('socket_id: ', tableSocket.id, room); // x8WIv7-mJelg7on_ALbx
-
-            tableSocket.emit("join_table", room, (response) => {
-                console.log(response); // "got it"
-            });
+           
+            tableSocket.emit("join_table", room);
 
         });
 

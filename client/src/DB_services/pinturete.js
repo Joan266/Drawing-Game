@@ -19,4 +19,7 @@ export default class PintureteDataService {
     static gameInfo(data) {
         return http.post("/gameinfo", data);
     }
+    static saveMessage(data) {
+        return http.post("/savemessage", data);
+    }
 }

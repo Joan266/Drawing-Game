@@ -6,13 +6,12 @@ import Navbar from "../components/Navbar";
 
 const Register = () => {
   const codeRef = useRef(null);
-  const [table, setTable] = useState(null);
+  const [tableId, setTableId] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    var data = { code: codeRef.current.value };
-    pintureteDB.createTable(data)
-      .then((res) => setTable({ tableId: res.data.tableId }))
+    pintureteDB.createTable({code: codeRef.current.value})
+      .then((res) => setTableId(res.data._id))
       .catch((error) => console.log(error));
   }
   return (
@@ -25,7 +24,7 @@ const Register = () => {
         </label>
         <button type="submit">Enviar</button>
       </form>
-      {table && <Navigate to="/table" state={table} replace={true} />}
+      {tableId && <Navigate to="/table" state={{room: tableId}} replace={true} />}
     </div>
 
   );

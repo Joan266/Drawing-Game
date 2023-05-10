@@ -5,9 +5,8 @@ const tableSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  tableId: {
-    type: String,
-    required: true
+  _id: {
+    type: Number
   }
 });
 

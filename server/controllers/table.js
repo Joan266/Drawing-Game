@@ -1,10 +1,11 @@
 import Table from "../models/table.js";
 import Game from "../models/game.js";
+import Messages from "../models/chat.js";
 
-var tableController = {
+export const tableController = {
     createtable: (req, res) => {
         Table.find()
-            .then((table) => {
+            .then(async (table) => {
                 if (table) {
                     var ids = table.map((table) => table.id);
                     while (true) {
@@ -17,22 +18,19 @@ var tableController = {
                 } else {
                     var tableId = Math.floor(Math.random() * (900)) + 100;
                 }
-                var table = new Table({ ...req.body, tableId });
-                var game = new Game({ tableId: tableId });
-
-                table.save()
-                    .then((table) => {
-                        game.save()
-                            .then((game) => {
-                                res.json(table);
-                                console.log(table, game);
-                                console.log(`game in room:${tableId} created`);
-                            })
-                            .catch((error) => res.json({ message: error }));
-                    })
-                    .catch((error) => res.json({ message: error }));
-
-
+                const tableCode = req.body.code;
+                var table = new Table({code: tableCode});
+                var game = new Game();
+                const messages = new Messages();
+                table._id = tableId;
+                game._id = tableId;
+                messages._id = tableId;
+                await table.save().then(async(table)=>{
+                    await messages.save();
+                    await game.save();
+                    console.log(`Table in room:${tableId} created`);
+                    res.json(table);
+                });
             })
             .catch((error) => {
                 console.log(error);
@@ -45,7 +43,7 @@ var tableController = {
         const tableNumber = req.body.tableNumber;
         const tableCode = req.body.tableCode;
 
-        Table.findOne({ tableId: tableNumber })
+        Table.findOne({ _id: tableNumber })
             .then((table) => {
                 if (table) {
                     if (table.code === tableCode) {
@@ -61,9 +59,9 @@ var tableController = {
     },
     deletetable: (req, res) => {
         const tableNumber = req.body.room;
-        Table.deleteOne({ tableId: tableNumber })
+        Table.deleteOne({ _id: tableNumber })
             .then(() => {
-                Game.deleteOne({ tableId: tableNumber })
+                Game.deleteOne({ _id: tableNumber })
                     .then(() => {
                         res.json({ message: "Table deleted successfully" });
                     })
@@ -74,7 +72,7 @@ var tableController = {
 
 }
 
-export default tableController;
+
 
 
 
