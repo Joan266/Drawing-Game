@@ -53,11 +53,9 @@ const Sidebar = () => {
     return (
         <div className='sidebar'>
             <div className="playersContainer">
-                <ul>
-                    {players.map((data, index) => (
-                        <Player data={data} index={index} />
-                    ))}
-                </ul>
+                {players.map((data, index) => (
+                    <Player data={data} index={index} />
+                ))}
                 {playersLength < 9 && !myState.playerId ? (
                     <NicknameInput />
                 ) : null}

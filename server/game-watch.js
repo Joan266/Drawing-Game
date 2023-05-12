@@ -16,67 +16,52 @@ export default async () => {
         const gameOn = change.fullDocument.gameOn;
         const fase = change.fullDocument?.fase;
         const turn = change.fullDocument?.turn;
-        const threeWords = change.fullDocument?.threeWords;
+        const turnScores = change.fullDocument?.turnScores;
+        const timeLeft = change.fullDocument?.timeLeft;
         const updatedFields = change.updateDescription.updatedFields;
+
         if (!gameOn) return;
         console.log(`gameOn: ${gameOn} room: ${typeof room}`);
+
         Object.keys(updatedFields).forEach(async (key) => {
             console.log(`key: ${key} value: ${updatedFields[key]}`)
+
             switch (key) {
                 case 'gameOn':
                     console.log(`${key}: ${updatedFields[key]}`);
-                    if (updatedFields[key]) {
-                        await DrawingGame.prepareNextTurn(room);
-                    }
-                    break;
-                case 'fase':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    // if (updatedFields[key] === "select-word") {
-                    // }
-                    break;
-                case 'round':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    await DrawingGame.resetTurns(room);
-                    if (updatedFields[key] < 3) {
-                        await DrawingGame.prepareNextTurn(room);
-                    } else {
-                        console.log("END OF THE GAME")
-                        DrawingGame.gameOff(room);
-                    }
-                    break;
-                case 'timeLeft':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    if (updatedFields[key] <= 0) {
-                        if (fase === "select-word") {
-                            const finalWord = threeWords[DrawingGame.randomNumber(3)];
-                            console.log(`finalword: ${finalWord} possibleWords: ${threeWords}`);
-                            await Chat.findByIdAndUpdate(
-                                room,
-                                { word: finalWord }
-                            )
-                        } else if (fase === "guess-word") {
-                            if (turn > 8) {
-                                DrawingGame.updateGame({
-                                    room,
-                                    body: { $inc: { round: 1 }, turn: 0 }
-                                })
-                            } else {
-                                await DrawingGame.prepareNextTurn(room);
-                            }
-                            console.log("end of the turn");
-                        }
-                    } else {
-                        DrawingGame.clock(room);
-                    }
+                    await DrawingGame.prepareNextTurn(room);
                     break;
 
-                // case 'turn':
-                //     console.log(`${key}: ${updatedFields[key]}`);
-                //     break;
+                case 'round':
+                    console.log(`${key}: ${updatedFields[key]}`);
+                    await DrawingGame.roundHandler({
+                        room: room,
+                        round: round
+                    })
+                    break;
+
+                case 'timeLeft':
+                    console.log(`${key}: ${updatedFields[key]}`);
+                    await DrawingGame.timeLeftHandler({
+                        room: room,
+                        timeLeft: timeLeft,
+                        turn: turn,
+                        fase: fase,
+                        turnScores: turnScores,
+                        mainPlayerId: mainPlayerId
+                    });
+                    break;
+
+                case 'turnScores':
+                    console.log(`${key}: ${updatedFields[key]}`);
+                    await DrawingGame.scoringHandler(room)
+                    break;
+
                 default:
                     console.log('Unknown key:', key);
             }
         });
+       
     }));
 
 }

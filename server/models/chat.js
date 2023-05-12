@@ -6,7 +6,7 @@ const chatSchema = new mongoose.Schema({
     }, 
     word: {
         type: String,
-        default: null
+        default: "lux"
     },
     messages: {
         type: [{

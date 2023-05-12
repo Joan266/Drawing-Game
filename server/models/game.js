@@ -22,7 +22,7 @@ const gameSchema = new mongoose.Schema({
     },
     timeLeft: {
         type: Number,
-        default: 0
+        default: 20
     },
     threeWords: {
         type: Array,
@@ -31,6 +31,10 @@ const gameSchema = new mongoose.Schema({
     fase: {
         type: String,
         default: null
+    },
+    turnScores: {
+        type: Number,
+        default: 0
     }
 });
 

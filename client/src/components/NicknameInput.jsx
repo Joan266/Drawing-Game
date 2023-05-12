@@ -31,7 +31,7 @@ const NicknameInput = () => {
         <>
 
             <form className='input' onSubmit={handleSubmit}>
-                <label><input type="text" placeholder='Nickname' value={nickname} onChange={handleChange} /></label>
+                <label><input type="text" placeholder='Join the game..' value={nickname} onChange={handleChange} /></label>
             </form>
 
         </>

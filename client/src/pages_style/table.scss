@@ -1,11 +1,12 @@
 .table {
-    background-color: lightcyan;
+    background-color: lightgoldenrodyellow;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     margin: 0;
+    color: darkslateblue;
 
     .navbar {
         position: absolute;
@@ -16,13 +17,15 @@
         display: flex;
         top: 0;
         align-items: center;
-        background-color: darkorange;
+        background-color: wheat;
         height: 50px;
         padding: 10px;
         justify-content: space-between;
 
         .logo {
             font-weight: bold;
+            font-size: 50px;
+            color: beige;
         }
 
         .tableNumber {
@@ -30,7 +33,7 @@
             gap: 10px;
 
             button {
-                background-color: darkorchid;
+                background-color: lightgoldenrodyellow;
                 font-size: 10px;
                 border: none;
                 cursor: pointer;
@@ -40,7 +43,7 @@
     }
 
     .container {
-        border: 1px solid white;
+        border: 3px solid darkorange;
         border-radius: 10px;
         width: 65%;
         height: 75%;
@@ -50,32 +53,44 @@
 
         .sidebar {
             flex: 1;
-            background-color: beige;
+            background-color: white;
             padding: 10px;
 
-            .player {
-                display: flex;
-                font-weight: bold;
-                background-color: darkseagreen;
-                color: white;
-                margin-bottom: 10px;
-                padding: 10px;
-                border-radius: 2px;
-                justify-content: space-between;
+            .playersContainer {
+                width: 190px;
+                padding-left: 6px;
+                padding-right: 20px;
+                padding-top: 10px;
 
-            }
+                .player {
+                    border: 2px solid wheat;
+                    display: flex;
+                    background-color: white;
+                    color: darkslateblue;
+                    font-size: 21px;
+                    margin-bottom: 10px;
+                    padding-left: 15px;
+                    padding-right: 15px;
+                    padding-bottom: 10px;
+                    padding-top: 7px;
+                    border-radius: 20px;
+                    justify-content: space-between;
 
-            .input {
-                background-color: #fff;
-                margin-bottom: 10px;
-                border-radius: 2px;
-                padding: 10px;
+                }
 
-                input {
-                    border: none;
-                    outline: none;
-                    font-size: 15px;
+                .input {
+                    background-color: #fff;
+                    margin-bottom: 10px;
+                    border-radius: 5px;
+                    padding: 10px;
 
+                    input {
+                        border: none;
+                        outline: none;
+                        font-size: 16px;
+                        padding-bottom: 1px;
+                        border-bottom: 1px solid rgba(275, 175, 75, 1);
+                    }
                 }
             }
         }
@@ -86,10 +101,10 @@
 
             .game-header {
                 display: flex;
-                background-color: darkorange;
+                background-color: white;
                 height: 80px;
                 padding: 10px;
-                gap:5px;
+                gap: 5px;
             }
 
             .boardContainer {
@@ -104,7 +119,7 @@
                     overflow: hidden;
                     width: 600px;
                     height: 1000px;
-                    background-color: white;
+                    background-color: whitesmoke;
                 }
             }
         }
@@ -115,7 +130,7 @@
 
             .messages {
                 padding: 10px;
-                background-color: white;
+                background-color: whitesmoke;
                 height: calc(100% - 90px);
                 overflow: scroll;
 
@@ -135,7 +150,7 @@
 
             .input {
                 height: 50px;
-                background-color: lightyellow;
+                background-color: wheat;
                 padding: 10px;
                 display: flex;
                 align-items: center;
@@ -149,6 +164,7 @@
                     font-size: 18px;
                     height: 40px;
                     padding-left: 7px;
+                    border-radius: 3px;
 
                     &::placeholder {
                         color: lightgray;

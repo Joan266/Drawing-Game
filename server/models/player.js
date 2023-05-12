@@ -19,7 +19,7 @@ const playerSchema = new mongoose.Schema({
         required: true,
         default: false
     },
-    chanceGuess: {
+    guessTurn: {
         type: Boolean,
         required: true,
         default: false
