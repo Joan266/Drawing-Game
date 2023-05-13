@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import TableContext from '../contexts/TableContext.js';
 import pintureteDB from "../DB_services/pinturete.js";
 
@@ -22,7 +22,7 @@ const GameHeader = () => {
     }, [gameInfo.mainPlayer])
 
     useEffect(() => {
-        
+
         const updateGameInfo = () => {
             pintureteDB.gameInfo({ tableNumber: room })
                 .then((res) => {

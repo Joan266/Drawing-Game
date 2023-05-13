@@ -1,74 +1,70 @@
-import Game from "./models/game.js";
-import { DrawingGame } from "./game-logic.js";
-import { io } from "./index.js";
+import Game from './models/game.js';
+import { DrawingGame } from './game-logic.js';
+import { io } from './index.js';
 
 export default async () => {
+  const changeStream = Game.watch(
+    [{ $match: { operationType: 'update' } }],
+    { fullDocument: 'updateLookup' },
+  );
 
-    const changeStream = Game.watch(
-        [{ $match: { operationType: "update" } }],
-        { fullDocument: 'updateLookup' }
-    );
+  changeStream.on('change', ((change) => {
+    console.log('Change game', change);
+    const room = change.documentKey._id;
+    const { gameOn } = change.fullDocument;
+    const fase = change.fullDocument?.fase;
+    const turn = change.fullDocument?.turn;
+    const round = change.fullDocument?.round;
+    const mainPlayerId = change.fullDocument?.mainPlayerId;
+    const threeWords = change.fullDocument?.threeWords;
+    const turnScores = change.fullDocument?.turnScores;
+    const timeLeftMax = change.fullDocument?.timeLeftMax;
+    const timeLeftMin = change.fullDocument?.timeLeftMin;
+    const { updatedFields } = change.updateDescription;
 
-    changeStream.on('change', ((change) => {
+    if (!gameOn) return;
+    console.log(`gameOn: ${gameOn} room: ${typeof room}`);
 
-        console.log("Change game", change)
-        const room = change.documentKey._id;
-        const gameOn = change.fullDocument.gameOn;
-        const fase = change.fullDocument?.fase;
-        const turn = change.fullDocument?.turn;
-        const round = change.fullDocument?.round;
-        const mainPlayerId = change.fullDocument?.mainPlayerId;
-        const threeWords = change.fullDocument?.threeWords;
-        const turnScores = change.fullDocument?.turnScores;
-        const timeLeftMax = change.fullDocument?.timeLeftMax;
-        const timeLeftMin = change.fullDocument?.timeLeftMin;
-        const updatedFields = change.updateDescription.updatedFields;
+    Object.keys(updatedFields).forEach(async (key) => {
+      console.log(`key: ${key} value: ${updatedFields[key]}`);
 
-        if (!gameOn) return;
-        console.log(`gameOn: ${gameOn} room: ${typeof room}`);
+      switch (key) {
+        case 'gameOn':
+          console.log(`${key}: ${updatedFields[key]}`);
+          await DrawingGame.prepareNextTurn(room);
+          break;
 
-        Object.keys(updatedFields).forEach(async (key) => {
-            console.log(`key: ${key} value: ${updatedFields[key]}`)
+        case 'round':
+          console.log(`${key}: ${updatedFields[key]}`);
+          await DrawingGame.roundHandler({
+            room,
+            round,
+          });
+          break;
 
-            switch (key) {
-                case 'gameOn':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    await DrawingGame.prepareNextTurn(room);
-                    break;
+        case 'timeLeftMax':
+          console.log(`${key}: ${updatedFields[key]}`);
+          io.of('/table').to(room).emit('update-game-info');
+          await DrawingGame.timeLeftHandler({
+            room,
+            timeLeftMax,
+            turn,
+            fase,
+            turnScores,
+            mainPlayerId,
+            threeWords,
+            timeLeftMin,
+          });
+          break;
 
-                case 'round':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    await DrawingGame.roundHandler({
-                        room: room,
-                        round: round
-                    })
-                    break;
+        case 'turnScores':
+          console.log(`${key}: ${updatedFields[key]}`);
+          await DrawingGame.scoringHandler(room);
+          break;
 
-                case 'timeLeftMax':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    io.of("/table").to(room).emit("update-game-info");
-                    await DrawingGame.timeLeftHandler({
-                        room: room,
-                        timeLeftMax: timeLeftMax,
-                        turn: turn,
-                        fase: fase,
-                        turnScores: turnScores,
-                        mainPlayerId: mainPlayerId,
-                        threeWords: threeWords,
-                        timeLeftMin: timeLeftMin
-                    });
-                    break;
-
-                case 'turnScores':
-                    console.log(`${key}: ${updatedFields[key]}`);
-                    await DrawingGame.scoringHandler(room)
-                    break;
-
-                default:
-                    console.log('Unknown key:', key);
-            }
-        });
-       
-    }));
-
-}
+        default:
+          console.log('Unknown key:', key);
+      }
+    });
+  }));
+};
