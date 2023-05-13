@@ -21,13 +21,7 @@ export const playerController = {
     },
     deleteplayer: (req, res) => {
         const playerId = req.body.playerId;
-        const room = req.body.tableNumber;
-        Player.deleteOne({ _id: playerId })
-            .then(() => {
-                res.json({ message: "Player deleted successfully" });
-                io.of("/table").to(room).emit("deleteplayer");
-            })
-            .catch((error) => res.json({ message: error }));
+        Player.findByIdAndDelete(playerId);
     }
 
 }

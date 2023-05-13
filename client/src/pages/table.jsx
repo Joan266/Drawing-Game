@@ -19,7 +19,7 @@ const Table = () => {
         setTableSocket(tableSocket);
         // client-side
         tableSocket.on("connect", () => {
-            console.log('socket_id: ', tableSocket.id, room); // x8WIv7-mJelg7on_ALbx
+            console.log(`socket_id: ${tableSocket.id}, roomtype: ${typeof room}`); 
            
             tableSocket.emit("join_table", room);
 

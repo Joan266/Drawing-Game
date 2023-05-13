@@ -1,6 +1,6 @@
 import Player from "./models/player.js";
 import Game from "./models/game.js";
-import { io } from "./index.js";
+import Chat from "./models/chat.js";
 import randomWords from "random-words";
 
 export class DrawingGame {
@@ -32,7 +32,7 @@ export class DrawingGame {
     if (!players) {
       await DrawingGame.updateGame({
         room: room,
-        body: { timeLeft: 0 }
+        body: { $set: { timeLeftMin: "$timeLeftMax" } }
       })
     }
   }
@@ -44,11 +44,11 @@ export class DrawingGame {
         const gameUpdated = await DrawingGame.updateGame({
           room: room,
           body: {
-            $inc: { turnScores: 1, timeLeft: -2 }
+            $inc: { turnScores: 1, timeLeftMin: 2 }
           }
         })
         console.log(`game: ${gameUpdated}`);
-        const value = ((gameUpdated.timeLeft + 2) / 20 * 200);
+        const value = (gameUpdated.timeLeftMax / 20 * 200);
         const player = await Player.findByIdAndUpdate(
           playerId,
           { $inc: { score: value } },
@@ -70,15 +70,28 @@ export class DrawingGame {
     }
   }
 
-  static async timeLeftHandler({ room, fase, timeLeft, turn, turnScores, mainPlayerId, threeWords }) {
-    if (timeLeft <= 0) {
+  static async timeLeftHandler({ room, fase, turn, turnScores,
+    mainPlayerId, threeWords, timeLeftMax, timeLeftMin }) {
+    if (timeLeftMax === timeLeftMin) {
       if (fase === "select-word") {
-        const finalWord = threeWords[DrawingGame.randomNumber(3)];
-        console.log(`finalword: ${finalWord} possibleWords: ${threeWords}`);
-        await Chat.findByIdAndUpdate(
-          room,
-          { word: finalWord }
-        )
+        if (threeWords != []) {
+          const finalWord = await threeWords[DrawingGame.randomNumber(3)];
+          await Chat.findByIdAndUpdate(
+            room,
+            { word: finalWord }
+          )
+        };
+        setTimeout(async () => {
+          await DrawingGame.updateGame({
+            room: room,
+            body: {
+              fase: "guess-word",
+              timeLeftMax: 20,
+              threeWords: [],
+              timeLeftMin: 0
+            }
+          });
+        }, 3000);
       }
       else if (fase === "guess-word") {
         const value = (turnScores / 8 * 200);
@@ -100,7 +113,7 @@ export class DrawingGame {
         }
         console.log("end of the turn");
       }
-    } else {
+    } else if (timeLeftMax > timeLeftMin) {
       DrawingGame.clock(room);
     }
   }
@@ -139,7 +152,8 @@ export class DrawingGame {
           $inc: { turn: 1 },
           threeWords: threeWords,
           fase: "select-word",
-          timeLeft: 3
+          timeLeftMax: 20,
+          timeLeftMin: 0
         }
       });
     } else {
@@ -175,7 +189,7 @@ export class DrawingGame {
     setTimeout(async () => {
       const game = await DrawingGame.updateGame({
         room: room,
-        body: { $inc: { timeLeft: -1 } }
+        body: { $inc: { timeLeftMax: - 1 } }
       });
       console.log(game);
       // io.of("/table").to(room).emit("timer-update", game.timer);

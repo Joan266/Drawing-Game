@@ -1,5 +1,6 @@
 import Chat from "./models/chat.js";
 import { DrawingGame } from "./game-logic.js";
+import { io } from "./index.js";
 
 export default async () => {
 
@@ -26,12 +27,12 @@ export default async () => {
                     word: word
                 });
             } else if (key === "word") {
+                io.of("/table").to(room).emit("update-chat-info");
                 await DrawingGame.updateGame({
                     room: room,
                     body: {
                         threeWords: [],
-                        fase: "guess-word",
-                        timeLeft: 20
+                        $set: { timeLeftMin: "$timeLeftMax" } 
                     }
                 });
             }

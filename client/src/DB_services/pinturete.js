@@ -22,4 +22,10 @@ export default class PintureteDataService {
     static saveMessage(data) {
         return http.post("/savemessage", data);
     }
+    static saveWord(data) {
+        return http.post("/saveword", data);
+    }
+    static chatInfo(data) {
+        return http.post("/chatinfo", data);
+    }
 }

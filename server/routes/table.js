@@ -20,6 +20,10 @@ router.post('/deleteplayer', playerController.deleteplayer);
 
 router.post('/gameinfo', gameController.gameinfo);
 
+router.post('/chatinfo', chatController.chatinfo);
+
 router.post('/savemessage', chatController.savemessage);
+
+router.post('/saveword', chatController.saveword);
 
 export default router;

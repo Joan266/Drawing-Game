@@ -4,19 +4,15 @@ import pintureteDB from "../DB_services/pinturete.js";
 
 const GameHeader = () => {
     const { tableSocket, room, gameInfo, setGameInfo, myState } = useContext(TableContext);
-    const [clock, setClock] = useState(null);
-    const [fase, setFase] = useState(null);
-    const [optionWords, setOptionWords] = useState([]);
-
 
     useEffect(() => {
-       
-            if (gameInfo?.mainPlayerId === myState.playerId) {
-                setGameInfo({ ...gameInfo, mainPlayer: true });
-            } else {
-                setGameInfo({ ...gameInfo, mainPlayer: false, word: null });
-            }
-      
+
+        if (gameInfo?.mainPlayerId === myState.playerId) {
+            setGameInfo({ ...gameInfo, mainPlayer: true });
+        } else {
+            setGameInfo({ ...gameInfo, mainPlayer: false, word: null });
+        }
+
     }, [gameInfo.mainPlayerId])
     useEffect(() => {
         console.log(gameInfo.mainPlayer);
@@ -26,57 +22,63 @@ const GameHeader = () => {
     }, [gameInfo.mainPlayer])
 
     useEffect(() => {
-        const updateClock = (data) => {
-            setClock(data.time);
-            setFase(data.fase);
-        }
-        const playerInfo = (data) => {
-            setOptionWords(data);
+        
+        const updateGameInfo = () => {
             pintureteDB.gameInfo({ tableNumber: room })
                 .then((res) => {
                     setGameInfo({ ...gameInfo, ...res.data });
                 });
         }
-        const finalWord = (word) => {
-            setGameInfo({ ...gameInfo, word: word });
-            setOptionWords([]);
+
+        const updateChatInfo = () => {
+            pintureteDB.chatInfo({ tableNumber: room })
+                .then((res) => {
+                    setGameInfo({ ...gameInfo, ...res.data });
+                });
         }
 
 
         if (tableSocket) {
-            tableSocket.on("mainplayer-info", playerInfo);
-            tableSocket.on("current-time", updateClock);
-            tableSocket.on("final-word", finalWord);
+            tableSocket.on("update-game-info", updateGameInfo);
+            tableSocket.on("update-chat-info", updateChatInfo);
             return () => {
-                tableSocket.off("mainplayer-info", playerInfo);
-                tableSocket.off("current-time", updateClock);
-                tableSocket.off("final-word", finalWord);
+                tableSocket.off("update-game-info", updateGameInfo);
+                tableSocket.off("update-chat-info", updateChatInfo);
             }
         }
-    }, [tableSocket, clock, fase, gameInfo, myState])
+    }, [tableSocket, gameInfo, myState])
 
     const startGame = () => {
         if (tableSocket) {
             tableSocket.emit("start-game")
         }
     }
-    const selectWord = (event) => {
-        const word = event.target.innerText;
-        tableSocket.emit("selected-word", word);
+    const selectFinalWord = (event) => {
+        const finalWord = event.target.innerText;
+        pintureteDB.saveWord({
+            finalWord: finalWord,
+            tableId: room
+        });
     }
     return (
         <div className="game-header">
             <div>
                 <button onClick={startGame}>Start game..</button>
-                <p>{clock}</p>
-                <p>{fase}</p>
+                <p>{room}</p>
             </div>
+            {gameInfo.gameOn ? (
+                <div>
+                    <p>{gameInfo.timeLeftMax}</p>
+                    <p>{gameInfo.timeLeftMin}</p>
+                    <p>{gameInfo.round}</p>
+                </div>
+            ) : null}
             {gameInfo.mainPlayer ? (
                 <div>
                     <p>{gameInfo.word}</p>
                     <p>mainPlayer</p>
-                    {optionWords.map((word, index) => (
-                        <button key={index} onClick={selectWord}> {word}</button>
+                    {gameInfo.threeWords?.map((word, index) => (
+                        <button key={index} onClick={selectFinalWord}> {word}</button>
                     ))}
                 </div>
             ) : null}

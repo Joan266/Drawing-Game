@@ -14,6 +14,30 @@ import Chat from "../models/chat.js";
             console.error(err);
             res.status(500).send("An error occurred while saving the message.");
         }
+    },
+    saveword: async (req, res) => {
+        const word = req.body.finalWord;
+        const tableId = req.body.tableId;
+        try {
+            await Chat.findByIdAndUpdate(
+                tableId,
+                { word: word }
+            );
+            res.status(200).send("Message saved successfully.");
+        } catch (err) {
+            console.error(err);
+            res.status(500).send("An error occurred while saving the message.");
+        }
+    },
+    chatinfo: (req, res) => {
+        const tableNumber = req.body.tableNumber;
+        Chat.findById(tableNumber)
+            .then((chat) => {
+                res.json({
+                    word: chat.word
+                });
+            })
+            .catch((error) => res.json({ message: error }));
     }
 
 }

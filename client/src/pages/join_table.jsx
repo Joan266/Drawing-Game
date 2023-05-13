@@ -6,19 +6,19 @@ import Navbar from "../components/Navbar";
 const Join = () => {
     const tableNumberRef = useRef(null);
     const codeRef = useRef(null);
-    const [table, setTable] = useState(null);
+    const [tableId, setTableId] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         var data = {
-            tableNumber: tableNumberRef.current.value,
+            tableNumber: parseInt(tableNumberRef.current.value),
             tableCode: codeRef.current.value
         };
         pintureteDB.checkTable(data)
             .then((res) => {
                 console.log(res);
                 if (res.data.valid) {
-                    setTable({ tableId: data.tableNumber })
+                    setTableId(data.tableNumber);
                 } else {
                     alert(res.data.cb)
                 }
@@ -37,7 +37,7 @@ const Join = () => {
                     </label>
                     <button type="submit">Enviar</button>
                 </form>
-                {table && <Navigate to="/table" state={table} replace={true} />}
+                {tableId && <Navigate to="/table" state={{room: tableId}} replace={true} />}
             </div>
         </div>
     );

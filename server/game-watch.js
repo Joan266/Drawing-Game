@@ -1,6 +1,6 @@
 import Game from "./models/game.js";
-import Chat from "./models/chat.js";
 import { DrawingGame } from "./game-logic.js";
+import { io } from "./index.js";
 
 export default async () => {
 
@@ -16,8 +16,12 @@ export default async () => {
         const gameOn = change.fullDocument.gameOn;
         const fase = change.fullDocument?.fase;
         const turn = change.fullDocument?.turn;
+        const round = change.fullDocument?.round;
+        const mainPlayerId = change.fullDocument?.mainPlayerId;
+        const threeWords = change.fullDocument?.threeWords;
         const turnScores = change.fullDocument?.turnScores;
-        const timeLeft = change.fullDocument?.timeLeft;
+        const timeLeftMax = change.fullDocument?.timeLeftMax;
+        const timeLeftMin = change.fullDocument?.timeLeftMin;
         const updatedFields = change.updateDescription.updatedFields;
 
         if (!gameOn) return;
@@ -40,15 +44,18 @@ export default async () => {
                     })
                     break;
 
-                case 'timeLeft':
+                case 'timeLeftMax':
                     console.log(`${key}: ${updatedFields[key]}`);
+                    io.of("/table").to(room).emit("update-game-info");
                     await DrawingGame.timeLeftHandler({
                         room: room,
-                        timeLeft: timeLeft,
+                        timeLeftMax: timeLeftMax,
                         turn: turn,
                         fase: fase,
                         turnScores: turnScores,
-                        mainPlayerId: mainPlayerId
+                        mainPlayerId: mainPlayerId,
+                        threeWords: threeWords,
+                        timeLeftMin: timeLeftMin
                     });
                     break;
 

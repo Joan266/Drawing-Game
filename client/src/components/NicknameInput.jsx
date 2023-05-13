@@ -4,7 +4,7 @@ import TableContext from '../contexts/TableContext.js';
 // Save state to local storage
 
 const NicknameInput = () => {
-    const { tableSocket, room, setMyState } = useContext(TableContext);
+    const { room, setMyState } = useContext(TableContext);
     const [nickname, setNickname] = useState("");
 
     const handleChange = (event) => {
@@ -13,15 +13,13 @@ const NicknameInput = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const data = {
+        if (nickname === "") return;
+        pintureteDB.createPlayer({
             playerNickname: nickname,
             tableId: room
-        }
-        pintureteDB.createPlayer(data)
+        })
             .then((res) => {
-                // localStorage.setItem('myState', JSON.stringify({ playerNickname: nickname, playerId: res.data._id}));
                 setMyState({ playerNickname: nickname, playerId: res.data._id })
-                tableSocket.emit("createplayer", room);
             });
         setNickname("");
 

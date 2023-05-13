@@ -3,10 +3,16 @@ import Game from "../models/game.js";
 export const gameController = {
     gameinfo: (req, res) => {
         const tableNumber = req.body.tableNumber;
-        console.log("gameinfo: ", tableNumber);
-        Game.findOne({ _id: tableNumber })
+        Game.findById(tableNumber)
             .then((game) => {
-                res.json({ word: game.word, mainPlayerId: game.mainPlayerId, round: game.round, turn: game.turn });
+                res.json({
+                    mainPlayerId: game.mainPlayerId,
+                    round: game.round,
+                    timeLeftMax: game.timeLeftMax,
+                    timeLeftMin: game.timeLeftMin,
+                    gameOn: game.gameOn,
+                    threeWords: game.threeWords
+                });
             })
             .catch((error) => res.json({ message: error }));
     }

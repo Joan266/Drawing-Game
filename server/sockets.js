@@ -5,8 +5,6 @@ export default (io) => {
         socket.on("join_table", (room) => {
             socket.join(room)
 
-
-
             socket.on("mousedown", (offsetX, offsetY) => {
                 io.of("/table").to(room).emit("mousedown", {
                     offsetX: offsetX,
@@ -28,17 +26,9 @@ export default (io) => {
                 });
             });
 
-            socket.on("createplayer", () => {
-                io.of("/table").to(room).emit("createplayer");
-                console.log("a player has been created")
-
-            });
-
-
             socket.on("start-game", async () => {
                 DrawingGame.gameOn(room);
             });
-
 
         });
     });
@@ -50,6 +40,7 @@ export default (io) => {
     io.of("/table").adapter.on("join-room", (room, id) => {
         console.log(`socket ${id} has joined room ${room}`);
     });
+    
     io.of("/table").adapter.on("delete-room", (room) => {
         console.log(`room ${room} was deleted`);
     });

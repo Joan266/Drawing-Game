@@ -7,28 +7,27 @@ export const tableController = {
         Table.find()
             .then(async (table) => {
                 if (table) {
-                    var ids = table.map((table) => table.id);
+                    var ids = table.map((table) => table._id);
                     while (true) {
-                        var tableId = Math.floor(Math.random() * (900)) + 100;
+                        var tableId = Math.floor(Math.random() * (9000)) + 1000;
                         if (!ids.includes(tableId)) {
                             break;
                         };
                     }
 
                 } else {
-                    var tableId = Math.floor(Math.random() * (900)) + 100;
+                    var tableId = Math.floor(Math.random() * (9000)) + 1000;
                 }
                 const tableCode = req.body.code;
-                var table = new Table({code: tableCode});
+                var table = new Table({ code: tableCode });
                 var game = new Game();
                 const messages = new Messages();
                 table._id = tableId;
                 game._id = tableId;
                 messages._id = tableId;
-                await table.save().then(async(table)=>{
+                await table.save().then(async (table) => {
                     await messages.save();
                     await game.save();
-                    console.log(`Table in room:${tableId} created`);
                     res.json(table);
                 });
             })
@@ -43,7 +42,7 @@ export const tableController = {
         const tableNumber = req.body.tableNumber;
         const tableCode = req.body.tableCode;
 
-        Table.findOne({ _id: tableNumber })
+        Table.findById(tableNumber)
             .then((table) => {
                 if (table) {
                     if (table.code === tableCode) {

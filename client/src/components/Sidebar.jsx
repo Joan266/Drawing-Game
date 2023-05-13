@@ -12,38 +12,31 @@ const Sidebar = () => {
 
     useEffect(() => {
         const checkPlayers = () => {
-
             pintureteDB.checkPlayers({ tableNumber: room }).then((res) => {
-                // const savedState = JSON.parse(localStorage.getItem('myState'));
                 const players = res.data;
-                // var ids = players.map((player) => player._id);
+                console.log(players)
+                if (!players) return;
                 setPlayers(players);
                 setPlayersLength(players.length);
-                // if (ids.includes(savedState.playerId)) {
-                //     setPlayerId(savedState.playerId);
-                //   }
-                console.log("check");
             });
         }
+        const handleBeforeUnload = () => {
+            if (myState) {
+                pintureteDB.deletePlayer({ playerId: myState.playerId }).then(() => {
+                    setMyState(null);
+                });
+            }
+        }
+        if (!isPlayers) {
+            checkPlayers();
+            setIsPlayers(true);
+        }
         if (tableSocket) {
-            const handleBeforeUnload = () => {
-                // localStorage.removeItem('myState');
-                if (myState) {
-                    const playerId = myState.playerId;
-                    pintureteDB.deletePlayer({ playerId: playerId, tableNumber: room }).then(() => {
-                        setMyState(null);
-                    });
-                }
-            }
-            if (!isPlayers) {
-                checkPlayers();
-                setIsPlayers(true);
-            }
-            tableSocket.on("createplayer", checkPlayers);
+            tableSocket.on("create-player", checkPlayers);
             tableSocket.on("deleteplayer", checkPlayers);
             window.addEventListener('beforeunload', handleBeforeUnload);
             return () => {
-                tableSocket.off("createplayer", checkPlayers);
+                tableSocket.off("create-player", checkPlayers);
                 tableSocket.off("deleteplayer", checkPlayers);
                 window.removeEventListener('beforeunload', handleBeforeUnload);
             }
