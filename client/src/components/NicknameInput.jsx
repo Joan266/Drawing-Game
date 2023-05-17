@@ -15,11 +15,11 @@ const NicknameInput = () => {
         e.preventDefault();
         if (nickname === "") return;
         pintureteDB.createPlayer({
-            playerNickname: nickname,
-            tableId: room
+            nickname,
+            tableId: room,
         })
             .then((res) => {
-                setMyState({ playerNickname: nickname, playerId: res.data._id })
+                setMyState({ nickname, playerId: res.data._id });
             });
         setNickname("");
 

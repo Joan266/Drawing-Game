@@ -1,22 +1,27 @@
 import Player from "./models/player.js";
-import { DrawingGame } from "./game-logic.js";
 import { io } from "./index.js";
 
 export default async () => {
+  const changeStream = Player.watch(
+    { fullDocument: 'updateLookup', fullDocumentBeforeChange: 'whenAvailable' },
+  );
 
-    const changeStream = Player.watch();
-
-    changeStream.on('change', ((change) => {
+  changeStream.on('change', ((change) => {
+    const playerId = change.documentKey?._id;
+    const room = change.fullDocument?.tableId;
+    const nickname = change.fullDocument?.nickname;
+    const { operationType } = change;
+    switch (operationType) {
+      case "insert":
         console.log(change);
-        const operationType = change.operationType;
-        switch (operationType) {
-            case "insert":
-                const room = change.fullDocument.tableId;
-                console.log(room);
-                io.of("/table").to(room).emit("create-player");
-            break
-        }
-     }));
-
-}
-
+        io.of("/table").to(room).emit("create-player", { nickname, playerId });
+        break;
+      case "delete":
+        console.log(change);
+        // io.of("/table").to(room).emit("delete-player", { playerId });
+        break;
+      default:
+        console.log('Unknown operationType:', operationType);
+    }
+  }));
+};

@@ -16,7 +16,7 @@ router.post('/createplayer', playerController.createplayer);
 
 router.post('/checkplayers', playerController.checkplayers);
 
-router.post('/deleteplayer', playerController.deleteplayer);
+router.post('/deleteplayer', playerController.deletePlayer);
 
 router.post('/gameinfo', gameController.gameinfo);
 

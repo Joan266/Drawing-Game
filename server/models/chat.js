@@ -8,6 +8,10 @@ const chatSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  fase: {
+    type: String,
+    default: null,
+  },
   messages: {
     type: [{
       nickname: {

@@ -11,8 +11,7 @@ export default async () => {
   changeStream.on('change', ((change) => {
     console.log('Change chat: ', change);
     const room = change.documentKey._id;
-    const word = change.fullDocument?.word;
-    const messages = change.fullDocument?.messages;
+    const { word, fase, messages } = change.fullDocument;
     const updatedFields = change.updateDescription?.updatedFields;
     Object.keys(updatedFields).forEach(async (key) => {
       console.log(`key: ${key}`);
@@ -24,14 +23,23 @@ export default async () => {
           nickname: messageObj.nickname,
           playerId: messageObj.playerId,
           word,
+          fase,
+          io,
         });
       } else if (key === 'word') {
-        io.of('/table').to(room).emit('update-chat-info');
+        io.of('/table').to(room).emit('update-chat-word', { word });
+        if (fase !== "select-word" || !word) return;
         await DrawingGame.updateGame({
           room,
           body: {
             threeWords: [],
-            $set: { timeLeftMin: '$timeLeftMax' },
+            fase: "select-word-endfase",
+          },
+        });
+        await DrawingGame.updateChat({
+          room,
+          body: {
+            fase: "guess-word",
           },
         });
       }

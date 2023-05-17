@@ -4,7 +4,6 @@ export default (io) => {
   io.of('/table').on('connection', (socket) => {
     socket.on('join_table', (room) => {
       socket.join(room);
-
       socket.on('mousedown', (offsetX, offsetY) => {
         io.of('/table').to(room).emit('mousedown', {
           offsetX,

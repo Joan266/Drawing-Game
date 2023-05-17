@@ -3,19 +3,21 @@ import Message from './Message'
 import TableContext from '../contexts/TableContext.js';
 
 const Messages = () => {
-    const { tableSocket, gameInfo } = useContext(TableContext);
+    const { tableSocket } = useContext(TableContext);
     const [messages, setMessages] = useState([]);
     useEffect(() => {
         if (messages) {
 
-            const receivedMessage = (message) => {
-                setMessages([...messages, message])
+            const receivedMessage = (data) => {
+                console.log(data);
+                const { message, nickname } = data;
+                setMessages([...messages, { message, nickname }])
             }
             if (tableSocket) {
-                tableSocket.on('messages', receivedMessage)
+                tableSocket.on('update-chat-messages', receivedMessage)
 
                 return () => {
-                    tableSocket.off('messages', receivedMessage)
+                    tableSocket.off('update-chat-messages', receivedMessage)
                 }
             }
 
@@ -25,8 +27,8 @@ const Messages = () => {
 
     return (
         <ul className="messages">
-            {messages.map((message, index) => (
-                <Message message={message} index={index} />
+            {messages.map((data, index) => (
+                <Message data={data} index={index} />
             ))}
         </ul>
     )

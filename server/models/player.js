@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const playerSchema = new mongoose.Schema({
-  playerNickname: {
+  nickname: {
     type: String,
     required: true,
   },
@@ -19,7 +19,7 @@ const playerSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
-  guessTurn: {
+  scoreTurn: {
     type: Boolean,
     required: true,
     default: false,
