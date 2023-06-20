@@ -6,7 +6,7 @@ import { chatController } from "../controllers/chat.js";
 
 const router = express.Router();
 
-router.get('/', (req, res) => { res.send('hello world') });
+router.get('/', (req, res) => { res.send('hello world'); });
 
 router.post('/createtable', tableController.createtable);
 
@@ -16,7 +16,7 @@ router.post('/createplayer', playerController.createplayer);
 
 router.post('/checkplayers', playerController.checkplayers);
 
-router.post('/deleteplayer', playerController.deletePlayer);
+router.post('/deleteplayer', playerController.deleteplayer);
 
 router.post('/gameinfo', gameController.gameinfo);
 

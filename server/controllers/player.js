@@ -1,32 +1,40 @@
-import Player from '../models/player.js';
+import Players from '../models/players.js';
 
 export const playerController = {
 
-  createplayer: async (req, res) => {
+  createplayer: (req, res) => {
     const { nickname, tableId } = req.body;
-    const player = new Player({ nickname, tableId });
-    await player.save()
-      .then((data) => {
-        res.json(data);
+    console.log(nickname, tableId);
+    Players.findByIdAndUpdate(
+      tableId,
+      { $push: { players: { nickname } } },
+      { new: true },
+    )
+      .then((newPlayer) => {
+        const newPlayerId = newPlayer.players[newPlayer.players.length - 1]._id;
+        res.json({ newPlayerId });
       })
-      .catch((error) => res.json({ message: error }));
+      .catch((error) => {
+        console.error(error);
+      });
   },
-  checkplayers: (req, res) => {
+  checkplayers: async (req, res) => {
+    console.log(req.body.tableNumber);
     const { tableNumber } = req.body;
-    Player.find({ tableId: tableNumber })
-      .then((data) => {
-        res.json(data);
-      })
-      .catch((error) => res.json({ message: error }));
+    const playersObj = await Players.findOne({ _id: tableNumber });
+    console.log(playersObj);
+    const playersList = playersObj?.players;
+    if (!playersList) return res.status(400).send('Players list not found.');
+    return res.json(playersList);
   },
-  deletePlayer: async (req, res) => {
-    const { playerId } = req.body;
-    try {
-      await Player.findByIdAndDelete(playerId);
-      res.status(200).json({ message: 'Player deleted successfully' });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to delete player' });
-    }
+  deleteplayer: (req, res) => {
+    const { playerId, tableId } = req.body;
+    Players.findByIdAndUpdate(
+      tableId,
+      { $pull: { players: { _id: playerId } } },
+    )
+      .then(() => {
+        res.status(200).send('Player deleted successfully.');
+      });
   },
-
 };

@@ -10,46 +10,39 @@ export default async () => {
 
   changeStream.on('change', (async (change) => {
     const room = change.documentKey._id;
+    const { updateDescription, fullDocument } = change;
     const {
-      fase, turn, round, gameOn, mainPlayerId,
-      threeWords, turnScores, timeLeftMax, timeLeftMin,
-    } = change.fullDocument;
-    const { updatedFields } = change.updateDescription;
+      fase, turn, round, mainPlayerId,
+      threeWords, timeLeftMax, timeLeftMin,
+    } = fullDocument;
+    const { updatedFields } = updateDescription;
+    io.of('/table').to(room).emit('update-game-info', { fullDocument });
 
     Object.keys(updatedFields).forEach(async (key) => {
-      console.log(`key: ${key} value: ${updatedFields[key]}`);
-
       switch (key) {
         case 'gameOn':
-          console.log('Change game', change);
-          io.of('/table').to(room).emit('update-game-on', { gameOn });
+          console.log(`Game, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
           await DrawingGame.prepareNextTurn(room);
           break;
 
         case 'round':
-          console.log('Change game', change);
-          io.of('/table').to(room).emit('update-game-round', { round });
+          console.log(`Game, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
           await DrawingGame.roundHandler({
             room,
             round,
           });
           break;
         case 'fase':
-          console.log('Change game', change);
-          io.of('/table').to(room).emit('update-game-fase', { fase });
+          console.log(`Game, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
           await DrawingGame.faseHandler({
             room,
             fase,
             turn,
-            turnScores,
             mainPlayerId,
-            threeWords,
-            io,
           });
           break;
 
         case 'timeLeftMax':
-          io.of('/table').to(room).emit('update-game-timer', { timeLeftMax, timeLeftMin });
           await DrawingGame.timeLeftHandler({
             room,
             timeLeftMax,
@@ -57,10 +50,6 @@ export default async () => {
             threeWords,
             timeLeftMin,
           });
-          break;
-
-        case 'turnScores':
-          await DrawingGame.scoringHandler(room, turnScores);
           break;
 
         default:

@@ -7,7 +7,7 @@ const tableSchema = new mongoose.Schema({
   },
   _id: {
     type: Number,
-  }
+  },
 });
 
 export default mongoose.model('Table', tableSchema);

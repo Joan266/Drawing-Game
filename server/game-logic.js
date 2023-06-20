@@ -1,48 +1,44 @@
 import randomWords from 'random-words';
-import Player from './models/player.js';
+import Players from './models/players.js';
 import Game from './models/game.js';
 import Chat from './models/chat.js';
 
 export class DrawingGame {
   static async resetTurns(room) {
-    await Player.updateMany({ tableId: room }, { artistTurn: false });
+    await Players.findByIdAndUpdate(
+      room,
+      { $set: { "players.$[].artistTurn": false } },
+    )
+      .catch((error) => {
+        console.error(error);
+      });
   }
   static async resetScoreTurn(room) {
-    await Player.updateMany({ tableId: room }, { scoreTurn: false });
+    await Players.findByIdAndUpdate(
+      room,
+      { $set: { "players.$[].scoreTurn": false } },
+    )
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   static async isNextArtist(room) {
-    const player = await Player.findOneAndUpdate(
-      { artistTurn: false, tableId: room },
-      { artistTurn: true },
-      { new: true },
-    );
-    return player;
+    const isNextArtist = await Players.aggregate([
+      { $match: { _id: room } },
+      { $unwind: "$players" },
+      { $match: { "players.artistTurn": false } },
+      { $sort: { "players.createdAt": 1 } },
+      { $limit: 1 },
+    ]);
+
+    return isNextArtist;
   }
 
-  static async findPlayerWithoutScore(playerId) {
-    const playerWithoutScore = await Player.findOneAndUpdate(
-      { scoreTurn: false, _id: playerId },
-      { scoreTurn: true },
-    );
-
-    return playerWithoutScore;
-  }
-
-  static async scoringHandler(room) {
-    const players = await DrawingGame.findPlayersWithScoreLefts(room);
-    if (players.length <= 1) {
-      await DrawingGame.updateGame({
-        room,
-        body: { fase: "guess-word-endfase" },
-      });
-    }
-  }
   static async faseHandler({
-    room, fase, turn, turnScores, mainPlayerId, threeWords, io,
+    room, fase, turn, mainPlayerId,
   }) {
     if (fase === "select-word") {
-      io.of('/table').to(room).emit('update-game-3WMP', { threeWords, mainPlayerId });
       await DrawingGame.updateGame({
         room,
         body: {
@@ -77,11 +73,19 @@ export class DrawingGame {
             fase: null,
           },
         });
-        const value = (turnScores / 8 * 200);
-        await Player.findByIdAndUpdate(
-          mainPlayerId,
-          { $inc: { score: value } },
-        );
+        const playersModelInTheRoom = await Players.findById(room);
+        const playersInTheRoom = playersModelInTheRoom.players;
+        const playersWhichHasScored = playersInTheRoom.filter((obj) => obj.scoreTurn === true);
+        const value = (playersWhichHasScored.length / playersInTheRoom.length * 200);
+        console.log(`puntuación artista: ${value}, artitsId:${mainPlayerId}`);
+        console.log('playersInTheRoom: ', playersInTheRoom, 'playersWhichHasScored: ', playersWhichHasScored);
+        await Players.findByIdAndUpdate(
+          room,
+          { $inc: { "players.$[player].score": value } },
+          { arrayFilters: [{ "player._id": mainPlayerId }] },
+        ).catch((error) => {
+          console.error(error);
+        });
         if (turn > 7) {
           await DrawingGame.updateGame({
             room,
@@ -100,22 +104,32 @@ export class DrawingGame {
     message, nickname, playerId, word, fase, room, io,
   }) {
     if (message?.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
-      const playerWithoutScore = await DrawingGame.findPlayerWithoutScore(playerId);
-      if (playerWithoutScore) {
-        const gameUpdated = await DrawingGame.updateGame({
+      let timeLeftChangeValue = 2;
+      const playersModelInTheRoom = await Players.findById(room);
+      const playersInTheRoom = playersModelInTheRoom.players;
+      const playersWhichCanScore = playersInTheRoom.filter((obj) => obj.scoreTurn === false);
+      const numberOfPlayersWhichCanScore = playersWhichCanScore.length;
+      const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
+      const playerScoreTurn = player.scoreTurn;
+      console.log(`playersInTheRoom: ${playersInTheRoom}, numberOfPlayersWhichCanScore:${numberOfPlayersWhichCanScore},player: ${player}`);
+      if (playerScoreTurn === false) {
+        if (numberOfPlayersWhichCanScore <= 2) {
+          timeLeftChangeValue = 20;
+        }
+        const gameDataUpdated = await DrawingGame.updateGame({
           room,
           body: {
-            $inc: { turnScores: 1, timeLeftMin: 2 },
+            $inc: { timeLeftMin: timeLeftChangeValue },
           },
         });
-        console.log(`game: ${gameUpdated}`);
-        const score = (gameUpdated.timeLeftMax / 20 * 200);
-        const player = await Player.findByIdAndUpdate(
-          playerId,
-          { $inc: { score } },
-          { new: true },
-        );
-        io.of('/table').to(room).emit('update-player-score', { score: player.score, playerId });
+        const turnScoreInc = (gameDataUpdated.timeLeftMax / 20 * 200);
+        await Players.findByIdAndUpdate(
+          room,
+          { $inc: { "players.$[player].score": turnScoreInc }, "players.$[player].scoreTurn": true },
+          { arrayFilters: [{ "player._id": playerId }] },
+        ).catch((error) => {
+          console.error(error);
+        });
       }
     } else {
       io.of('/table').to(room).emit('update-chat-messages', { message, nickname });
@@ -159,10 +173,11 @@ export class DrawingGame {
   }
 
   static async findPlayersWithScoreLefts(room) {
-    const players = await Player.find(
-      { scoreTurn: false, tableId: room },
-      { new: true },
-    );
+    const players = await Players.aggregate([
+      { $match: { _id: room } },
+      { $unwind: "$players" },
+      { $match: { "players.scoreTurn": false } },
+    ]);
     return players;
   }
 
@@ -184,8 +199,19 @@ export class DrawingGame {
   }
 
   static async prepareNextTurn(room) {
-    const nextArtist = await DrawingGame.isNextArtist(room);
-    if (nextArtist) {
+    const isNextArtist = await DrawingGame.isNextArtist(room);
+    if (isNextArtist.length === 1) {
+      const nextArtist = isNextArtist[0].players;
+      const nextArtistId = nextArtist._id;
+      console.log('nextArtist:', nextArtist);
+      Players.findByIdAndUpdate(
+        room,
+        { $set: { "players.$[player].artistTurn": true } },
+        { arrayFilters: [{ "player._id": nextArtistId }] },
+      )
+        .catch((error) => {
+          console.error(error);
+        });
       const threeWords = randomWords({
         exactly: 3,
         formatter: (word) => word.toUpperCase(),
@@ -193,7 +219,7 @@ export class DrawingGame {
       DrawingGame.updateGame({
         room,
         body: {
-          mainPlayerId: nextArtist._id,
+          mainPlayerId: nextArtistId,
           $inc: { turn: 1 },
           threeWords,
           timeLeftMin: 0,
@@ -206,7 +232,7 @@ export class DrawingGame {
           fase: "select-word",
         },
       });
-    } else {
+    } else if (isNextArtist.length === 0) {
       DrawingGame.updateGame({
         room,
         body: {

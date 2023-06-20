@@ -10,8 +10,11 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    pintureteDB.createTable({code: codeRef.current.value})
-      .then((res) => setTableId(res.data._id))
+    pintureteDB.createTable({ code: codeRef.current.value })
+      .then((res) => {
+        setTableId(res.data.tableId);
+        console.log(res.data.tableId);
+      })
       .catch((error) => console.log(error));
   }
   return (

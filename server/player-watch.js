@@ -1,27 +1,26 @@
-import Player from "./models/player.js";
-import { io } from "./index.js";
+import Players from "./models/players.js";
+import { io } from './index.js';
 
 export default async () => {
-  const changeStream = Player.watch(
-    { fullDocument: 'updateLookup', fullDocumentBeforeChange: 'whenAvailable' },
+  const changeStream = Players.watch(
+    [{ $match: { operationType: 'update' } }],
+    { fullDocument: 'updateLookup' },
   );
 
   changeStream.on('change', ((change) => {
-    const playerId = change.documentKey?._id;
-    const room = change.fullDocument?.tableId;
-    const nickname = change.fullDocument?.nickname;
-    const { operationType } = change;
-    switch (operationType) {
-      case "insert":
-        console.log(change);
-        io.of("/table").to(room).emit("create-player", { nickname, playerId });
-        break;
-      case "delete":
-        console.log(change);
-        // io.of("/table").to(room).emit("delete-player", { playerId });
-        break;
-      default:
-        console.log('Unknown operationType:', operationType);
-    }
+    const room = change.documentKey._id;
+    const { updateDescription, fullDocument } = change;
+    const { updatedFields } = updateDescription;
+    const { players } = fullDocument;
+    console.log(`Players, updated fields:`, updatedFields, `players:`, players);
+    io.of('/table').to(room).emit('update-players-list', { players });
+    // const { updatedFields } = change.updateDescription;
+    // Object.keys(updatedFields).forEach(async (key) => {
+    //   console.log(`key: ${key} value: ${updatedFields[key]}`);
+    //   switch (key) {
+    //     default:
+    //       console.log('Unknown key:', key);
+    //   }
+    // });
   }));
 };

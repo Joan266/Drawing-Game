@@ -6,7 +6,7 @@ const GameHeader = () => {
   const { tableSocket, room, gameInfo, setGameInfo, myState } = useContext(TableContext);
 
   useEffect(() => {
-
+    console.log('myStatePlayerId: ', myState.playerId);
     if (gameInfo?.mainPlayerId === myState.playerId) {
       setGameInfo({ ...gameInfo, mainPlayer: true });
     } else {
@@ -17,65 +17,23 @@ const GameHeader = () => {
 
 
   useEffect(() => {
-
-    const updateGameTimer = (data) => {
-      setGameInfo({
-        ...gameInfo,
-        timeLeftMax: data.timeLeftMax,
-        timeLeftMin: data.timeLeftMin
-      });
+    console.log('gameInfo: ', gameInfo);
+    const updateGameInfo = (gameData) => {
+      setGameInfo({ ...gameInfo, ...gameData.fullDocument });
     }
-    const updateGameFase = (data) => {
-      console.log(`fase: ${data.fase},data: ${data}`)
-      setGameInfo({
-        ...gameInfo,
-        gameFase: data.fase
-      });
-    }
-    const updateGameRound = (data) => {
-      setGameInfo({
-        ...gameInfo,
-        round: data.round
-      });
-    }
-    const updateGameOn = (data) => {
-      setGameInfo({
-        ...gameInfo,
-        gameOn: data.gameOn
-      });
-    }
-    const updateGame3WMP = (data) => {
-      setGameInfo({
-        ...gameInfo,
-        mainPlayerId: data.mainPlayerId,
-        threeWords: data.threeWords
-      });
-    }
-
-    const updateChatInfo = (data) => {
-      setGameInfo({
-        ...gameInfo,
-        word: data.word
-      });
+    const updateChatWord = (wordData) => {
+      setGameInfo({ ...gameInfo, ...wordData });
     }
 
     if (tableSocket) {
-      tableSocket.on("update-game-timer", updateGameTimer);
-      tableSocket.on("update-game-fase", updateGameFase);
-      tableSocket.on("update-game-round", updateGameRound);
-      tableSocket.on("update-game-on", updateGameOn);
-      tableSocket.on("update-game-3WMP", updateGame3WMP);
-      tableSocket.on("update-chat-word", updateChatInfo);
+      tableSocket.on("update-game-info", updateGameInfo);
+      tableSocket.on("update-chat-word", updateChatWord);
       return () => {
-        tableSocket.off("update-game-timer", updateGameTimer);
-        tableSocket.off("update-game-fase", updateGameFase);
-        tableSocket.off("update-game-round", updateGameRound);
-        tableSocket.off("update-game-on", updateGameOn);
-        tableSocket.off("update-game-3WMP", updateGame3WMP);
-        tableSocket.off("update-chat-word", updateChatInfo);
+        tableSocket.off("update-game-info", updateGameInfo);
+        tableSocket.off("update-chat-word", updateChatWord);
       }
     }
-  }, [tableSocket, gameInfo, myState])
+  }, [tableSocket, gameInfo, setGameInfo])
 
   const startGame = () => {
     if (tableSocket) {
@@ -85,32 +43,34 @@ const GameHeader = () => {
   const selectFinalWord = (event) => {
     const finalWord = event.target.innerText;
     pintureteDB.saveWord({
-     finalWord,
+      finalWord,
       tableId: room
     });
   }
   return (
     <div className="game-header">
+
       <div>
         <button onClick={startGame}>Start game..</button>
         <p>Room number: {room}</p>
         <p>Round: {gameInfo.round}</p>
+        <p>Turn: {gameInfo.turn}</p>
       </div>
-      {gameInfo.gameOn && (gameInfo.gameFase === "select-word" || gameInfo.gameFase === "guess-word") ? (
+      {gameInfo.gameOn && (gameInfo.fase === "select-word" || gameInfo.fase === "guess-word") ? (
         <div>
           <p>timeLeftMax: {gameInfo.timeLeftMax}</p>
           <p>timeLeftMin: {gameInfo.timeLeftMin}</p>
-          <p>fase: {gameInfo.gameFase}</p>
+          <p>fase: {gameInfo.fase}</p>
         </div>
       ) : null}
-      {gameInfo.mainPlayer && gameInfo.gameFase === "select-word" ? (
+      {gameInfo.mainPlayer && gameInfo.fase === "select-word" ? (
         <div>
           {gameInfo.threeWords?.map((word, index) => (
             <button key={index} onClick={selectFinalWord}>{word}</button>
           ))}
         </div>
       ) : null}
-      {gameInfo.mainPlayer && gameInfo.gameFase === "guess-word" ? (
+      {gameInfo.mainPlayer && gameInfo.fase === "guess-word" ? (
         <div>
           <p>word: {gameInfo.word}</p>
         </div>

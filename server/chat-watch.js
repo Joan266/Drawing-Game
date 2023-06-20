@@ -7,14 +7,13 @@ export default async () => {
     [{ $match: { operationType: 'update' } }],
     { fullDocument: 'updateLookup' },
   );
-
   changeStream.on('change', ((change) => {
-    console.log('Change chat: ', change);
     const room = change.documentKey._id;
-    const { word, fase, messages } = change.fullDocument;
-    const updatedFields = change.updateDescription?.updatedFields;
+    const { updateDescription, fullDocument } = change;
+    const { word, fase, messages } = fullDocument;
+    const { updatedFields } = updateDescription;
+    console.log(`Chat, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
     Object.keys(updatedFields).forEach(async (key) => {
-      console.log(`key: ${key}`);
       if (/^messages\.\d+$/.test(key) || key === 'messages') { // check for messages.# pattern
         const messageObj = messages[messages.length - 1];
         await DrawingGame.messagesHandler({

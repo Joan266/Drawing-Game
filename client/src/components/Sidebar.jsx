@@ -6,64 +6,38 @@ import TableContext from '../contexts/TableContext.js';
 
 const Sidebar = () => {
   const [players, setPlayers] = useState([]);
-  const [isPlayers, setIsPlayers] = useState(false);
   const [playersLength, setPlayersLength] = useState(null);
-  const { tableSocket, room, myState, setMyState } = useContext(TableContext);
+  const { tableSocket, room, myState } = useContext(TableContext);
+  const checkPlayers = () => {
+    pintureteDB.checkPlayers({ tableNumber: room }).then((players) => {
+      console.log("hello", players);
+      const { data } = players;
+      if (!data) return;
+      setPlayers(data);
+      setPlayersLength(data.length);
+    });
+  };
+  useEffect(() => {
+
+    checkPlayers();
+
+    return () => {
+      // Cleanup code, if any
+    };
+  }, []);
 
   useEffect(() => {
-    const checkPlayers = () => {
-      pintureteDB.checkPlayers({ tableNumber: room }).then((players) => {
-        const { data } = players;
-        if (!data) return;
-        setPlayers(data);
-        setPlayersLength(data.length);
-      });
-    }
-    const addPlayer = (data) => {
-      const { nickname, playerId } = data;
-
-      const updatedPlayers = [...players, { nickname: nickname, _id: playerId, score: 0 }];
-      setPlayers(updatedPlayers);
-
+    const updatePlayersList = (data) => {
+      const { players } = data;
+      setPlayers(players);
     };
-
-    const deletePlayer = (data) => {
-      const { playerId } = data;
-      console.log(data);
-      setPlayers(prevPlayers => {
-        const updatedPlayers = prevPlayers.filter(player => player._id !== playerId);
-        return updatedPlayers;
-      });
-    }
-
-    const updatePlayerScore = (data) => {
-      const { score, playerId } = data;
-
-      setPlayers(prevPlayers => {
-        return prevPlayers.map(player => {
-          if (player._id === playerId) {
-            return { ...player, score };
-          }
-          return player;
-        });
-      });
-    }
-
-    if (!isPlayers) {
-      checkPlayers();
-      setIsPlayers(true);
-    }
     if (tableSocket) {
-      tableSocket.on("create-player", addPlayer);
-      tableSocket.on("delete-player", deletePlayer);
-      tableSocket.on("update-player-score", updatePlayerScore);
+      tableSocket.on("update-players-list", updatePlayersList);
       return () => {
-        tableSocket.off("create-player", addPlayer);
-        tableSocket.off("delete-player", deletePlayer);
-        tableSocket.off("update-player-score", updatePlayerScore);
+        tableSocket.off("update-players-list", updatePlayersList);
       }
     }
-  }, [myState, players, tableSocket, isPlayers, room])
+  }, [players, tableSocket])
 
 
   return (
