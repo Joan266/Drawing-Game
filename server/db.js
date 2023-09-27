@@ -15,6 +15,7 @@ export const connectDB = async () => {
     chatWatch();
     playerWatch();
   } catch (error) {
+    console.log(MONGODB_URI);
     console.error(error);
   }
 };
