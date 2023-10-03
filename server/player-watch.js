@@ -14,13 +14,5 @@ export default async () => {
     const { players } = fullDocument;
     console.log(`Players, updated fields:`, updatedFields, `players:`, players);
     io.of('/table').to(room).emit('update-players-list', { players });
-    // const { updatedFields } = change.updateDescription;
-    // Object.keys(updatedFields).forEach(async (key) => {
-    //   console.log(`key: ${key} value: ${updatedFields[key]}`);
-    //   switch (key) {
-    //     default:
-    //       console.log('Unknown key:', key);
-    //   }
-    // });
   }));
 };
