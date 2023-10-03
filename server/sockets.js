@@ -33,11 +33,15 @@ export default (io) => {
   });
 
   io.of('/table').adapter.on('create-room', (room) => {
-    console.log(`${room} has been created.`);
+    if (typeof (room) === "number") {
+      console.log(`${room} has been created.`);
+    }
   });
 
   io.of('/table').adapter.on('join-room', (room, id) => {
-    console.log(`socket ${id} has joined room ${room}`);
+    if (typeof (room) === "number") {
+      console.log(`socket ${id} has joined room ${room}`);
+    }
   });
 
   io.of('/table').adapter.on('delete-room', (room) => {
