@@ -1,6 +1,6 @@
 import Table from "../models/table.js";
 import Game from "../models/game.js";
-import Messages from "../models/chat.js";
+import Chat from "../models/chat.js";
 import Players from "../models/players.js";
 
 export const tableController = {
@@ -23,15 +23,15 @@ export const tableController = {
       const tableCode = req.body.code;
       const table = new Table({ code: tableCode });
       const game = new Game();
-      const messages = new Messages();
+      const chat = new Chat();
       const players = new Players();
       table._id = tableId;
       game._id = tableId;
-      messages._id = tableId;
+      chat._id = tableId;
       players._id = tableId;
 
       await table.save().then(async () => {
-        await messages.save();
+        await chat.save();
         await game.save();
         await players.save();
         console.log(`table ${tableId} created`);
@@ -58,16 +58,21 @@ export const tableController = {
       })
       .catch((error) => res.json({ message: error }));
   },
-  deletetable: (req, res) => {
-    const tableNumber = req.body.room;
-    Table.deleteOne({ _id: tableNumber })
-      .then(() => {
-        Game.deleteOne({ _id: tableNumber })
-          .then(() => {
-            res.json({ message: "Table deleted successfully" });
-          })
-          .catch((error) => res.json({ message: error }));
-      })
-      .catch((error) => res.json({ message: error }));
+  deletetable: async (room) => {
+    const tableNumber = room;
+    try {
+      const deletePromises = [
+        Table.deleteOne({ _id: tableNumber }),
+        Game.deleteOne({ _id: tableNumber }),
+        Chat.deleteOne({ _id: tableNumber }),
+        Players.deleteOne({ _id: tableNumber }),
+      ];
+
+      await Promise.all(deletePromises);
+
+      console.log(`Table ${tableNumber} models deleted successfully`);
+    } catch (error) {
+      console.error(error);
+    }
   },
 };
