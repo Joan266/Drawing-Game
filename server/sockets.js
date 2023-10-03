@@ -1,4 +1,5 @@
 import { DrawingGame } from './game-logic.js';
+import { tableController } from "./controllers/table.js";
 
 export default (io) => {
   io.of('/table').on('connection', (socket) => {
@@ -40,6 +41,9 @@ export default (io) => {
   });
 
   io.of('/table').adapter.on('delete-room', (room) => {
-    console.log(`room ${room} was deleted`);
+    if (typeof (room) === "number") {
+      console.log(`room ${room} was deleted socket server`);
+      tableController.deletetable(room);
+    }
   });
 };
