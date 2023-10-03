@@ -7,38 +7,31 @@ export const tableController = {
   createtable: async (req, res) => {
     try {
       const tables = await Table.find();
-      const idReacher = async () => {
-        const ids = tables ? tables.map((table) => table._id) : [];
-        let tableId;
+      const ids = tables ? tables.map((table) => table._id) : [];
+      let tableId;
 
-        do {
-          tableId = Math.floor(Math.random() * 8000) + 1000;
-        } while (ids.includes(tableId));
-
-        return tableId;
-      };
-
-      const tableId = await idReacher();
+    do {
+        tableId = Math.floor(Math.random() * 8000) + 1000;
+      } while (ids.includes(tableId));
 
       const tableCode = req.body.code;
-      const table = new Table({ code: tableCode });
-      const game = new Game();
-      const chat = new Chat();
-      const players = new Players();
-      table._id = tableId;
-      game._id = tableId;
-      chat._id = tableId;
-      players._id = tableId;
 
-      await table.save().then(async () => {
-        await chat.save();
-        await game.save();
-        await players.save();
-        console.log(`table ${tableId} created`);
-        res.json({ tableId });
-      });
+      const table = new Table({ _id: tableId, code: tableCode });
+      const game = new Game({ _id: tableId });
+      const chat = new Chat({ _id: tableId });
+      const players = new Players({ _id: tableId });
+
+      await Promise.all([
+        table.save(),
+        chat.save(),
+        game.save(),
+        players.save(),
+      ]);
+
+      console.log(`Table ${tableId} created`);
+      res.json({ tableId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(500).json({ error: 'Error al crear la tabla' });
     }
   },
