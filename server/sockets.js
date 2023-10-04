@@ -27,7 +27,13 @@ export default (io) => {
       });
 
       socket.on('start-game', async () => {
-        DrawingGame.gameOn(room);
+        DrawingGame.gameStart(room);
+      });
+      socket.on('restart-game', async () => {
+        DrawingGame.gameRestart(room);
+      });
+      socket.on('stop-game', async () => {
+        DrawingGame.gameStop(room);
       });
     });
   });
@@ -40,7 +46,7 @@ export default (io) => {
 
   io.of('/table').adapter.on('join-room', (room, id) => {
     if (typeof (room) === "number") {
-      console.log(`socket ${id} has joined room ${room}`);
+      console.log(`socket ${room} has joined room ${room}`);
     }
   });
 

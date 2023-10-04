@@ -101,38 +101,62 @@ export class DrawingGame {
     }
   }
   static async messagesHandler({
-    message, nickname, playerId, word, fase, room, io,
+    message,
+    nickname,
+    playerId,
+    word,
+    fase,
+    room,
+    io,
   }) {
-    if (message?.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
-      let timeLeftChangeValue = 2;
-      const playersModelInTheRoom = await Players.findById(room);
-      const playersInTheRoom = playersModelInTheRoom.players;
-      const playersWhichCanScore = playersInTheRoom.filter((obj) => obj.scoreTurn === false);
-      const numberOfPlayersWhichCanScore = playersWhichCanScore.length;
-      const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
-      const playerScoreTurn = player.scoreTurn;
-      console.log(`playersInTheRoom: ${playersInTheRoom}, numberOfPlayersWhichCanScore:${numberOfPlayersWhichCanScore},player: ${player}`);
-      if (playerScoreTurn === false) {
-        if (numberOfPlayersWhichCanScore <= 2) {
-          timeLeftChangeValue = 20;
+    try {
+      if (message && message.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
+        let timeLeftChangeValue = 2;
+
+        // Find players in the room
+        const playersModelInTheRoom = await Players.findById(room);
+        if (!playersModelInTheRoom) {
+          // Handle the case where the room or playersModel does not exist.
+          return;
         }
-        const gameDataUpdated = await DrawingGame.updateGame({
-          room,
-          body: {
-            $inc: { timeLeftMin: timeLeftChangeValue },
-          },
-        });
-        const turnScoreInc = (gameDataUpdated.timeLeftMax / 20 * 200);
-        await Players.findByIdAndUpdate(
-          room,
-          { $inc: { "players.$[player].score": turnScoreInc }, "players.$[player].scoreTurn": true },
-          { arrayFilters: [{ "player._id": playerId }] },
-        ).catch((error) => {
-          console.error(error);
-        });
+        const playersInTheRoom = playersModelInTheRoom.players;
+
+        // Find the current player
+        const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
+        const playerScoreTurn = player.scoreTurn;
+
+        if (!playerScoreTurn) {
+          // Filter players who can score
+          const playersWhichCanScore = playersInTheRoom.filter((obj) => obj.scoreTurn === false);
+          const numberOfPlayersWhichCanScore = playersWhichCanScore.length;
+          if (numberOfPlayersWhichCanScore <= 2) {
+            timeLeftChangeValue = 20;
+          }
+
+          // Update game data with time left change
+          const gameDataUpdated = await DrawingGame.updateGame({
+            room,
+            body: {
+              $inc: { timeLeftMin: timeLeftChangeValue },
+            },
+          });
+
+          // Calculate turn score increment
+          const turnScoreInc = (gameDataUpdated.timeLeftMax / 20) * 200;
+
+          // Update the player's score and set their turn to true
+          await Players.findByIdAndUpdate(
+            room,
+            { $inc: { "players.$[player].score": turnScoreInc }, "players.$[player].scoreTurn": true },
+            { arrayFilters: [{ "player._id": playerId }] },
+          );
+        }
+      } else {
+        // Send chat message update to all players in the room
+        io.of('/table').to(room).emit('update-chat-messages', { message, nickname });
       }
-    } else {
-      io.of('/table').to(room).emit('update-chat-messages', { message, nickname });
+    } catch (error) {
+      console.error(error);
     }
   }
   static async roundHandler({ room, round }) {
@@ -243,7 +267,21 @@ export class DrawingGame {
     }
   }
 
-  static async gameOn(room) {
+  static async gameStart(room) {
+    await DrawingGame.updateGame({
+      room,
+      body: { gameOn: true },
+    });
+  }
+
+  static async gameRestart(room) {
+    await DrawingGame.updateGame({
+      room,
+      body: { gameOn: true },
+    });
+  }
+
+  static async gameStop(room) {
     await DrawingGame.updateGame({
       room,
       body: { gameOn: true },
