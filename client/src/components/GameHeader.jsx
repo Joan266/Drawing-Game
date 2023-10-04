@@ -40,6 +40,16 @@ const GameHeader = () => {
       tableSocket.emit("start-game")
     }
   }
+  const restartGame = () => {
+    if (tableSocket) {
+      tableSocket.emit("restart-game")
+    }
+  }
+  const stopGame = () => {
+    if (tableSocket) {
+      tableSocket.emit("stop-game")
+    }
+  }
   const selectFinalWord = (event) => {
     const finalWord = event.target.innerText;
     pintureteDB.saveWord({
@@ -51,7 +61,9 @@ const GameHeader = () => {
     <div className="game-header">
 
       <div>
-        <button onClick={startGame}>Start game..</button>
+        <button onClick={startGame}>Start</button>
+        <button onClick={restartGame}>Restart</button>
+        <button onClick={stopGame}>Stop</button>
         <p>Room number: {room}</p>
         <p>Round: {gameInfo.round}</p>
         <p>Turn: {gameInfo.turn}</p>

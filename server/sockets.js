@@ -27,27 +27,27 @@ export default (io) => {
       });
 
       socket.on('start-game', async () => {
-        DrawingGame.gameOn(room);
+        DrawingGame.gameStart(room);
+      });
+      socket.on('restart-game', async () => {
+        DrawingGame.gameRestart(room);
+      });
+      socket.on('stop-game', async () => {
+        DrawingGame.gameStop(room);
       });
     });
   });
 
   io.of('/table').adapter.on('create-room', (room) => {
     if (typeof (room) === "number") {
-      console.log(`${room} has been created.`);
-    }
-  });
-
-  io.of('/table').adapter.on('join-room', (room, id) => {
-    if (typeof (room) === "number") {
-      console.log(`socket ${id} has joined room ${room}`);
+      console.log(`Socket room ${room} has been created`);
     }
   });
 
   io.of('/table').adapter.on('delete-room', (room) => {
     if (typeof (room) === "number") {
-      console.log(`room ${room} was deleted socket server`);
       tableController.deletetable(room);
+      console.log(`Socket room ${room} was deleted`);
     }
   });
 };

@@ -11,6 +11,7 @@ export const playerController = {
       { new: true },
     )
       .then((newPlayer) => {
+        console.log(newPlayer);
         const newPlayerId = newPlayer.players[newPlayer.players.length - 1]._id;
         res.json({ newPlayerId });
       })
@@ -19,10 +20,8 @@ export const playerController = {
       });
   },
   checkplayers: async (req, res) => {
-    console.log(req.body.tableNumber);
     const { tableNumber } = req.body;
     const playersObj = await Players.findOne({ _id: tableNumber });
-    console.log(playersObj);
     const playersList = playersObj?.players;
     if (!playersList) return res.status(400).send('Players list not found.');
     return res.json(playersList);
