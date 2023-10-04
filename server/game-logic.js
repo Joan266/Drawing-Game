@@ -56,7 +56,7 @@ export class DrawingGame {
             turnScores: 0,
           },
         });
-      }, 3000);
+      }, 700);
     } else if (fase === "guess-word") {
       await DrawingGame.updateGame({
         room,
@@ -76,7 +76,7 @@ export class DrawingGame {
         const playersModelInTheRoom = await Players.findById(room);
         const playersInTheRoom = playersModelInTheRoom.players;
         const playersWhichHasScored = playersInTheRoom.filter((obj) => obj.scoreTurn === true);
-        const value = (playersWhichHasScored.length / playersInTheRoom.length * 200);
+        const value = (playersWhichHasScored.length / playersInTheRoom.length * 100);
         console.log(`puntuación artista: ${value}, artitsId:${mainPlayerId}`);
         console.log('playersInTheRoom: ', playersInTheRoom, 'playersWhichHasScored: ', playersWhichHasScored);
         await Players.findByIdAndUpdate(
@@ -174,7 +174,7 @@ export class DrawingGame {
   }) {
     if (timeLeftMax <= timeLeftMin) {
       if (fase === 'select-word') {
-        if (threeWords !== []) {
+        if (threeWords.length !== 0) {
           const finalWord = await threeWords[DrawingGame.randomNumber(3)];
           await Chat.findByIdAndUpdate(
             room,
@@ -227,7 +227,7 @@ export class DrawingGame {
     if (isNextArtist.length === 1) {
       const nextArtist = isNextArtist[0].players;
       const nextArtistId = nextArtist._id;
-      console.log('nextArtist:', nextArtist);
+      console.log('nextArtist:', nextArtist.nickname);
       Players.findByIdAndUpdate(
         room,
         { $set: { "players.$[player].artistTurn": true } },
@@ -275,23 +275,32 @@ export class DrawingGame {
   }
 
   static async gameRestart(room) {
-    await DrawingGame.updateGame({
+    DrawingGame.updateChat({
       room,
-      body: { gameOn: true },
+      body: {
+        fase: null,
+        word: null,
+      },
+    });
+    DrawingGame.updateGame({
+      room,
+      body: {
+        mainPlayerId: null,
+        turn: 0,
+        threeWords: null,
+        timeLeftMin: null,
+        timeLeftMax: null,
+        round: 0,
+        fase: null,
+        gameOn: false,
+      },
     });
   }
 
   static async gameStop(room) {
     await DrawingGame.updateGame({
       room,
-      body: { gameOn: true },
-    });
-  }
-
-  static async gameOff(room) {
-    DrawingGame.updateGame({
-      room,
-      body: { gameOn: false, round: 0 },
+      body: { gameOn: false },
     });
   }
 
