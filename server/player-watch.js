@@ -9,10 +9,8 @@ export default async () => {
 
   changeStream.on('change', ((change) => {
     const room = change.documentKey._id;
-    const { updateDescription, fullDocument } = change;
-    const { updatedFields } = updateDescription;
+    const { fullDocument } = change;
     const { players } = fullDocument;
-    console.log(`Players, updated fields:`, updatedFields, `players:`, players);
     io.of('/table').to(room).emit('update-players-list', { players });
   }));
 };

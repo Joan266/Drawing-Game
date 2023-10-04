@@ -75,6 +75,7 @@ export class DrawingGame {
         });
         const playersModelInTheRoom = await Players.findById(room);
         const playersInTheRoom = playersModelInTheRoom.players;
+        console.log(`Players on room ${room}: ${playersInTheRoom}`);
         const playersWhichHasScored = playersInTheRoom.filter((obj) => obj.scoreTurn === true);
         const value = (playersWhichHasScored.length / playersInTheRoom.length * 100);
         console.log(`puntuación artista: ${value}, artitsId:${mainPlayerId}`);
@@ -120,7 +121,7 @@ export class DrawingGame {
           return;
         }
         const playersInTheRoom = playersModelInTheRoom.players;
-
+        console.log(`Players on room ${room}: ${playersInTheRoom}`);
         // Find the current player
         const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
         const playerScoreTurn = player.scoreTurn;

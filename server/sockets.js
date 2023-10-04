@@ -40,20 +40,14 @@ export default (io) => {
 
   io.of('/table').adapter.on('create-room', (room) => {
     if (typeof (room) === "number") {
-      console.log(`${room} has been created.`);
-    }
-  });
-
-  io.of('/table').adapter.on('join-room', (room, id) => {
-    if (typeof (room) === "number") {
-      console.log(`socket ${room} has joined room ${room}`);
+      console.log(`Socket room ${room} has been created`);
     }
   });
 
   io.of('/table').adapter.on('delete-room', (room) => {
     if (typeof (room) === "number") {
-      console.log(`room ${room} was deleted socket server`);
       tableController.deletetable(room);
+      console.log(`Socket room ${room} was deleted`);
     }
   });
 };
