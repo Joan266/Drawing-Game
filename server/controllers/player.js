@@ -2,10 +2,10 @@ import Players from '../models/players.js';
 
 export const playerController = {
 
-  createplayer: (req, res) => {
+  createplayer: async (req, res) => {
     const { nickname, tableId } = req.body;
     console.log(nickname, tableId);
-    Players.findByIdAndUpdate(
+    await Players.findByIdAndUpdate(
       tableId,
       { $push: { players: { nickname } } },
       { new: true },
@@ -26,9 +26,9 @@ export const playerController = {
     if (!playersList) return res.status(400).send('Players list not found.');
     return res.json(playersList);
   },
-  deleteplayer: (req, res) => {
+  deleteplayer: async (req, res) => {
     const { playerId, tableId } = req.body;
-    Players.findByIdAndUpdate(
+    await Players.findByIdAndUpdate(
       tableId,
       { $pull: { players: { _id: playerId } } },
     )

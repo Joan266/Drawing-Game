@@ -47,7 +47,7 @@ export default (io) => {
   io.of('/table').adapter.on('delete-room', (room) => {
     if (typeof (room) === "number") {
       tableController.deletetable(room);
-      console.log(`Socket room ${room} was deleted`);
+      console.log(`Table ${room} was deleted`);
     }
   });
 };

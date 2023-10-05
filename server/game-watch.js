@@ -16,7 +16,7 @@ export default async () => {
       threeWords, timeLeftMax, timeLeftMin, gameOn,
     } = fullDocument;
     const { updatedFields } = updateDescription;
-    io.of('/table').to(room).emit('update-game-info', { fullDocument });
+    io.of('/table').to(room).emit('update-game-info', { updatedFields });
     console.log(`Game, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
     if (!gameOn) {
       // Code to execute when gameOn is not truthy (e.g., when it's false or undefined)

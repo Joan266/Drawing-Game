@@ -1,9 +1,9 @@
 import Game from '../models/game.js';
 
 export const gameController = {
-  gameinfo: (req, res) => {
+  gameinfo: async (req, res) => {
     const { tableNumber } = req.body;
-    Game.findById(tableNumber)
+    await Game.findById(tableNumber)
       .then((game) => {
         res.json({
           mainPlayerId: game.mainPlayerId,

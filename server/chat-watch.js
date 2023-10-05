@@ -35,12 +35,6 @@ export default async () => {
             fase: "select-word-endfase",
           },
         });
-        await DrawingGame.updateChat({
-          room,
-          body: {
-            fase: "guess-word",
-          },
-        });
       }
     });
   }));
