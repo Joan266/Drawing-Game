@@ -77,7 +77,7 @@ export class DrawingGame {
         const playersInTheRoom = playersModelInTheRoom.players;
         console.log(`Players on room ${room}: ${playersInTheRoom}`);
         const playersWhichHasScored = playersInTheRoom.filter((obj) => obj.scoreTurn === true);
-        const value = (playersWhichHasScored.length / playersInTheRoom.length * 100);
+        let value = Math.round((playersWhichHasScored.length / playersInTheRoom.length) * 100);
         console.log(`puntuación artista: ${value}, artitsId:${mainPlayerId}`);
         console.log('playersInTheRoom: ', playersInTheRoom, 'playersWhichHasScored: ', playersWhichHasScored);
         await Players.findByIdAndUpdate(
@@ -143,7 +143,7 @@ export class DrawingGame {
           });
 
           // Calculate turn score increment
-          const turnScoreInc = (gameDataUpdated.timeLeftMax / 20) * 200;
+          let turnScoreInc = Math.round((gameDataUpdated.timeLeftMax / 20) * 200);
 
           // Update the player's score and set their turn to true
           await Players.findByIdAndUpdate(
@@ -193,7 +193,7 @@ export class DrawingGame {
         console.log('end of the turn');
       }
     } else if (timeLeftMax > timeLeftMin && (fase === "select-word" || fase === "guess-word")) {
-      DrawingGame.clock(room);
+      await DrawingGame.clock(room);
     }
   }
 
@@ -305,13 +305,13 @@ export class DrawingGame {
     });
   }
 
-  static clock(room) {
+  static async clock(room) {
     setTimeout(async () => {
       await DrawingGame.updateGame({
         room,
-        body: { $inc: { timeLeftMax: -1 } },
+        body: { $inc: { timeLeftMax: -0.5 } },
       });
-    }, 1500);
+    }, 500);
   }
 
   static randomNumber(number) {
