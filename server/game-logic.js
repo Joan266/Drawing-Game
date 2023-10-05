@@ -231,7 +231,7 @@ export class DrawingGame {
     if (isNextArtist.length === 1) {
       const nextArtist = isNextArtist[0].players;
       const nextArtistId = nextArtist._id;
-      console.log('nextArtist:', nextArtist.nickname);
+      console.log('nextArtistName:', nextArtist.nickname);
       Players.findByIdAndUpdate(
         room,
         { $set: { "players.$[player].artistTurn": true } },

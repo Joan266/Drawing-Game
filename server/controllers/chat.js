@@ -29,9 +29,9 @@ export const chatController = {
       res.status(500).send('An error occurred while saving the message.');
     }
   },
-  chatinfo: (req, res) => {
+  chatinfo: async (req, res) => {
     const { tableNumber } = req.body;
-    Chat.findById(tableNumber)
+    await Chat.findById(tableNumber)
       .then((chat) => {
         res.json({
           word: chat.word,
