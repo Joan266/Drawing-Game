@@ -19,8 +19,8 @@ const NicknameInput = () => {
             tableId: room,
         })
             .then((res) => {
-                console.log(res.data.newPlayerId);
-                setMyState({ nickname, playerId: res.data.newPlayerId });
+                console.log(res.data)
+                setMyState({ playerNickname: nickname, playerId: res.data.newPlayerId });
             });
         setNickname("");
 

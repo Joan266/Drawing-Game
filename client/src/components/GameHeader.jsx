@@ -18,8 +18,9 @@ const GameHeader = () => {
 
   useEffect(() => {
     console.log('gameInfo: ', gameInfo);
+    console.log('myState: ', myState);
     const updateGameInfo = (gameData) => {
-      setGameInfo({ ...gameInfo, ...gameData.fullDocument });
+      setGameInfo({ ...gameInfo, ...gameData.updatedFields });
     }
     const updateChatWord = (wordData) => {
       setGameInfo({ ...gameInfo, ...wordData });
@@ -33,7 +34,7 @@ const GameHeader = () => {
         tableSocket.off("update-chat-word", updateChatWord);
       }
     }
-  }, [tableSocket, gameInfo, setGameInfo])
+  }, [tableSocket, gameInfo, setGameInfo, myState])
 
   const startGame = () => {
     if (tableSocket) {
@@ -58,36 +59,46 @@ const GameHeader = () => {
     });
   }
   return (
-    <div className="game-header">
-
-      <div>
-        <button onClick={startGame}>Start</button>
-        <button onClick={restartGame}>Restart</button>
-        <button onClick={stopGame}>Stop</button>
-        <p>Room number: {room}</p>
-        <p>Round: {gameInfo.round}</p>
-        <p>Turn: {gameInfo.turn}</p>
-      </div>
-      {gameInfo.gameOn && (gameInfo.fase === "select-word" || gameInfo.fase === "guess-word") ? (
+<div className="game-header">
+  <div className="d-flex flex-row">
+    {myState.playerNickname !== null && (
+      <h3>Player {myState.playerNickname}</h3>
+    )}
+    <h4>Room number {room}</h4>
+    <button onClick={restartGame}>Restart</button>
+    <button onClick={stopGame}>Stop</button>
+    {gameInfo.gameOn ? (
+      <>
         <div>
-          <p>timeLeftMax: {gameInfo.timeLeftMax}</p>
-          <p>timeLeftMin: {gameInfo.timeLeftMin}</p>
-          <p>fase: {gameInfo.fase}</p>
+          <h4>Round: {gameInfo.round}</h4>
+          <h4>Turn: {gameInfo.turn}</h4>
         </div>
-      ) : null}
-      {gameInfo.mainPlayer && gameInfo.fase === "select-word" ? (
         <div>
-          {gameInfo.threeWords?.map((word, index) => (
-            <button key={index} onClick={selectFinalWord}>{word}</button>
-          ))}
+          {gameInfo.mainPlayer ? (
+            <>
+              {gameInfo.fase === "select-word" ? (
+                gameInfo.threeWords?.map((word, index) => (
+                  <button key={index} onClick={selectFinalWord}>
+                    {word}
+                  </button>
+                ))
+              ) : gameInfo.fase === "guess-word" ? (
+                <p>word: {gameInfo.word}</p>
+              ) : null}
+            </>
+          ) : null}
         </div>
-      ) : null}
-      {gameInfo.mainPlayer && gameInfo.fase === "guess-word" ? (
-        <div>
-          <p>word: {gameInfo.word}</p>
-        </div>
-      ) : null}
-    </div>
+        {gameInfo.fase === "select-word" || gameInfo.fase === "guess-word" ? (
+          <p>timeLeftMax: {Math.round(gameInfo.timeLeftMax)}</p>
+        ) : (
+          <h1>{gameInfo.fase}</h1>
+        )}
+      </>
+    ) : (
+      <button onClick={startGame}>Start</button>
+    )}
+  </div>
+</div>
   );
 
 }
