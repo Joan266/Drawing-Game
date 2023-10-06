@@ -2,6 +2,7 @@ import randomWords from 'random-words';
 import Players from './models/players.js';
 import Game from './models/game.js';
 import Chat from './models/chat.js';
+import { io } from './index.js';
 
 export class DrawingGame {
   static async resetTurns(room) {
@@ -42,7 +43,6 @@ export class DrawingGame {
     word,
     fase,
     room,
-    io,
   }) {
     try {
       if (message && message.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
@@ -335,13 +335,41 @@ export class DrawingGame {
     });
   }
 
-  static async clock(room) {
+  static async selectWordClock(count, room) {
     setTimeout(async () => {
-      await DrawingGame.updateGame({
-        room,
-        body: { $inc: { timeLeftMax: -0.5 } },
-      });
-    }, 500);
+      if (count !== 0) {
+        io.of('/table').to(room).emit('update-game-clock', { count: (count - 1) });
+        DrawingGame.selectWordClock((count - 1), room);
+      } else {
+        await DrawingGame.updateGame({
+          room,
+          body: {
+            fase: "select-word-endfase",
+          },
+        });
+      }
+    }, 1000);
+  }
+
+  static async guessWordClock(count, room, turn) {
+    setTimeout(async () => {
+      if (count !== 0) {
+        io.of('/table').to(room).emit('update-game-clock', { count: (count - 1) });
+        DrawingGame.selectWordClock((count - 1), room, turn);
+      } else {
+        setTimeout(async () => {
+          const gameInfo = await Game.findById(room);
+          if (gameInfo !== null && gameInfo.fase === "guess-word" && gameInfo.turn === turn) {
+            await DrawingGame.updateGame({
+              room,
+              body: {
+                fase: "guess-word-endfase",
+              },
+            });
+          }
+        }, 700);
+      }
+    }, 1000);
   }
 
   static randomNumber(number) {
