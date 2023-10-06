@@ -35,6 +35,72 @@ export class DrawingGame {
     return isNextArtist;
   }
 
+  static async messagesHandler({
+    message,
+    nickname,
+    playerId,
+    word,
+    fase,
+    room,
+    io,
+  }) {
+    try {
+      if (message && message.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
+        // Find players in the room
+        const playersModelInTheRoom = await Players.findById(room);
+        if (!playersModelInTheRoom) {
+          // Handle the case where the room or playersModel does not exist.
+          return;
+        }
+        const playersInTheRoom = playersModelInTheRoom.players;
+        console.log(`Players on room ${room}: ${playersInTheRoom}`);
+        // Find the current player
+        const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
+        const playerScoreTurn = player.scoreTurn;
+
+        if (!playerScoreTurn) {
+          // Filter players who can score
+          const playersWhichCanScore = playersInTheRoom.filter((obj) => obj.scoreTurn === false);
+          const numberOfPlayersWhichCanScore = playersWhichCanScore.length;
+          if (numberOfPlayersWhichCanScore === 1) {
+            await DrawingGame.updateGame({
+              room,
+              body: {
+                fase: "guess-word-endfase",
+              },
+            });
+          } else {
+            await DrawingGame.updateGame({
+              room,
+              body: {
+                $inc: { timeLeftMin: 2 },
+              },
+            });
+          }
+          // Update the player's score and set their turn to true
+          await Players.findByIdAndUpdate(
+            room,
+            { "players.$[player].scoreTurn": true },
+            { arrayFilters: [{ "player._id": playerId }] },
+          );
+        }
+      } else {
+        // Send chat message update to all players in the room
+        io.of('/table').to(room).emit('update-chat-messages', { message, nickname });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  static async roundHandler({ room, round }) {
+    await DrawingGame.resetTurns(room);
+    if (round < 3) {
+      await DrawingGame.prepareNextTurn(room);
+    } else {
+      console.log('END OF THE GAME');
+      DrawingGame.gameRestart(room);
+    }
+  }
   static async faseHandler({
     room, fase, turn, mainPlayerId,
   }) {
@@ -106,97 +172,52 @@ export class DrawingGame {
       }
     }
   }
-  static async messagesHandler({
-    message,
-    nickname,
-    playerId,
-    word,
-    fase,
-    room,
-    io,
-  }) {
-    try {
-      if (message && message.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
-        // Find players in the room
-        const playersModelInTheRoom = await Players.findById(room);
-        if (!playersModelInTheRoom) {
-          // Handle the case where the room or playersModel does not exist.
-          return;
-        }
-        const playersInTheRoom = playersModelInTheRoom.players;
-        console.log(`Players on room ${room}: ${playersInTheRoom}`);
-        // Find the current player
-        const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
-        const playerScoreTurn = player.scoreTurn;
-
-        if (!playerScoreTurn) {
-          // Filter players who can score
-          const playersWhichCanScore = playersInTheRoom.filter((obj) => obj.scoreTurn === false);
-          const numberOfPlayersWhichCanScore = playersWhichCanScore.length;
-          if (numberOfPlayersWhichCanScore === 1) {
-            await DrawingGame.updateGame({
-              room,
-              body: {
-                fase: "guess-word-endfase",
-              },
-            });
-          } else {
-            await DrawingGame.updateGame({
-              room,
-              body: {
-                $inc: { timeLeftMin: 2 },
-              },
-            });
-          }
-          // Update the player's score and set their turn to true
-          await Players.findByIdAndUpdate(
-            room,
-            { "players.$[player].scoreTurn": true },
-            { arrayFilters: [{ "player._id": playerId }] },
-          );
-        }
-      } else {
-        // Send chat message update to all players in the room
-        io.of('/table').to(room).emit('update-chat-messages', { message, nickname });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  static async roundHandler({ room, round }) {
-    await DrawingGame.resetTurns(room);
-    if (round < 3) {
-      await DrawingGame.prepareNextTurn(room);
-    } else {
-      console.log('END OF THE GAME');
-      DrawingGame.gameOff(room);
-    }
-  }
-
   static async timeLeftHandler({
-    room, fase, threeWords, timeLeftMax, timeLeftMin,
+    room, fase, threeWords, timeLeftMax,
   }) {
-    if (timeLeftMax === timeLeftMin) {
-      if (fase === 'select-word') {
-        if (threeWords.length !== 0) {
-          const finalWord = await threeWords[DrawingGame.randomNumber(3)];
-          await Chat.findByIdAndUpdate(
+    switch (fase) {
+      case 'select-word':
+        if (timeLeftMax === 0) {
+          if (threeWords.length !== 0) {
+            const finalWord = await threeWords[DrawingGame.randomNumber(3)];
+            await Chat.findByIdAndUpdate(
+              room,
+              { word: finalWord, fase: "guess-word" },
+            );
+          }
+          await DrawingGame.resetScoreTurn(room);
+          await DrawingGame.updateGame({
             room,
-            { word: finalWord },
-          );
+            body: {
+              threeWords: [],
+              fase: "select-word-endfase",
+              turnScore: 0,
+            },
+          });
+          setTimeout(async () => {
+            await DrawingGame.updateGame({
+              room,
+              body: {
+                timeLeftMax: 20,
+                fase: "guess-word",
+              },
+            });
+          }, 3000);
+        } else if (timeLeftMax > 0) {
+          await DrawingGame.clock(room);
         }
-      } else if (fase === 'guess-word') {
-        await DrawingGame.updateGame({
-          room,
-          body: {
-            fase: "guess-word-endfase",
-          },
-        });
 
-        console.log('end of the turn');
-      }
-    } else if (timeLeftMax > timeLeftMin && (fase === "select-word" || fase === "guess-word")) {
-      await DrawingGame.clock(room);
+        break;
+
+      case 'guess-word':
+        break;
+
+      case 'guess-word-endfase':
+
+        break;
+
+      default:
+        console.log('Unknown fase:', fase);
     }
   }
 
@@ -232,32 +253,32 @@ export class DrawingGame {
       const nextArtist = isNextArtist[0].players;
       const nextArtistId = nextArtist._id;
       console.log('nextArtistName:', nextArtist.nickname);
-      Players.findByIdAndUpdate(
+      await Players.findByIdAndUpdate(
         room,
-        { $set: { "players.$[player].artistTurn": true } },
+        {
+          $set: {
+            "players.$[player].artistTurn": true,
+            "players.$[player].scoreTurn": true,
+          },
+        },
         { arrayFilters: [{ "player._id": nextArtistId }] },
-      )
-        .catch((error) => {
-          console.error(error);
-        });
+      );
       const threeWords = randomWords({
         exactly: 3,
         formatter: (word) => word.toUpperCase(),
       });
-      await Players.findByIdAndUpdate(
-        room,
-        { "players.$[player].scoreTurn": true },
-        { arrayFilters: [{ "player._id": nextArtistId }] },
-      );
-      DrawingGame.updateGame({
-        room,
-        body: {
-          mainPlayerId: nextArtistId,
-          $inc: { turn: 1 },
-          threeWords,
-          fase: 'select-word',
-        },
-      });
+      setTimeout(async () => {
+        DrawingGame.updateGame({
+          room,
+          body: {
+            mainPlayerId: nextArtistId,
+            $inc: { turn: 1 },
+            threeWords,
+            fase: 'select-word',
+            timeLeftMax: 20,
+          },
+        });
+      }, 3000);
       DrawingGame.updateChat({
         room,
         body: {
@@ -283,6 +304,7 @@ export class DrawingGame {
   }
 
   static async gameRestart(room) {
+    await DrawingGame.resetTurns(room);
     DrawingGame.updateChat({
       room,
       body: {
@@ -301,6 +323,7 @@ export class DrawingGame {
         round: 0,
         fase: null,
         gameOn: false,
+        turnScore: 0,
       },
     });
   }

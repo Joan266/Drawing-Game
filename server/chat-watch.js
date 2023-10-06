@@ -28,11 +28,14 @@ export default async () => {
       } else if (key === 'word') {
         io.of('/table').to(room).emit('update-chat-word', { word });
         if (fase !== "select-word" || !word) return;
+        await Chat.findByIdAndUpdate(
+          room,
+          { fase: "guess-word" },
+        );
         await DrawingGame.updateGame({
           room,
           body: {
             threeWords: [],
-            fase: "select-word-endfase",
           },
         });
       }

@@ -13,7 +13,7 @@ export default async () => {
     const { updateDescription, fullDocument } = change;
     const {
       fase, turn, round, mainPlayerId,
-      threeWords, timeLeftMax, timeLeftMin, gameOn,
+      threeWords, timeLeftMax, gameOn,
     } = fullDocument;
     const { updatedFields } = updateDescription;
     io.of('/table').to(room).emit('update-game-info', { updatedFields });
@@ -35,14 +35,14 @@ export default async () => {
           });
           break;
 
-        case 'fase':
-          await DrawingGame.faseHandler({
-            room,
-            fase,
-            turn,
-            mainPlayerId,
-          });
-          break;
+        // case 'fase':
+        //   await DrawingGame.faseHandler({
+        //     room,
+        //     fase,
+        //     turn,
+        //     mainPlayerId,
+        //   });
+        //   break;
 
         case 'timeLeftMax':
           await DrawingGame.timeLeftHandler({
@@ -50,7 +50,6 @@ export default async () => {
             timeLeftMax,
             fase,
             threeWords,
-            timeLeftMin,
           });
           break;
 
