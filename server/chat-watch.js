@@ -26,7 +26,6 @@ export default async () => {
           io,
         });
       } else if (key === 'word') {
-        io.of('/table').to(room).emit('update-chat-word', { word });
         if (fase !== "select-word" || !word) return;
         await Chat.findByIdAndUpdate(
           room,

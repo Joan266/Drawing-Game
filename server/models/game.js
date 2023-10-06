@@ -20,10 +20,6 @@ const gameSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  timeLeftMax: {
-    type: Number,
-    default: 0,
-  },
   threeWords: {
     type: Array,
     default: [],

@@ -12,19 +12,20 @@ export default async () => {
     const room = change.documentKey._id;
     const { updateDescription, fullDocument } = change;
     const {
-      fase, turn, round, mainPlayerId,
-      threeWords, timeLeftMax, gameOn,
+      fase, turn, round, scoreTurn,
+      threeWords, gameOn, mainPlayerId,
     } = fullDocument;
     const { updatedFields } = updateDescription;
-    io.of('/table').to(room).emit('update-game-info', { updatedFields });
     console.log(`Game, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
     if (!gameOn) {
       // Code to execute when gameOn is not truthy (e.g., when it's false or undefined)
+      io.of('/table').to(room).emit('update-game-info', { updatedFields });
       return;
     }
     Object.keys(updatedFields).forEach(async (key) => {
       switch (key) {
         case 'gameOn':
+          io.of('/table').to(room).emit('update-game-info', { updatedFields });
           await DrawingGame.prepareNextTurn(room);
           break;
 
@@ -35,21 +36,14 @@ export default async () => {
           });
           break;
 
-        // case 'fase':
-        //   await DrawingGame.faseHandler({
-        //     room,
-        //     fase,
-        //     turn,
-        //     mainPlayerId,
-        //   });
-        //   break;
-
-        case 'timeLeftMax':
-          await DrawingGame.timeLeftHandler({
+        case 'fase':
+          await DrawingGame.faseHandler({
             room,
-            timeLeftMax,
             fase,
+            turn,
             threeWords,
+            scoreTurn,
+            mainPlayerId,
           });
           break;
 
