@@ -16,11 +16,11 @@ const Table = () => {
   const [gameInfo, setGameInfo] = useState({ mainPlayer: false, word: null, round: null });
   const [tableSocket, setTableSocket] = useState(null);
   useEffect(() => {
+    console.log(myState)
     const handleBeforeUnload = async () => {
       if (myState.playerId) {
         const { playerId } = myState;
         await pintureteDB.deletePlayer({ playerId });
-        // setMyState(null);
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -37,8 +37,7 @@ const Table = () => {
       tableSocket.emit("join_table", room);
     });
 
-    tableSocket.on("disconnect", async () => {
-
+    tableSocket.on("disconnect", () => {
     });
 
     return () => {

@@ -15,7 +15,7 @@ const ChatInput = () => {
                     tableId: room,
                     messageInfo: {
                         playerId: myState.playerId,
-                        nickname: myState.nickname,
+                        nickname: myState.playerNickname,
                         message: messageInput
                     }
                 }
