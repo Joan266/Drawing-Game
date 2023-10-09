@@ -4,7 +4,19 @@ const playersSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
-  players: {
+  numberOfScoreTurns: {
+    type: Number,
+    default: 0,
+  },
+  numberOfArtistTurns: {
+    type: Number,
+    default: 0,
+  },
+  numberOfPlayers: {
+    type: Number,
+    default: 0,
+  },
+  playersArray: {
     type: [{
       nickname: {
         type: String,
@@ -24,10 +36,6 @@ const playersSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false,
-      },
-      createdAt: {
-        type: Date,
-        default: Date.now,
       },
     }],
     default: [],

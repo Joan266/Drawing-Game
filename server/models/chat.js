@@ -10,21 +10,11 @@ const chatSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      playerId: {
-        type: String,
-        required: true,
-      },
       messageInput: {
         type: String,
         required: true,
       },
     }],
-    validate: {
-      validator(v) {
-        return v.length <= 10;
-      },
-      message: 'The array of messages cant have more than 10 messages',
-    },
     default: [],
   },
 });

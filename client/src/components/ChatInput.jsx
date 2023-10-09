@@ -26,7 +26,6 @@ const ChatInput = () => {
 
                 PintureteDataService.saveMessage({
                     room,
-                    playerId,
                     playerNickname,
                     messageInput,
                 });

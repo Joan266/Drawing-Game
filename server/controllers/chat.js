@@ -3,7 +3,7 @@ import Chat from '../models/chat.js';
 export const chatController = {
   saveMessage: async (req, res) => {
     const {
-      room, playerId, playerNickname, messageInput,
+      room, playerNickname, messageInput,
     } = req.body;
     try {
       await Chat.findByIdAndUpdate(
@@ -11,7 +11,6 @@ export const chatController = {
         {
           $push: {
             messages: {
-              playerId,
               playerNickname,
               messageInput,
             },

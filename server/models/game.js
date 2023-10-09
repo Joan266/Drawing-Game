@@ -32,10 +32,6 @@ const gameSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  turnScore: {
-    type: Number,
-    default: 0,
-  },
 });
 
 export default mongoose.model('Game', gameSchema);
