@@ -10,34 +10,10 @@ export default async () => {
   changeStream.on('change', ((change) => {
     const room = change.documentKey._id;
     const { updateDescription, fullDocument } = change;
-    const { word, fase, messages } = fullDocument;
     const { updatedFields } = updateDescription;
     console.log(`Chat, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
     Object.keys(updatedFields).forEach(async (key) => {
-      if (/^messages\.\d+$/.test(key) || key === 'messages') { // check for messages.# pattern
-        const messageObj = messages[messages.length - 1];
-        await DrawingGame.messagesHandler({
-          room,
-          message: messageObj.message,
-          nickname: messageObj.nickname,
-          playerId: messageObj.playerId,
-          word,
-          fase,
-          io,
-        });
-      } else if (key === 'word') {
-        if (fase !== "select-word" || !word) return;
-        await Chat.findByIdAndUpdate(
-          room,
-          { fase: "guess-word" },
-        );
-        await DrawingGame.updateGame({
-          room,
-          body: {
-            threeWords: [],
-          },
-        });
-      }
+
     });
   }));
 };
