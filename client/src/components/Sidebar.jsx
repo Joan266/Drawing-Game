@@ -11,7 +11,7 @@ const Sidebar = () => {
 
   const checkPlayers = async () => {
     try {
-      const response = await pintureteDB.checkPlayers({ tableNumber: room });
+      const response = await pintureteDB.checkPlayers({ room });
       const { data } = response;
       if (data) {
         setPlayers(data);
@@ -28,8 +28,8 @@ const Sidebar = () => {
 
   useEffect(() => {
     const updatePlayersList = (data) => {
-      const { players } = data;
-      setPlayers(players);
+      const { playersArray } = data;
+      setPlayers(playersArray);
     };
 
     if (tableSocket) {

@@ -162,6 +162,14 @@ export class DrawingGame {
     );
     return chatUpdated;
   }
+  static async updatePlayers({ room, body }) {
+    const playersUpdated = await Players.findByIdAndUpdate(
+      room,
+      body,
+      { new: true },
+    );
+    return playersUpdated;
+  }
 
   static async prepareTurn(room) {
     const { playersArray, numberOfArtistTurns, numberOfPlayers } = await Players.findById(room);

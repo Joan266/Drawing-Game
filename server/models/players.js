@@ -1,9 +1,29 @@
 import mongoose from 'mongoose';
 
-const playersSchema = new mongoose.Schema({
-  _id: {
-    type: Number,
+const playerSchema = new mongoose.Schema({
+  playerNickname: {
+    type: String,
+    required: true,
   },
+  score: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  artistTurn: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  scoreTurn: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+});
+
+const playersSchema = new mongoose.Schema({
+  _id: Number,
   numberOfScoreTurns: {
     type: Number,
     default: 0,
@@ -17,27 +37,7 @@ const playersSchema = new mongoose.Schema({
     default: 0,
   },
   playersArray: {
-    type: [{
-      nickname: {
-        type: String,
-        required: true,
-      },
-      score: {
-        type: Number,
-        required: true,
-        default: 0,
-      },
-      artistTurn: {
-        type: Boolean,
-        required: true,
-        default: false,
-      },
-      scoreTurn: {
-        type: Boolean,
-        required: true,
-        default: false,
-      },
-    }],
+    type: [playerSchema],
     default: [],
   },
 });

@@ -24,11 +24,11 @@ const ChatInput = () => {
                     word,
                 });
 
-                PintureteDataService.saveMessage({
-                    room,
-                    playerNickname,
-                    messageInput,
-                });
+                // PintureteDataService.saveMessage({
+                //     room,
+                //     playerNickname,
+                //     messageInput,
+                // });
             }
             setMessageInput("");
         }

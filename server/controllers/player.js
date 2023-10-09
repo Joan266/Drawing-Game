@@ -1,39 +1,64 @@
 import Players from '../models/players.js';
 
 export const playerController = {
+  createPlayer: async (req, res) => {
+    try {
+      const { room, playerNickname } = req.body;
+      console.log(playerNickname, room);
 
-  createplayer: async (req, res) => {
-    const { nickname, tableId } = req.body;
-    console.log(nickname, tableId);
-    await Players.findByIdAndUpdate(
-      tableId,
-      { $push: { players: { nickname } } },
-      { new: true },
-    )
-      .then((newPlayer) => {
-        console.log(newPlayer);
-        const newPlayerId = newPlayer.players[newPlayer.players.length - 1]._id;
-        res.json({ newPlayerId });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      const newPlayer = await Players.findByIdAndUpdate(
+        room,
+        { $push: { playersArray: { playerNickname } } },
+        { new: true },
+      );
+
+      if (!newPlayer) {
+        // Handle the case where Players.findByIdAndUpdate returns null
+        return res.status(404).json({ error: 'Room not found' });
+      }
+
+      const newPlayerId = newPlayer.playersArray[newPlayer.playersArray.length - 1]._id;
+      return res.json({ newPlayerId });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   },
-  checkplayers: async (req, res) => {
-    const { tableNumber } = req.body;
-    const playersObj = await Players.findOne({ _id: tableNumber });
-    const playersList = playersObj?.players;
-    if (!playersList) return res.status(400).send('Players list not found.');
-    return res.json(playersList);
+
+  checkPlayers: async (req, res) => {
+    try {
+      const { room } = req.body;
+
+      // Use async/await to find the playersObj
+      const playersObj = await Players.findOne({ _id: room });
+
+      if (!playersObj) {
+        // Handle the case where Players.findOne returns null
+        return res.status(404).json({ error: 'Room not found' });
+      }
+
+      const playersList = playersObj.playersArray;
+      return res.json(playersList);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   },
-  deleteplayer: async (req, res) => {
-    const { playerId, tableId } = req.body;
-    await Players.findByIdAndUpdate(
-      tableId,
-      { $pull: { players: { _id: playerId } } },
-    )
-      .then(() => {
-        res.status(200).send('Player deleted successfully.');
-      });
+
+  deletePlayer: async (req, res) => {
+    try {
+      const { playerId, tableId } = req.body;
+
+      // Use async/await instead of .then() and .catch()
+      await Players.findByIdAndUpdate(
+        tableId,
+        { $pull: { playersArray: { _id: playerId } } }
+      );
+
+      return res.status(200).send('Player deleted successfully.');
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   },
 };

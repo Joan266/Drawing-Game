@@ -1,7 +1,7 @@
 import Chat from '../models/chat.js';
 
 export const chatController = {
-  saveMessage: async (req, res) => {
+  savemessage: async (req, res) => {
     const {
       room, playerNickname, messageInput,
     } = req.body;
