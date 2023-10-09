@@ -4,17 +4,9 @@ const chatSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
-  word: {
-    type: String,
-    default: null,
-  },
-  fase: {
-    type: String,
-    default: null,
-  },
   messages: {
     type: [{
-      nickname: {
+      playerNickname: {
         type: String,
         required: true,
       },
@@ -22,7 +14,7 @@ const chatSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      message: {
+      messageInput: {
         type: String,
         required: true,
       },
