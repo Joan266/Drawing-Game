@@ -87,7 +87,7 @@ export class DrawingGame {
     }
   }
   static async faseHandler({
-    room, fase, turn, threeWords, scoreTurn, mainPlayerId,
+    room, fase, turn, threeWords, mainPlayerId, word,
   }) {
     try {
       switch (fase) {
@@ -96,21 +96,17 @@ export class DrawingGame {
           break;
 
         case 'select-word-endfase':
-          if (threeWords.length !== 0) {
-            const finalWord = threeWords[DrawingGame.randomNumber(3)];
-            await Chat.findByIdAndUpdate(
-              room,
-              { word: finalWord, fase: 'guess-word' },
-            );
+          const body = {
+            threeWords: [],
+            fase: 'guess-word',
+          };
+          if (!word) {
+            body.word = threeWords[DrawingGame.randomNumber(3)];
           }
           await DrawingGame.resetScoreTurn(room);
           await DrawingGame.updateGame({
             room,
-            body: {
-              threeWords: [],
-              fase: 'guess-word',
-              turnScore: 0,
-            },
+            body,
           });
           break;
 
@@ -119,12 +115,11 @@ export class DrawingGame {
           break;
 
         case 'guess-word-endfase':
-          const playersModel = await Players.findById(room);
-          const playersNum = playersModel.players.length;
-          const points = Math.round((scoreTurn / playersNum) * 20);
+          const { numberOfScoreTurns, numberOfPlayers } = await Players.findById(room);
+          const points = Math.round((numberOfScoreTurns / numberOfPlayers) * 20);
           await Players.findByIdAndUpdate(
             room,
-            { $inc: { 'players.$[player].score': points } },
+            { $inc: { 'playersArray.$[player].score': points } },
             { arrayFilters: [{ 'player._id': mainPlayerId }] },
           );
           await DrawingGame.prepareTurn(room);
@@ -180,8 +175,8 @@ export class DrawingGame {
         room,
         {
           $set: {
-            "players.$[player].artistTurn": true,
-            "players.$[player].scoreTurn": true,
+            "playersArray.$[player].artistTurn": true,
+            "playersArray.$[player].scoreTurn": true,
           },
         },
         { arrayFilters: [{ "player._id": artistId }] },
@@ -219,14 +214,7 @@ export class DrawingGame {
 
   static async gameRestart(room) {
     await DrawingGame.resetTurns(room);
-    DrawingGame.updateChat({
-      room,
-      body: {
-        fase: null,
-        word: null,
-      },
-    });
-    DrawingGame.updateGame({
+    await DrawingGame.updateGame({
       room,
       body: {
         mainPlayerId: null,
@@ -235,7 +223,7 @@ export class DrawingGame {
         round: 0,
         fase: null,
         gameOn: false,
-        turnScore: 0,
+        word: null,
       },
     });
   }
