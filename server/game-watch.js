@@ -37,14 +37,16 @@ export default async () => {
           break;
 
         case 'fase':
-          await DrawingGame.faseHandler({
-            room,
-            fase,
-            turn,
-            threeWords,
-            scoreTurn,
-            mainPlayerId,
-          });
+          if (fase) {
+            await DrawingGame.faseHandler({
+              room,
+              fase,
+              turn,
+              threeWords,
+              scoreTurn,
+              mainPlayerId,
+            });
+          }
           break;
 
         default:
