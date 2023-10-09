@@ -25,18 +25,6 @@ export class DrawingGame {
       });
   }
 
-  static async isNextArtist(room) {
-    const isNextArtist = await Players.aggregate([
-      { $match: { _id: room } },
-      { $unwind: "$players" },
-      { $match: { "players.artistTurn": false } },
-      { $sort: { "players.createdAt": 1 } },
-      { $limit: 1 },
-    ]);
-
-    return isNextArtist;
-  }
-
   static async messagesHandler({
     message,
     nickname,
@@ -49,12 +37,7 @@ export class DrawingGame {
       if (message && message.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
         // Find players in the room
         const playersModelInTheRoom = await Players.findById(room);
-        if (!playersModelInTheRoom) {
-          // Handle the case where the room or playersModel does not exist.
-          return;
-        }
         const playersInTheRoom = playersModelInTheRoom.players;
-        console.log(`Players on room ${room}: ${playersInTheRoom}`);
         // Find the current player
         const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
         const playerScoreTurn = player.scoreTurn;
@@ -78,6 +61,7 @@ export class DrawingGame {
               },
             });
           }
+
           // Update the player's score and set their turn to true
           await Players.findByIdAndUpdate(
             room,
@@ -96,7 +80,7 @@ export class DrawingGame {
   static async roundHandler({ room, round }) {
     await DrawingGame.resetTurns(room);
     if (round < 3) {
-      await DrawingGame.prepareNextTurn(room);
+      await DrawingGame.prepareTurn(room);
     } else {
       console.log('END OF THE GAME');
       DrawingGame.gameRestart(room);
@@ -143,7 +127,7 @@ export class DrawingGame {
             { $inc: { 'players.$[player].score': points } },
             { arrayFilters: [{ 'player._id': mainPlayerId }] },
           );
-          await DrawingGame.prepareNextTurn(room);
+          await DrawingGame.prepareTurn(room);
           break;
 
         default:
@@ -178,13 +162,20 @@ export class DrawingGame {
     );
     return chatUpdated;
   }
+  static async updatePlayers({ room, body }) {
+    const playersUpdated = await Players.findByIdAndUpdate(
+      room,
+      body,
+      { new: true },
+    );
+    return playersUpdated;
+  }
 
-  static async prepareNextTurn(room) {
-    const isNextArtist = await DrawingGame.isNextArtist(room);
-    if (isNextArtist.length === 1) {
-      const nextArtist = isNextArtist[0].players;
-      const nextArtistId = nextArtist._id;
-      console.log('nextArtistName:', nextArtist.nickname);
+  static async prepareTurn(room) {
+    const { playersArray, numberOfArtistTurns, numberOfPlayers } = await Players.findById(room);
+    if (numberOfArtistTurns !== numberOfPlayers) {
+      const playersWhichCanBeArtist = playersArray.filter((obj) => obj.artistTurn === false);
+      const artistId = playersWhichCanBeArtist[0]._id;
       await Players.findByIdAndUpdate(
         room,
         {
@@ -193,7 +184,7 @@ export class DrawingGame {
             "players.$[player].scoreTurn": true,
           },
         },
-        { arrayFilters: [{ "player._id": nextArtistId }] },
+        { arrayFilters: [{ "player._id": artistId }] },
       );
       const threeWords = randomWords({
         exactly: 3,
@@ -202,19 +193,13 @@ export class DrawingGame {
       DrawingGame.updateGame({
         room,
         body: {
-          mainPlayerId: nextArtistId,
+          mainPlayerId: artistId,
           $inc: { turn: 1 },
           threeWords,
           fase: 'select-word',
         },
       });
-      DrawingGame.updateChat({
-        room,
-        body: {
-          fase: "select-word",
-        },
-      });
-    } else if (isNextArtist.length === 0) {
+    } else if (numberOfArtistTurns === numberOfPlayers) {
       DrawingGame.updateGame({
         room,
         body: {

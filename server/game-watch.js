@@ -26,7 +26,7 @@ export default async () => {
       switch (key) {
         case 'gameOn':
           io.of('/table').to(room).emit('update-game-info', { updatedFields });
-          await DrawingGame.prepareNextTurn(room);
+          await DrawingGame.prepareTurn(room);
           break;
 
         case 'round':

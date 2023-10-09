@@ -4,7 +4,7 @@ const Player = (props) => {
 
   return (
     <div className="player" key={props.index}>
-      <p>{props.data.nickname}</p>
+      <p>{props.data.playerNickname}</p>
       <p>{props.data.score}</p>
     </div>
   )

@@ -4,35 +4,17 @@ const chatSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
-  word: {
-    type: String,
-    default: null,
-  },
-  fase: {
-    type: String,
-    default: null,
-  },
   messages: {
     type: [{
-      nickname: {
+      playerNickname: {
         type: String,
         required: true,
       },
-      playerId: {
-        type: String,
-        required: true,
-      },
-      message: {
+      messageInput: {
         type: String,
         required: true,
       },
     }],
-    validate: {
-      validator(v) {
-        return v.length <= 10;
-      },
-      message: 'The array of messages cant have more than 10 messages',
-    },
     default: [],
   },
 });

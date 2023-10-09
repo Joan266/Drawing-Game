@@ -12,18 +12,14 @@ router.post('/createtable', tableController.createtable);
 
 router.post('/checktable', tableController.checktable);
 
-router.post('/createplayer', playerController.createplayer);
+router.post('/createplayer', playerController.createPlayer);
 
-router.post('/checkplayers', playerController.checkplayers);
+router.post('/checkplayers', playerController.checkPlayers);
 
-router.post('/deleteplayer', playerController.deleteplayer);
+router.post('/deleteplayer', playerController.deletePlayer);
 
 router.post('/gameinfo', gameController.gameinfo);
 
-router.post('/chatinfo', chatController.chatinfo);
-
 router.post('/savemessage', chatController.savemessage);
-
-router.post('/saveword', chatController.saveword);
 
 export default router;

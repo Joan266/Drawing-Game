@@ -5,24 +5,24 @@ import TableContext from '../contexts/TableContext.js';
 
 const NicknameInput = () => {
     const { room, setMyState } = useContext(TableContext);
-    const [nickname, setNickname] = useState("");
+    const [playerNickname, setplayerNickname] = useState("");
 
     const handleChange = (event) => {
-        setNickname(event.target.value);
+        setplayerNickname(event.target.value);
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (nickname === "") return;
+        if (playerNickname === "") return;
         pintureteDB.createPlayer({
-            nickname,
-            tableId: room,
+            room,
+            playerNickname,
         })
             .then((res) => {
-                console.log(res.data)
-                setMyState({ playerNickname: nickname, playerId: res.data.newPlayerId });
+                console.log(res.data.newPlayerId)
+                setMyState({ playerNickname, playerId: res.data.newPlayerId });
             });
-        setNickname("");
+        setplayerNickname("");
 
     };
 
@@ -30,7 +30,7 @@ const NicknameInput = () => {
         <>
 
             <form className='input' onSubmit={handleSubmit}>
-                <label><input type="text" placeholder='Join the game..' value={nickname} onChange={handleChange} /></label>
+                <label><input type="text" placeholder='Join the game..' value={playerNickname} onChange={handleChange} /></label>
             </form>
 
         </>

@@ -4,6 +4,10 @@ const gameSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
+  gameState: {
+    type: Boolean,
+    default: false,
+  },
   round: {
     type: Number,
     default: 0,
@@ -16,21 +20,17 @@ const gameSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  gameOn: {
-    type: Boolean,
-    default: false,
+  fase: {
+    type: String,
+    default: null,
   },
   threeWords: {
     type: Array,
     default: [],
   },
-  fase: {
+  word: {
     type: String,
     default: null,
-  },
-  turnScore: {
-    type: Number,
-    default: 0,
   },
 });
 

@@ -35,6 +35,24 @@ export default (io) => {
       socket.on('stop-game', async () => {
         DrawingGame.gameStop(room);
       });
+
+      socket.on('chat-message', async (data) => {
+        const {
+          playerId,
+          playerNickname,
+          messageInput,
+          fase,
+          word,
+        } = data;
+        await DrawingGame.messagesHandler({
+          room,
+          messageInput,
+          playerNickname,
+          playerId,
+          word,
+          fase,
+        });
+      });
     });
   });
 

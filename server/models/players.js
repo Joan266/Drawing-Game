@@ -1,35 +1,43 @@
 import mongoose from 'mongoose';
 
-const playersSchema = new mongoose.Schema({
-  _id: {
-    type: Number,
+const playerSchema = new mongoose.Schema({
+  playerNickname: {
+    type: String,
+    required: true,
   },
-  players: {
-    type: [{
-      nickname: {
-        type: String,
-        required: true,
-      },
-      score: {
-        type: Number,
-        required: true,
-        default: 0,
-      },
-      artistTurn: {
-        type: Boolean,
-        required: true,
-        default: false,
-      },
-      scoreTurn: {
-        type: Boolean,
-        required: true,
-        default: false,
-      },
-      createdAt: {
-        type: Date,
-        default: Date.now,
-      },
-    }],
+  score: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  artistTurn: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  scoreTurn: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+});
+
+const playersSchema = new mongoose.Schema({
+  _id: Number,
+  numberOfScoreTurns: {
+    type: Number,
+    default: 0,
+  },
+  numberOfArtistTurns: {
+    type: Number,
+    default: 0,
+  },
+  numberOfPlayers: {
+    type: Number,
+    default: 0,
+  },
+  playersArray: {
+    type: [playerSchema],
     default: [],
   },
 });
