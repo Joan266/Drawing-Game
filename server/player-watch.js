@@ -1,39 +1,45 @@
 import Players from "./models/players.js";
 import { io } from './index.js';
-import { DrawingGame } from "./game-logic.js";
 
 export default async () => {
   const changeStream = Players.watch(
     [{ $match: { operationType: 'update' } }],
     { fullDocument: 'updateLookup' },
   );
-  changeStream.on('change', ((change) => {
+
+  changeStream.on('change', async (change) => {
     const room = change.documentKey._id;
-    const { updateDescription, fullDocument } = change;
+    const { fullDocument } = change;
     const {
       playersArray,
+      numberOfArtistTurns,
+      numberOfScoreTurns,
+      numberOfPlayers,
     } = fullDocument;
-    const { updatedFields } = updateDescription;
-    console.log(`Players, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
-    Object.keys(updatedFields).forEach(async (key) => {
-      if (/^playersArray\.\d+$/.test(key) || key === 'playersArray') {
-        await DrawingGame.updatePlayers({
-          room,
-          body: {
-            numberOfPlayers: playersArray.length,
-          },
-        });
-      } else if (/^playersArray\.\d+\.artistTurn$/.test(key) || /^playersArray\.\d+\.scoreTurn$/.test(key)) {
-        const numberOfArtistTurns = playersArray.filter((obj) => obj.artistTurn === true).length;
-        const numberOfScoreTurns = playersArray.filter((obj) => obj.scoreTurn === true).length;
-        await DrawingGame.updatePlayers({
-          room,
-          body: {
-            numberOfArtistTurns,
-            numberOfScoreTurns,
-          },
-        });
+
+    const currentNumberOfArtistTurns = playersArray.filter((obj) => obj.artistTurn === true).length;
+    const currentNumberOfScoreTurns = playersArray.filter((obj) => obj.scoreTurn === true).length;
+    const currentNumberOfPlayers = playersArray.length;
+    const updateObj = {};
+
+    if (numberOfArtistTurns !== currentNumberOfArtistTurns) {
+      updateObj.numberOfArtistTurns = currentNumberOfArtistTurns;
+    }
+    if (numberOfScoreTurns !== currentNumberOfScoreTurns) {
+      updateObj.numberOfScoreTurns = currentNumberOfScoreTurns;
+    }
+    if (numberOfPlayers !== currentNumberOfPlayers) {
+      updateObj.numberOfPlayers = currentNumberOfPlayers;
+    }
+
+    if (Object.keys(updateObj).length > 0) {
+      try {
+        await Players.updateOne({ _id: room }, { $set: updateObj });
+        io.of('/table').to(room).emit('update-players-list', { playersArray });
+        console.log('Player information updated:', updateObj);
+      } catch (error) {
+        console.error('Error updating player information:', error);
       }
-    });
-  }));
+    }
+  });
 };

@@ -12,7 +12,7 @@ export default async () => {
     const room = change.documentKey._id;
     const { updateDescription, fullDocument } = change;
     const {
-      fase, turn, round, scoreTurn,
+      fase, turn, round,
       threeWords, gameOn, mainPlayerId,
     } = fullDocument;
     const { updatedFields } = updateDescription;
@@ -37,14 +37,15 @@ export default async () => {
           break;
 
         case 'fase':
-          await DrawingGame.faseHandler({
-            room,
-            fase,
-            turn,
-            threeWords,
-            scoreTurn,
-            mainPlayerId,
-          });
+          if (fase) {
+            await DrawingGame.faseHandler({
+              room,
+              fase,
+              turn,
+              threeWords,
+              mainPlayerId,
+            });
+          }
           break;
 
         default:
