@@ -132,14 +132,6 @@ export class DrawingGame {
       console.error('Error in faseHandler:', error);
     }
   }
-  static async findPlayersWithScoreLefts(room) {
-    const players = await Players.aggregate([
-      { $match: { _id: room } },
-      { $unwind: "$players" },
-      { $match: { "players.scoreTurn": false } },
-    ]);
-    return players;
-  }
 
   static async updateGame({ room, body }) {
     const gameUpdated = await Game.findByIdAndUpdate(
