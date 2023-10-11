@@ -2,62 +2,32 @@
 import randomWords from 'random-words';
 import Players from './models/players.js';
 import Game from './models/game.js';
-import Chat from './models/chat.js';
 import { io } from './index.js';
 
 export class DrawingGame {
-  static async resetTurns(room) {
-    await Players.findByIdAndUpdate(
-      room,
-      { $set: { "players.$[].artistTurn": false } },
-    )
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-  static async resetScoreTurn(room) {
-    await Players.findByIdAndUpdate(
-      room,
-      { $set: { "players.$[].scoreTurn": false } },
-    )
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
   static async messagesHandler({
-    message,
-    nickname,
+    room,
+    messageInput,
+    playerNickname,
     playerId,
     word,
     fase,
-    room,
   }) {
     try {
-      if (message && message.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
+      if (messageInput && messageInput.toUpperCase() === word?.toUpperCase() && fase === "guess-word") {
         // Find players in the room
-        const playersModelInTheRoom = await Players.findById(room);
-        const playersInTheRoom = playersModelInTheRoom.players;
+        const { playersArray, numberOfScoreTurns, numberOfPlayers } = await Players.findById(room);
         // Find the current player
-        const player = playersInTheRoom.find((obj) => obj._id.toString() === playerId);
-        const playerScoreTurn = player.scoreTurn;
+        const player = playersArray.find((obj) => obj._id.toString() === playerId);
+        const { scoreTurn } = player;
 
-        if (!playerScoreTurn) {
+        if (!scoreTurn) {
           // Filter players who can score
-          const playersWhichCanScore = playersInTheRoom.filter((obj) => obj.scoreTurn === false);
-          const numberOfPlayersWhichCanScore = playersWhichCanScore.length;
-          if (numberOfPlayersWhichCanScore === 1) {
+          if ((numberOfScoreTurns + 1) === numberOfPlayers) {
             await DrawingGame.updateGame({
               room,
               body: {
                 fase: "guess-word-endfase",
-              },
-            });
-          } else {
-            await DrawingGame.updateGame({
-              room,
-              body: {
-                $inc: { timeLeftMin: 2 },
               },
             });
           }
@@ -71,14 +41,17 @@ export class DrawingGame {
         }
       } else {
         // Send chat message update to all players in the room
-        io.of('/table').to(room).emit('update-chat-messages', { message, nickname });
+        io.of('/table').to(room).emit('update-chat-messages', { messageInput, playerNickname });
       }
     } catch (error) {
       console.error(error);
     }
   }
   static async roundHandler({ room, round }) {
-    await DrawingGame.resetTurns(room);
+    await Players.findByIdAndUpdate(
+      room,
+      { $set: { "players.$[].artistTurn": false } },
+    );
     if (round < 3) {
       await DrawingGame.prepareTurn(room);
     } else {
@@ -92,7 +65,7 @@ export class DrawingGame {
     try {
       switch (fase) {
         case 'select-word':
-          await DrawingGame.selectWordClock(20, room);
+          DrawingGame.selectWordClock(20, room);
           break;
 
         case 'select-word-endfase':
@@ -101,9 +74,12 @@ export class DrawingGame {
             fase: 'guess-word',
           };
           if (!word) {
-            body.word = threeWords[DrawingGame.randomNumber(3)];
+            body.word = threeWords[Math.floor(Math.random() * 3)];
           }
-          await DrawingGame.resetScoreTurn(room);
+          await Players.findByIdAndUpdate(
+            room,
+            { $set: { "players.$[].scoreTurn": false } },
+          );
           await DrawingGame.updateGame({
             room,
             body,
@@ -111,7 +87,7 @@ export class DrawingGame {
           break;
 
         case 'guess-word':
-          await DrawingGame.guessWordClock(40, room, turn);
+          DrawingGame.guessWordClock(40, room, turn);
           break;
 
         case 'guess-word-endfase':
@@ -134,28 +110,10 @@ export class DrawingGame {
   }
 
   static async updateGame({ room, body }) {
-    const gameUpdated = await Game.findByIdAndUpdate(
+    await Game.findByIdAndUpdate(
       room,
       body,
-      { new: true },
     );
-    return gameUpdated;
-  }
-  static async updateChat({ room, body }) {
-    const chatUpdated = await Chat.findByIdAndUpdate(
-      room,
-      body,
-      { new: true },
-    );
-    return chatUpdated;
-  }
-  static async updatePlayers({ room, body }) {
-    const playersUpdated = await Players.findByIdAndUpdate(
-      room,
-      body,
-      { new: true },
-    );
-    return playersUpdated;
   }
 
   static async prepareTurn(room) {
@@ -177,7 +135,7 @@ export class DrawingGame {
         exactly: 3,
         formatter: (word) => word.toUpperCase(),
       });
-      DrawingGame.updateGame({
+      await DrawingGame.updateGame({
         room,
         body: {
           mainPlayerId: artistId,
@@ -187,7 +145,7 @@ export class DrawingGame {
         },
       });
     } else if (numberOfArtistTurns === numberOfPlayers) {
-      DrawingGame.updateGame({
+      await DrawingGame.updateGame({
         room,
         body: {
           $inc: { round: 1 },
@@ -205,7 +163,15 @@ export class DrawingGame {
   }
 
   static async gameRestart(room) {
-    await DrawingGame.resetTurns(room);
+    await Players.findByIdAndUpdate(
+      room,
+      {
+        $set: {
+          "playersArray.$[].artistTurn": false,
+          "playersArray.$[].scoreTurn": false,
+        },
+      },
+    );
     await DrawingGame.updateGame({
       room,
       body: {
@@ -227,7 +193,7 @@ export class DrawingGame {
     });
   }
 
-  static async selectWordClock(count, room) {
+  static selectWordClock(count, room) {
     io.of('/table').to(room).emit('update-game-clock', { count });
     setTimeout(async () => {
       if (count === 1) {
@@ -244,9 +210,9 @@ export class DrawingGame {
     }, 1000);
   }
 
-  static async guessWordClock(count, room, turn) {
+  static guessWordClock(count, room, turn) {
     io.of('/table').to(room).emit('update-game-clock', { count });
-    setTimeout(async () => {
+    setTimeout(() => {
       if (count === 1) {
         io.of('/table').to(room).emit('update-game-clock', { count: (count - 1) });
         setTimeout(async () => {
@@ -261,12 +227,8 @@ export class DrawingGame {
           }
         }, 700);
       } else if (count > 1) {
-        DrawingGame.selectWordClock((count - 1), room, turn);
+        DrawingGame.guessWordClock((count - 1), room, turn);
       }
     }, 1000);
-  }
-
-  static randomNumber(number) {
-    return Math.floor(Math.random() * number);
   }
 }
