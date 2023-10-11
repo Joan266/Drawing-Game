@@ -27,7 +27,7 @@ export class DrawingGame {
             await DrawingGame.updateGame({
               room,
               body: {
-                fase: "guess-endphase",
+                fase: "guess-end-phase",
               },
             });
           }
@@ -35,7 +35,10 @@ export class DrawingGame {
           // Update the player's score and set their turn to true
           await Players.findByIdAndUpdate(
             room,
-            { "players.$[player].scoreTurn": true },
+            {
+              "playerArray.$[player].scoreTurn": true,
+              $inc: { turnScoreCount: 1 },
+            },
             { arrayFilters: [{ "player._id": playerId }] },
           );
         }
@@ -59,7 +62,7 @@ export class DrawingGame {
       await DrawingGame.prepareTurn(room);
     } else {
       console.log('END OF THE GAME');
-      DrawingGame.gameRestart(room);
+      await DrawingGame.gameRestart(room);
     }
   }
   static async gamePhaseHandler({
@@ -90,11 +93,10 @@ export class DrawingGame {
               $set: { "playerArray.$[].scoreTurn": false },
               turnScoreCount: 0,
             },
-          ).then(async () => {
-            await DrawingGame.updateGame({
-              room,
-              body,
-            });
+          );
+          await DrawingGame.updateGame({
+            room,
+            body,
           });
           break;
 
@@ -109,9 +111,8 @@ export class DrawingGame {
             room,
             { $inc: { 'playerArray.$[player].score': points } },
             { arrayFilters: [{ 'player._id': artistId }] },
-          ).then(async () => {
-            await DrawingGame.prepareTurn(room);
-          });
+          );
+          await DrawingGame.prepareTurn(room);
           break;
 
         default:
@@ -185,19 +186,18 @@ export class DrawingGame {
         roundArtistCount: 0,
         turnScoreCount: 0,
       },
-    ).then(async () => {
-      await DrawingGame.updateGame({
-        room,
-        body: {
-          artistId: null,
-          turn: 0,
-          wordGroup: [],
-          round: 0,
-          gamePhase: null,
-          gameStatus: false,
-          word: null,
-        },
-      });
+    );
+    await DrawingGame.updateGame({
+      room,
+      body: {
+        artistId: null,
+        turn: 0,
+        wordGroup: [],
+        round: 0,
+        gamePhase: null,
+        gameStatus: false,
+        word: null,
+      },
     });
   }
 
@@ -208,7 +208,7 @@ export class DrawingGame {
     });
   }
 
-  static selectClock(count, room) {
+  static selectPhaseClock(count, room) {
     io.of('/table').to(room).emit('update-game-clock', { count });
     setTimeout(async () => {
       if (count === 1) {
@@ -220,12 +220,12 @@ export class DrawingGame {
           },
         });
       } else if (count > 1) {
-        DrawingGame.selectClock((count - 1), room);
+        DrawingGame.selectPhaseClock((count - 1), room);
       }
     }, 1000);
   }
 
-  static guessClock(count, room, turn) {
+  static guessPhaseClock(count, room, turn) {
     io.of('/table').to(room).emit('update-game-clock', { count });
     setTimeout(() => {
       if (count === 1) {
@@ -242,7 +242,7 @@ export class DrawingGame {
           }
         }, 700);
       } else if (count > 1) {
-        DrawingGame.guessClock((count - 1), room, turn);
+        DrawingGame.guessPhaseClock((count - 1), room, turn);
       }
     }, 1000);
   }

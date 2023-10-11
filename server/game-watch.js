@@ -37,7 +37,7 @@ export default async () => {
 
         case 'gamePhase':
           if (gamePhase) {
-            await DrawingGame.faseHandler({
+            await DrawingGame.gamePhaseHandler({
               room,
               gamePhase,
               turn,

@@ -44,7 +44,7 @@ export default (io) => {
           gamePhase,
           word,
         } = data;
-        await DrawingGame.messagesHandler({
+        await DrawingGame.messageHandler({
           room,
           messageInput,
           playerNickname,
