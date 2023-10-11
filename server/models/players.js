@@ -24,19 +24,19 @@ const playerSchema = new mongoose.Schema({
 
 const playersSchema = new mongoose.Schema({
   _id: Number,
-  numberOfScoreTurns: {
+  turnScoreCount: {
     type: Number,
     default: 0,
   },
-  numberOfArtistTurns: {
+  roundArtistCount: {
     type: Number,
     default: 0,
   },
-  numberOfPlayers: {
+  playerCount: {
     type: Number,
     default: 0,
   },
-  playersArray: {
+  playerArray: {
     type: [playerSchema],
     default: [],
   },

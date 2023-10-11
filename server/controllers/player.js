@@ -8,7 +8,7 @@ export const playerController = {
 
       const newPlayer = await Players.findByIdAndUpdate(
         room,
-        { $push: { playersArray: { playerNickname } } },
+        { $push: { playerArray: { playerNickname } } },
         { new: true },
       );
 
@@ -17,7 +17,7 @@ export const playerController = {
         return res.status(404).json({ error: 'Room not found' });
       }
 
-      const newPlayerId = newPlayer.playersArray[newPlayer.playersArray.length - 1]._id;
+      const newPlayerId = newPlayer.playerArray[newPlayer.playerArray.length - 1]._id;
       return res.json({ newPlayerId });
     } catch (error) {
       console.error(error);
@@ -37,7 +37,7 @@ export const playerController = {
         return res.status(404).json({ error: 'Room not found' });
       }
 
-      const playersList = playersObj.playersArray;
+      const playersList = playersObj.playerArray;
       return res.json(playersList);
     } catch (error) {
       console.error(error);
@@ -52,7 +52,7 @@ export const playerController = {
       // Use async/await instead of .then() and .catch()
       await Players.findByIdAndUpdate(
         tableId,
-        { $pull: { playersArray: { _id: playerId } } }
+        { $pull: { playerArray: { _id: playerId } } }
       );
 
       return res.status(200).send('Player deleted successfully.');
