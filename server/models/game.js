@@ -4,9 +4,12 @@ const gameSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
-  gameState: {
+  gameStatus: {
     type: Boolean,
     default: false,
+  },
+  gamePhase: {
+    type: String,
   },
   round: {
     type: Number,
@@ -16,21 +19,15 @@ const gameSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  mainPlayerId: {
+  artistId: {
     type: String,
-    default: null,
   },
-  fase: {
-    type: String,
-    default: null,
-  },
-  threeWords: {
+  wordGroup: {
     type: Array,
     default: [],
   },
   word: {
     type: String,
-    default: null,
   },
 });
 

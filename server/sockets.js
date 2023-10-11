@@ -41,16 +41,16 @@ export default (io) => {
           playerId,
           playerNickname,
           messageInput,
-          fase,
+          gamePhase,
           word,
         } = data;
-        await DrawingGame.messagesHandler({
+        await DrawingGame.messageHandler({
           room,
           messageInput,
           playerNickname,
           playerId,
           word,
-          fase,
+          gamePhase,
         });
       });
     });
