@@ -1,21 +1,18 @@
-import { React, useState, useRef } from "react";
-import pintureteDB from "../DB_services/pinturete.js";
+import React, { useState, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import '../pages_style/register_table.scss';
 import Navbar from "../components/Navbar";
+import { PagesLogic } from '../pages_logic.js'; 
 
 const Register = () => {
   const codeRef = useRef(null);
   const [tableId, setTableId] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    pintureteDB.createTable({ code: codeRef.current.value })
-      .then((res) => {
-        setTableId(res.data.tableId);
-      })
-      .catch((error) => console.log(error));
+    PagesLogic.handleTableCreation(codeRef.current.value, setTableId);
   }
+
   return (
     <div className="registerContainer">
       <Navbar />
@@ -26,9 +23,8 @@ const Register = () => {
         </label>
         <button type="submit">Enviar</button>
       </form>
-      {tableId && <Navigate to="/table" state={{room: tableId}} replace={true} />}
+      {tableId && <Navigate to="/table" state={{ room: tableId }} replace={true} />}
     </div>
-
   );
 };
 

@@ -7,7 +7,7 @@ import Navbar from "../components/Navbar";
 import { io } from "socket.io-client";
 import { useLocation } from 'react-router-dom';
 import TableContext from '../contexts/TableContext.js';
-import pintureteDB from "../DB_services/pinturete.js";
+import { PagesLogic } from '../pages_logic.js';
 
 const Table = () => {
   const location = useLocation();
@@ -15,36 +15,21 @@ const Table = () => {
   const [myState, setMyState] = useState({ playerNickname: null, playerId: null });
   const [gameInfo, setGameInfo] = useState({ mainPlayer: false, word: null, round: null });
   const [tableSocket, setTableSocket] = useState(null);
+
   useEffect(() => {
-    console.log(myState)
-    const handleBeforeUnload = async () => {
-      if (myState.playerId) {
-        const { playerId } = myState;
-        await pintureteDB.deletePlayer({ playerId });
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    PagesLogic.handleUnload(myState);
   }, [myState]);
+
   useEffect(() => {
     const tableSocket = io("http://localhost:8000/table");
     setTableSocket(tableSocket);
-    // client-side
-    tableSocket.on("connect", () => {
-      console.log(`socket_id: ${tableSocket.id}, roomtype: ${typeof room}`);
-      tableSocket.emit("join_table", room);
-    });
 
-    tableSocket.on("disconnect", () => {
-    });
+    PagesLogic.initializeSocketConnection(tableSocket, room);
 
     return () => {
-      tableSocket.disconnect();
+      PagesLogic.cleanupSocketConnection(tableSocket);
     };
   }, [room]);
-
 
   return (
     <TableContext.Provider value={{
@@ -53,7 +38,7 @@ const Table = () => {
       myState,
       setMyState,
       gameInfo,
-      setGameInfo
+      setGameInfo,
     }}>
       <div className="table">
         <Navbar />
@@ -64,7 +49,6 @@ const Table = () => {
         </div>
       </div>
     </TableContext.Provider>
-
   );
 };
 
