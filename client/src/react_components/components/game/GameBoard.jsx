@@ -18,7 +18,7 @@ const GameBoard = () => {
             }
             canvas.addEventListener('mousedown', (event) => ComponentLogic.onMouseDown(event, tableSocket, room, setIsDrawing));
             canvas.addEventListener('mousemove', (event) => ComponentLogic.onMouseMove(event, tableSocket, room));
-            document.addEventListener('mouseup', () => ComponentLogic.onMouseUp(setIsDrawing));
+            document.addEventListener('mouseup', ComponentLogic.onMouseUp(setIsDrawing));
             canvas.addEventListener('mouseover', (event) => ComponentLogic.onMouseOver(event, tableSocket, room));
             tableSocket.on('mousedown', (event) => ComponentLogic.socketMouseDown(event, canvasRef, setLastX, setLastY));
             tableSocket.on('mousemove', (event) => ComponentLogic.socketMouseMove(event, canvasRef, setLastX, setLastY));
@@ -26,7 +26,7 @@ const GameBoard = () => {
             return () => {
                 canvas.removeEventListener('mousedown', (event) => ComponentLogic.onMouseDown(event, tableSocket, room, setIsDrawing));
                 canvas.removeEventListener('mousemove', (event) => ComponentLogic.onMouseMove(event, tableSocket, room));
-                document.removeEventListener('mouseup', () => ComponentLogic.onMouseUp(setIsDrawing));
+                document.removeEventListener('mouseup', ComponentLogic.onMouseUp(setIsDrawing));
                 canvas.removeEventListener('mouseover', (event) => ComponentLogic.onMouseOver(event, tableSocket, room));
                 tableSocket.off('mousedown', ComponentLogic.socketMouseDown);
                 tableSocket.off('mousemove', ComponentLogic.socketMouseMove);

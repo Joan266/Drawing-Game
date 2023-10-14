@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import Player from './Player';
-import NicknameInput from './NicknameInput';
-import TableContext from '../../../react_context/TableContext.js';
-import { ComponentLogic } from '../../components_logic.js'; 
+import Player from './sidebar/Player';
+import NicknameInput from './sidebar/NicknameInput';
+import TableContext from '../../react_context/TableContext.js';
+import { ComponentLogic } from '../components_logic.js'; 
 
 const Sidebar = () => {
   const [players, setPlayers] = useState([]);

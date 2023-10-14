@@ -1,6 +1,6 @@
 import React from 'react';
-import Messages from './Messages';
-import ChatInput from './ChatInput';
+import Messages from './chat/Messages';
+import ChatInput from './chat/ChatInput';
 const Chat = () => {
     return (
         <div className="chat">

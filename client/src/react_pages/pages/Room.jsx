@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Chat from "../components/Chat";
-import Game from "../components/Game";
+import { Sidebar, Chat, Game, Navbar } from "../../react_components/components";
 import '../pages_style/table.scss';
-import Navbar from "../components/Navbar";
 import { io } from "socket.io-client";
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import TableContext from '../contexts/TableContext.js';
 import { PagesLogic } from '../pages_logic.js';
 
-const Table = () => {
-  const location = useLocation();
-  const room = location.state.room;
+const Room = () => {
+  const { room } = useParams();
   const [myState, setMyState] = useState({ playerNickname: null, playerId: null });
   const [gameInfo, setGameInfo] = useState({ mainPlayer: false, word: null, round: null });
   const [tableSocket, setTableSocket] = useState(null);
@@ -21,15 +17,15 @@ const Table = () => {
   }, [myState]);
 
   useEffect(() => {
-    const tableSocket = io("http://localhost:8000/table");
-    setTableSocket(tableSocket);
-
+    const currentURL = window.location.href;
+    const tableSocket = io(currentURL);
     PagesLogic.initializeSocketConnection(tableSocket, room);
+    setTableSocket(tableSocket);
 
     return () => {
       PagesLogic.cleanupSocketConnection(tableSocket);
     };
-  }, [room]);
+  }, []);
 
   return (
     <TableContext.Provider value={{
@@ -52,4 +48,4 @@ const Table = () => {
   );
 };
 
-export default Table;
+export default Room;

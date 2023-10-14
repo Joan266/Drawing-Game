@@ -1,6 +1,6 @@
 import React from 'react';
-import GameHeader from './GameHeader';
-import GameBoard from './GameBoard';
+import GameHeader from './game/GameHeader';
+import GameBoard from './game/GameBoard';
 const Game = () =>{
 return(
     <div className="game">

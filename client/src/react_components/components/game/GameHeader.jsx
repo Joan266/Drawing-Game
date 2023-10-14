@@ -10,14 +10,10 @@ const GameHeader = () => {
   }, [gameInfo, myState, setGameInfo]);
 
   useEffect(() => {
-    const updateGameInfo = (gameData) => {
-      ComponentLogic.handleUpdateGameInfo(gameData, gameInfo, setGameInfo);
-    };
-
     if (tableSocket) {
-      tableSocket.on('update-game-info', updateGameInfo);
+      tableSocket.on('update-game-info', (gameData) => ComponentLogic.handleUpdateGameInfo(gameData, gameInfo, setGameInfo));
       return () => {
-        tableSocket.off('update-game-info', updateGameInfo);
+        tableSocket.off('update-game-info', ComponentLogic.handleUpdateGameInfo);
       };
     }
   }, [tableSocket, gameInfo, setGameInfo, myState]);

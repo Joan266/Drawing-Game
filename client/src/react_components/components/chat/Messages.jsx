@@ -8,14 +8,10 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const receivedMessage = (data) => {
-      ComponentLogic.handleReceivedMessage(data, messages, setMessages);
-    };
-
     if (tableSocket) {
-      tableSocket.on('update-chat-messages', receivedMessage);
+      tableSocket.on('update-chat-messages',(data) => ComponentLogic.handleReceivedMessage(data, messages, setMessages));
       return () => {
-        tableSocket.off('update-chat-messages', receivedMessage);
+        tableSocket.off('update-chat-messages', ComponentLogic.handleReceivedMessage);
       };
     }
   }, [tableSocket, messages]);
