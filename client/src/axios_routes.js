@@ -26,9 +26,6 @@ export default class AxiosRoutes {
     static gameInfo(data) {
         return http.post("/gameinfo", data);
     }
-    static saveMessage(data) {
-        return http.post("/savemessage", data);
-    }
     static saveWord(data) {
         return http.post("/saveword", data);
     }

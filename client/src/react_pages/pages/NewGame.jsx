@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import '../pages_style/register_table.scss';
-import Navbar from "../react_components/components/Navbar";
+import Navbar from "../../react_components/components/Navbar";
 import { PagesLogic } from '../pages_logic.js'; 
 
 const NewGame = () => {
@@ -12,7 +12,7 @@ const NewGame = () => {
     e.preventDefault();
     try {
       const room = await PagesLogic.newGame(codeRef.current.value);
-      navigate(`/table/${room}`);
+      navigate(`/room/${room}`);
     } catch (error) {
       console.error(error);
     }

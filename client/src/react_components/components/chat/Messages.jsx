@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import Message from './Message';
-import TableContext from '../contexts/TableContext.js';
+import TableContext from '../../../react_context/TableContext.js';
 import { ComponentLogic } from '../../components_logic.js'; 
 
 const Messages = () => {

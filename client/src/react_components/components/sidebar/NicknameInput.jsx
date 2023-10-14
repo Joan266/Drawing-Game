@@ -1,24 +1,20 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import TableContext from '../../../react_context/TableContext.js';
 import { ComponentLogic } from '../../components_logic.js'; 
 
 const NicknameInput = () => {
+  const playerNicknameRef = useRef(null);
   const { room, setMyState } = useContext(TableContext);
-  const [playerNickname, setplayerNickname] = useState('');
-
-  const handleChange = (event) => {
-    setplayerNickname(event.target.value);
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    ComponentLogic.handleNicknameSubmission(playerNickname, room, setMyState, setplayerNickname);
+    ComponentLogic.handleNicknameSubmission(playerNicknameRef.current.value, room, setMyState);
   };
 
   return (
     <form className="input" onSubmit={handleSubmit}>
       <label>
-        <input type="text" placeholder="Join the game.." value={playerNickname} onChange={handleChange} />
+        <input type="text" placeholder="Join the game.." name={playerNicknameRef} ref={playerNicknameRef}/>
       </label>
     </form>
   );

@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import '../pages_style/join_table.scss';
-import Navbar from "../components/Navbar";
+import Navbar from "../../react_components/components/Navbar";
 import { PagesLogic } from '../pages_logic.js'; 
 
 const JoinGame = () => {
@@ -14,7 +14,7 @@ const JoinGame = () => {
     try {
       const { validCode, msg, room } = await PagesLogic.joinGame(roomRef.current.value, codeRef.current.value,);
       if (validCode) {
-        navigate(`/table/${room}`);
+        navigate(`/room/${room}`);
       } else {
         alert(msg);
       }

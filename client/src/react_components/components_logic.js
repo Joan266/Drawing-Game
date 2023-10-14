@@ -2,21 +2,18 @@ import AxiosRoutes from "../axios_routes";
 
 export class ComponentLogic {
 //CHAT INPUT
-static handleChatKeyDown = (event, myState, tableSocket, messageInput, gameInfo, setMessageInput) => {
-    if (event.key === 'Enter') {
-        if (myState) {
-            const { playerId, playerNickname } = myState;
-            const { fase, word } = gameInfo;
+static handleMessageInput = (myState, tableSocket, messageInput, gameInfo) => {
+    if (myState) {
+        const { playerId, playerNickname } = myState;
+        const { fase, word } = gameInfo;
 
-            tableSocket.emit("chat-message", {
-                playerId,
-                playerNickname,
-                messageInput,
-                fase,
-                word,
-            });
-        }
-        setMessageInput("");
+        tableSocket.emit("chat-message", {
+            playerId,
+            playerNickname,
+            messageInput,
+            fase,
+            word,
+        });
     }
 };
 //GAMEBOARD
@@ -95,20 +92,8 @@ static resizeCanvas(canvas, setIsResize) {
     setIsResize(true);
 }
 //GAMEHEADER
-static determineMainPlayer(gameInfo, myState, setGameInfo) {
-    if (gameInfo?.mainPlayerId === myState.playerId) {
-      setGameInfo({ ...gameInfo, mainPlayer: true });
-    } else {
-      setGameInfo({ ...gameInfo, mainPlayer: false, word: null });
-    }
-  }
-
-  static handleUpdateGameInfo(gameData, gameInfo, setGameInfo) {
+  static updateGameInfo(gameData, gameInfo, setGameInfo) {
     setGameInfo({ ...gameInfo, ...gameData.updatedFields });
-  }
-
-  static handleUpdateChatWord(wordData, gameInfo, setGameInfo) {
-    setGameInfo({ ...gameInfo, ...wordData });
   }
 
   static restartGame(tableSocket) {
@@ -133,13 +118,17 @@ static determineMainPlayer(gameInfo, myState, setGameInfo) {
     }
   }
 
-  static selectFinalWord(word, room) {
+  static selectFinalWord(word, room, setIsButtonDisabled) {
+    setIsButtonDisabled(true);
     AxiosRoutes.saveWord({
       finalWord: word,
       room,
     });
   }
-  static renderGameContent(gameInfo, room) {
+  static renderGameContent(gameInfo,
+    isButtonDisabled, 
+    setIsButtonDisabled,
+    room,) {
     if (gameInfo.gameOn) {
       return (
         <>
@@ -152,7 +141,7 @@ static determineMainPlayer(gameInfo, myState, setGameInfo) {
               <>
                 {gameInfo.fase === "select-word" ? (
                   gameInfo.threeWords?.map((word, index) => (
-                    <button key={index} onClick={() => ComponentLogic.selectFinalWord(word, room)}>
+                    <button key={index} onClick={() => ComponentLogic.selectFinalWord(word, room, setIsButtonDisabled)} disabled={isButtonDisabled}>
                         {word}
                     </button>
                   ))
@@ -176,11 +165,11 @@ static determineMainPlayer(gameInfo, myState, setGameInfo) {
 //MESSAGES
 static handleReceivedMessage(data, messages, setMessages) {
     console.log(data);
-    const { message, nickname } = data;
-    setMessages([...messages, { message, nickname }]);
+    const { messageInput, playerNickname } = data;
+    setMessages([...messages, { messageInput, playerNickname }]);
   }
 //NICKNAMEINPUT
-static async handleNicknameSubmission(playerNickname, room, setMyState, setplayerNickname) {
+static async handleNicknameSubmission(playerNickname, room, setMyState) {
     if (playerNickname === '') return;
 
     try {
@@ -192,7 +181,6 @@ static async handleNicknameSubmission(playerNickname, room, setMyState, setplaye
       const newPlayerId = res.data.newPlayerId;
       console.log(newPlayerId);
       setMyState({ playerNickname, playerId: newPlayerId });
-      setplayerNickname('');
     } catch (error) {
       // Handle error, if any
       console.error(error);

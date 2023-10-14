@@ -1,29 +1,24 @@
-import React, { useState, useContext } from 'react';
-import TableContext from '../contexts/TableContext.js';
+import React, { useContext, useRef } from 'react';
+import TableContext from '../../../react_context/TableContext.js';
 import { ComponentLogic } from '../../components_logic.js'; 
 
 const ChatInput = () => {
-    const { myState, room, tableSocket, gameInfo } = useContext(TableContext);
-    const [messageInput, setMessageInput] = useState('');
+    const { myState, tableSocket, gameInfo } = useContext(TableContext);
+    const messageInputRef = useRef(null);
 
-    function onMessageInputChange(event) {
-        setMessageInput(event.target.value);
-    }
-
-    function onKeyDown(event) {
-        ComponentLogic.handleChatKeyDown(event, myState, tableSocket, messageInput, gameInfo, setMessageInput);
+    function handleSubmit() {
+        ComponentLogic.handleMessageInput( myState, tableSocket, messageInputRef.current.value, gameInfo);
+        messageInputRef.current.value = '';
     }
 
     return (
-        <div className="input">
+        <form className="input" onSubmit={handleSubmit}>
             <input
-                type="text"
-                value={messageInput}
-                onChange={onMessageInputChange}
-                onKeyDown={onKeyDown}
-                placeholder='Type something...'
+            type="text"
+            ref={messageInputRef}
+            placeholder='Type something...'
             />
-        </div>
+        </form>
     )
 }
 

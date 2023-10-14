@@ -3,7 +3,7 @@ import { Sidebar, Chat, Game, Navbar } from "../../react_components/components";
 import '../pages_style/table.scss';
 import { io } from "socket.io-client";
 import { useParams } from 'react-router-dom';
-import TableContext from '../contexts/TableContext.js';
+import TableContext from '../../react_context/TableContext.js';
 import { PagesLogic } from '../pages_logic.js';
 
 const Room = () => {

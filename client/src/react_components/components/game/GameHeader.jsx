@@ -1,19 +1,16 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import TableContext from '../../../react_context/TableContext.js';
 import { ComponentLogic } from '../../components_logic.js'; 
 
 const GameHeader = () => {
   const { tableSocket, room, gameInfo, setGameInfo, myState } = useContext(TableContext);
-
-  useEffect(() => {
-    ComponentLogic.determineMainPlayer(gameInfo, myState, setGameInfo);
-  }, [gameInfo, myState, setGameInfo]);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     if (tableSocket) {
-      tableSocket.on('update-game-info', (gameData) => ComponentLogic.handleUpdateGameInfo(gameData, gameInfo, setGameInfo));
+      tableSocket.on('update-game-info', (gameData) => ComponentLogic.updateGameInfo(gameData, gameInfo, setGameInfo));
       return () => {
-        tableSocket.off('update-game-info', ComponentLogic.handleUpdateGameInfo);
+        tableSocket.off('update-game-info', ComponentLogic.updateGameInfo);
       };
     }
   }, [tableSocket, gameInfo, setGameInfo, myState]);
@@ -27,7 +24,8 @@ const GameHeader = () => {
         <button onClick={ComponentLogic.stopGame(tableSocket)}>Stop</button>
         {ComponentLogic.renderGameContent(
           gameInfo,
-          myState,
+          isButtonDisabled, 
+          setIsButtonDisabled,
           room,
         )}
       </div>
