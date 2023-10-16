@@ -22,10 +22,10 @@ const Players = () => {
 
   return (
     <div className="playersContainer">
-    {players.map((data, index) => (
-        <Player key={index} data={data} />
-    ))}
-    {playersLength < 9 && !myState.playerId && <NicknameInput />}
+      {players.map((data, index) => (
+          <Player key={index} data={data} />
+      ))}
+      {playersLength < 9 && !myState.playerId && <NicknameInput />}
     </div>
   );
 };

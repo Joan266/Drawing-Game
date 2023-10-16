@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Sidebar, Chat, Game, Navbar } from "../../react_components/components";
+import { RoomProvider } from './TasksContext.js';
 import '../pages_style/table.scss';
 import { io } from "socket.io-client";
 import { useParams } from 'react-router-dom';
-import TableContext from '../../react_context/TableContext.js';
 import { PagesLogic } from '../pages_logic.js';
 
 const Room = () => {
@@ -28,14 +28,7 @@ const Room = () => {
   }, []);
 
   return (
-    <TableContext.Provider value={{
-      tableSocket,
-      room,
-      myState,
-      setMyState,
-      gameInfo,
-      setGameInfo,
-    }}>
+    <>
       <div className="table">
         <Navbar />
         <div className="container">
@@ -44,7 +37,7 @@ const Room = () => {
           <Chat />
         </div>
       </div>
-    </TableContext.Provider>
+    </>
   );
 };
 
