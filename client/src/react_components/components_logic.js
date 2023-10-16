@@ -190,18 +190,19 @@ static async handleNicknameSubmission(playerNickname, room, setMyState) {
     static async checkPlayers(setPlayers, setPlayersLength, room) {
         try {
         const response = await AxiosRoutes.checkPlayers({ room });
-        const { data } = response;
-        if (data) {
-            setPlayers(data);
-            setPlayersLength(data.length);
+        const { playerArray, playerCount } = response;
+        if (playerArray) {
+            setPlayers(playerArray);
+            setPlayersLength(playerCount);
         }
         } catch (error) {
         console.error('Error checking players:', error);
         }
     }
 
-    static updatePlayersList(data, setPlayers) {
-        const { playersArray } = data;
-        setPlayers(playersArray);
+    static updatePlayersList(data, setPlayers, setPlayersLength,) {
+        const { playerArray, playerCount } = data;
+        setPlayers(playerArray);
+        setPlayersLength(playerCount);
     }
 };

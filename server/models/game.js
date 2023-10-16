@@ -4,7 +4,7 @@ const gameSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
-  gameStatus: {
+  isGamePlaying: {
     type: Boolean,
     default: false,
   },
