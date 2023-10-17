@@ -5,13 +5,11 @@ import Navbar from "../components/Navbar";
 const Menu = () => {
 
     return (
-
-
         <div className="menuContainer">
             <Navbar />
             <div className="menuWrapper">
-                <Link to="/join"><button type="button">Join table</button></Link>
-                <Link to="/register"><button type="button">Register table</button></Link>
+                <Link to="/joingame"><button type="button">Join game</button></Link>
+                <Link to="/newgame"><button type="button">New game</button></Link>
             </div>
         </div>
     );

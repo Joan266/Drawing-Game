@@ -8,18 +8,18 @@ export const tableController = {
     try {
       const tables = await Table.find();
       const ids = tables ? tables.map((table) => table._id) : [];
-      let tableId;
+      let room;
 
     do {
-        tableId = Math.floor(Math.random() * 8000) + 1000;
-      } while (ids.includes(tableId));
+        room = Math.floor(Math.random() * 8000) + 1000;
+      } while (ids.includes(room));
 
       const tableCode = req.body.code;
 
-      const table = new Table({ _id: tableId, code: tableCode });
-      const game = new Game({ _id: tableId });
-      const chat = new Chat({ _id: tableId });
-      const players = new Players({ _id: tableId });
+      const table = new Table({ _id: room, code: tableCode });
+      const game = new Game({ _id: room });
+      const chat = new Chat({ _id: room });
+      const players = new Players({ _id: room });
 
       await Promise.all([
         table.save(),
@@ -28,25 +28,25 @@ export const tableController = {
         players.save(),
       ]);
 
-      console.log(`Table ${tableId} created`);
-      res.json({ tableId });
+      console.log(`Table ${room} created`);
+      res.json({ room });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Error al crear la tabla' });
+      res.status(500).json({ error: 'Not able to create the table' });
     }
   },
   checktable: (req, res) => {
-    const { tableNumber, tableCode } = req.body;
-    Table.findById(tableNumber)
+    const { room, code } = req.body;
+    Table.findById(room)
       .then((table) => {
         if (table) {
-          if (table.code === tableCode) {
-            res.json({ valid: true, cb: "Congrats" });
+          if (table.code === code) {
+            res.json({ validCode: true, msg: "Congrats" });
           } else {
-            res.json({ valid: false, cb: "The code is wrong" });
+            res.json({ validCode: false, msg: "The code is wrong" });
           }
         } else {
-          res.json({ valid: false, cb: "The table does not exits" });
+          res.json({ validCode: false, msg: "The game doesn't exist" });
         }
       })
       .catch((error) => res.json({ message: error }));

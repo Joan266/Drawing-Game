@@ -1,7 +1,4 @@
-import Join from "./pages/join_table";
-import Table from "./pages/table";
-import Menu from "./pages/menu";
-import Register from "./pages/register_table";
+import { Room, Menu } from "./react_pages/pages";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 function App() {
@@ -10,9 +7,7 @@ function App() {
       <Routes>
         <Route path="/">
           <Route index element={<Menu />} />
-          <Route path="join" element={<Join />} />
-          <Route path="register" element={<Register />} />
-          <Route path="table" element={<Table />} />
+          <Route path="room" element={<Room />} />
         </Route>
       </Routes>
     </BrowserRouter>

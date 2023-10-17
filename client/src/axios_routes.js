@@ -1,6 +1,13 @@
-import http from "../http-common";
+import axios from "axios";
 
-export default class PintureteDataService {
+const http = axios.create({
+    baseURL: "http://localhost:8000/api/mongoDB",
+    headers: {
+        "Content-type": "application/json"
+    }
+});
+
+export default class AxiosRoutes {
     static createTable(data) {
         return http.post("/createtable", data);
     }
@@ -18,9 +25,6 @@ export default class PintureteDataService {
     }
     static gameInfo(data) {
         return http.post("/gameinfo", data);
-    }
-    static saveMessage(data) {
-        return http.post("/savemessage", data);
     }
     static saveWord(data) {
         return http.post("/saveword", data);

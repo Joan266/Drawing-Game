@@ -30,15 +30,15 @@ export const playerController = {
       const { room } = req.body;
 
       // Use async/await to find the playersObj
-      const playersObj = await Players.findOne({ _id: room });
+      const players = await Players.findOne({ _id: room });
 
-      if (!playersObj) {
+      if (!players) {
         // Handle the case where Players.findOne returns null
         return res.status(404).json({ error: 'Room not found' });
       }
 
-      const playersList = playersObj.playerArray;
-      return res.json(playersList);
+      const { playerArray } = players;
+      return res.json(playerArray);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Internal server error' });

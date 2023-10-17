@@ -13,17 +13,17 @@ export default async () => {
     const { updateDescription, fullDocument } = change;
     const {
       gamePhase, turn, round, word,
-      wordGroup, gameStatus, artistId,
+      wordGroup, isGamePlaying, artistId,
     } = fullDocument;
     const { updatedFields } = updateDescription;
     console.log(`Game, updated fields:`, updatedFields, `fullDocument:`, fullDocument);
-    if (!gameStatus) {
+    if (!isGamePlaying) {
       io.of('/table').to(room).emit('update-game-info', { updatedFields });
       return;
     }
     Object.keys(updatedFields).forEach(async (key) => {
       switch (key) {
-        case 'gameStatus':
+        case 'isGamePlaying':
           io.of('/table').to(room).emit('update-game-info', { updatedFields });
           await DrawingGame.prepareTurn(room);
           break;
