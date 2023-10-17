@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import '../pages_style/join_table.scss';
 import Navbar from "../../react_components/components/Navbar";
-import { PagesLogic } from '../pages_logic.js'; 
+import { PagesLogic } from '../../pages_logic.js'; 
 
 const JoinGame = () => {
   const roomRef = useRef(null);

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import '../pages_style/menu.scss';
-import Navbar from "../../react_components/components/Navbar";
+import Navbar from "../components/Navbar";
 const Menu = () => {
 
     return (

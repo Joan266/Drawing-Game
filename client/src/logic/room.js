@@ -1,4 +1,4 @@
-import AxiosRoutes from "../axios_routes";
+import AxiosRoutes from "./axios_routes";
 
 export class ComponentLogic {
 //CHAT INPUT

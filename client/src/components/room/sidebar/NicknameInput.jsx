@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import TableContext from '../../../react_context/TableContext.js';
-import { ComponentLogic } from '../../components_logic.js'; 
+import { ComponentLogic } from '../../../room_components/components_logic.js'; 
 
 const NicknameInput = () => {
   const playerNicknameRef = useRef(null);
