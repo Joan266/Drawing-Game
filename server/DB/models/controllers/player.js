@@ -1,4 +1,4 @@
-import Players from '../models/players.js';
+import Players from '../../model/players.js';
 
 export const playerController = {
   createPlayer: async (req, res) => {

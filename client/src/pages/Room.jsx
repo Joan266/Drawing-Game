@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Sidebar, Chat, Game, Navbar } from "../../react_components/components";
-import { RoomProvider } from './TasksContext.js';
-import '../pages_style/table.scss';
+import { Sidebar, Chat, Game, Navbar } from "../components/room";
+import { MyProviders } from '../context/room';
+import '../style/room';
 import { io } from "socket.io-client";
 import { useParams } from 'react-router-dom';
-import { PagesLogic } from '../pages_logic.js';
+import { PagesLogic } from '../logic/room.js';
 
 const Room = () => {
-  const { room } = useParams();
-  const [myState, setMyState] = useState({ playerNickname: null, playerId: null });
-  const [gameInfo, setGameInfo] = useState({ mainPlayer: false, word: null, round: null });
-  const [tableSocket, setTableSocket] = useState(null);
+  const params = useParams();
+  const [ room, setRoom ] = useState({id: params.room})
+  const [roomSocket, setRoomSocket] = useState(null);
 
   useEffect(() => {
     PagesLogic.handleUnload(myState);
@@ -18,17 +17,17 @@ const Room = () => {
 
   useEffect(() => {
     const currentURL = window.location.href;
-    const tableSocket = io(currentURL);
-    PagesLogic.initializeSocketConnection(tableSocket, room);
-    setTableSocket(tableSocket);
+    const roomSocket = io(currentURL);
+    PagesLogic.initializeSocketConnection(roomSocket, room);
+    setRoomSocket(roomSocket);
 
     return () => {
-      PagesLogic.cleanupSocketConnection(tableSocket);
+      PagesLogic.cleanupSocketConnection(roomSocket);
     };
   }, []);
 
   return (
-    <>
+    <MyProviders room={room} roomSocket={roomSocket}>
       <div className="table">
         <Navbar />
         <div className="container">
@@ -37,7 +36,7 @@ const Room = () => {
           <Chat />
         </div>
       </div>
-    </>
+    </MyProviders>
   );
 };
 

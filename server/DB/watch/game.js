@@ -1,6 +1,6 @@
-import Game from './models/game.js';
+import Game from '../models/game.js';
 import { DrawingGame } from './game-logic.js';
-import { io } from './index.js';
+import { io } from '../../index.js';
 
 export default async () => {
   const changeStream = Game.watch(

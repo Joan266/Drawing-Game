@@ -11,8 +11,8 @@ const NewGame = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const room = await PagesLogic.newGame(codeRef.current.value);
-      navigate(`/room/${room}`);
+      const roomId = await PagesLogic.newGame(codeRef.current.value);
+      navigate(`/room/${roomId}`);
     } catch (error) {
       console.error(error);
     }

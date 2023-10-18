@@ -1,20 +1,8 @@
-import { Server } from 'socket.io';
-import httpServer from "./express.js";
-import { PORT } from "./config.js";
-import Sockets from "./sockets.js";
-import { connectDB } from "./db.js";
+import { configDB } from "./config/DB";
+import { configExpress } from "./config/express";
 
 // Connect to the MongoDB database
-connectDB();
+configDB();
 
-httpServer.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
-
-export const io = new Server(httpServer, {
-  cors: {
-    origin: '*',
-  },
-});
-
-Sockets(io);
+// Create express server
+configExpress();

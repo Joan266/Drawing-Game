@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { MONGODB_URI } from "./config.js";
-import gameWatch from "./game-watch.js";
+import gameWatch from "../DB/watch/game";
+import { MONGODB_URI } from "./dotenv";
 
-export const connectDB = async () => {
+export const configDB = async () => {
   try {
     await mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,

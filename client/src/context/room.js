@@ -4,7 +4,23 @@ const RoomContext = createContext(null);
 
 const RoomDispatchContext = createContext(null);
 
-export function RoomProvider({ children }) {
+export function MyProviders({ children, theme, setTheme }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  return (
+    <ThemeContext.Provider value={theme}>
+      <CurrentUserContext.Provider
+        value={{
+          currentUser,
+          setCurrentUser
+        }}
+      >
+        {children}
+      </CurrentUserContext.Provider>
+    </ThemeContext.Provider>
+  );
+}
+
+ function RoomProvider({ children }) {
   const [Room, dispatch] = useReducer(
     RoomReducer,
     initialRoom

@@ -5,51 +5,6 @@ import Game from './models/game.js';
 import { io } from './index.js';
 
 export class DrawingGame {
-  static async messageHandler({
-    room,
-    messageInput,
-    playerNickname,
-    playerId,
-    word,
-    gamePhase,
-  }) {
-    try {
-      if (messageInput && messageInput.toUpperCase() === word?.toUpperCase() && gamePhase === "guess") {
-        // Find players in the room
-        const { playerArray, turnScoreCount, playerCount } = await Players.findById(room);
-        // Find the current player
-        const player = playerArray.find((obj) => obj._id.toString() === playerId);
-        const { scoreTurn } = player;
-
-        if (!scoreTurn) {
-          // Filter players who can score
-          if (turnScoreCount === (playerCount - 2)) {
-            await DrawingGame.updateGame({
-              room,
-              body: {
-                fase: "guess-end-phase",
-              },
-            });
-          }
-
-          // Update the player's score and set their turn to true
-          await Players.findByIdAndUpdate(
-            room,
-            {
-              "playerArray.$[player].scoreTurn": true,
-              $inc: { turnScoreCount: 1 },
-            },
-            { arrayFilters: [{ "player._id": playerId }] },
-          );
-        }
-      } else {
-        // Send chat message update to all players in the room
-        io.of('/table').to(room).emit('update-chat-messages', { messageInput, playerNickname });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
   static async roundHandler({ room, round }) {
     await Players.findByIdAndUpdate(
       room,
@@ -167,45 +122,6 @@ export class DrawingGame {
         },
       });
     }
-  }
-
-  static async gameStart(room) {
-    await DrawingGame.updateGame({
-      room,
-      body: { gamePhase: true },
-    });
-  }
-
-  static async gameRestart(room) {
-    await Players.findByIdAndUpdate(
-      room,
-      {
-        $set: {
-          "playerArray.$[].artistTurn": false, "playerArray.$[].scoreTurn": false,
-        },
-        roundArtistCount: 0,
-        turnScoreCount: 0,
-      },
-    );
-    await DrawingGame.updateGame({
-      room,
-      body: {
-        artistId: null,
-        turn: 0,
-        wordGroup: [],
-        round: 0,
-        gamePhase: null,
-        gameStatus: false,
-        word: null,
-      },
-    });
-  }
-
-  static async gameStop(room) {
-    await DrawingGame.updateGame({
-      room,
-      body: { gameStatus: false },
-    });
   }
 
   static selectPhaseClock(count, room) {

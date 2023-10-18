@@ -1,7 +1,7 @@
-import Table from "../models/table.js";
-import Game from "../models/game.js";
+import Table from "../schemas/table.js";
+import Game from "../schemas/game.js";
 import Chat from "../models/chat.js";
-import Players from "../models/players.js";
+import Players from "../schemas/players.js";
 
 export const tableController = {
   createtable: async (req, res) => {

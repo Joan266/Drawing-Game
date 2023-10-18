@@ -1,15 +1,15 @@
 import express from "express";
-import { playerController } from "../controllers/player.js";
-import { tableController } from "../controllers/table.js";
-import { gameController } from "../controllers/game.js";
+import { playerController } from "../controller/player.js";
+import { roomController } from "../controller/room.js";
+import { gameController } from "../controller/game.js";
 
 const router = express.Router();
 
 router.get('/', (req, res) => { res.send('hello world'); });
 
-router.post('/createtable', tableController.createtable);
+router.post('/createroom', roomController.createroom);
 
-router.post('/checktable', tableController.checktable);
+router.post('/checkroom', roomController.checkroom);
 
 router.post('/createplayer', playerController.createPlayer);
 

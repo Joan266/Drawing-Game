@@ -187,22 +187,45 @@ static async handleNicknameSubmission(playerNickname, room, setMyState) {
     }
   }
 //SIDEBAR
-    static async checkPlayers(setPlayers, setPlayersLength, room) {
-        try {
-        const response = await AxiosRoutes.checkPlayers({ room });
-        const { playerArray, playerCount } = response;
-        if (playerArray) {
-            setPlayers(playerArray);
-            setPlayersLength(playerCount);
-        }
-        } catch (error) {
-        console.error('Error checking players:', error);
-        }
+  static async checkPlayers(setPlayers, setPlayersLength, room) {
+      try {
+      const response = await AxiosRoutes.checkPlayers({ room });
+      const { playerArray, playerCount } = response;
+      if (playerArray) {
+          setPlayers(playerArray);
+          setPlayersLength(playerCount);
+      }
+      } catch (error) {
+      console.error('Error checking players:', error);
+      }
+  }
+
+  static updatePlayersList(data, setPlayers, setPlayersLength,) {
+      const { playerArray, playerCount } = data;
+      setPlayers(playerArray);
+      setPlayersLength(playerCount);
+  }
+  //ROOM
+  static async handleUnload(myState) {
+    const { playerId } = myState;
+      if (playerId) {
+        await AxiosRoutes.deletePlayer({ playerId });
+      }
     }
 
-    static updatePlayersList(data, setPlayers, setPlayersLength,) {
-        const { playerArray, playerCount } = data;
-        setPlayers(playerArray);
-        setPlayersLength(playerCount);
-    }
+  static initializeSocketConnection(roomSocket, room) {
+    roomSocket.on("connect", () => {
+      console.log(`socket_id: ${roomSocket.id}, roomtype: ${typeof room}`);
+      roomSocket.emit("join_table", room);
+    });
+
+    roomSocket.on("disconnect", () => {
+      // Handle disconnect event if needed
+    });
+  }
+
+  static cleanupSocketConnection(roomSocket) {
+    roomSocket.disconnect();
+  }
 };
+

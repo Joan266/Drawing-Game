@@ -8,11 +8,11 @@ const http = axios.create({
 });
 
 export default class AxiosRoutes {
-    static createTable(data) {
-        return http.post("/createtable", data);
+    static createroom(data) {
+        return http.post("/createroom", data);
     }
-    static checkTable(data) {
-        return http.post("/checktable", data);
+    static checkroom(data) {
+        return http.post("/checkroom", data);
     }
     static createPlayer(data) {
         return http.post("/createplayer", data);
