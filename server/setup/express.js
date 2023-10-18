@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import modelsRouter from '../DB/models/router';
+import clientRouter from '../DB/models/client_router';
 import { PORT } from './dotenv';
 import onConnection from '../sockets/connection';
 
@@ -14,7 +14,7 @@ export const configExpress = async () => {
   app.use(express.json());
 
   // Routes
-  app.use(modelsRouter);
+  app.use(clientRouter);
 
   // Error Handling Middleware
   app.use((req, res) => {

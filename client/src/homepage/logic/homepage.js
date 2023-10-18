@@ -1,6 +1,3 @@
-import AxiosRoutes from "./axios_routes";
-
-export class PagesLogic {
   //JOINGAME
   static async joinGame(roomId, code) {
     try {
@@ -22,4 +19,3 @@ export class PagesLogic {
       throw error;
     }
   }
-};

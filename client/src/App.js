@@ -1,8 +1,12 @@
 import { Room, Menu } from "./react_pages/pages";
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-function App() {
-  return (
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
+  <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/">
@@ -11,8 +15,5 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-
-  );
-}
-
-export default App;
+  </React.StrictMode>
+);

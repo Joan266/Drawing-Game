@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Sidebar, Chat, Game, Navbar } from "../components/room";
-import { MyProviders } from '../context/room';
+import { MyProviders } from './context/room';
 import '../style/room';
 import { io } from "socket.io-client";
 import { useParams } from 'react-router-dom';
-import { PagesLogic } from '../logic/room.js';
+import { PagesLogic } from './room/logic/room.js';
 
 const Room = () => {
   const params = useParams();
