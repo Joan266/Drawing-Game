@@ -1,6 +1,6 @@
 import AxiosRoutes from "./axios_routes";
 
-export class ComponentLogic {
+export class RoomLogic {
 //CHAT INPUT
 static handleMessageInput = (myState, tableSocket, messageInput, gameInfo) => {
     if (myState) {
@@ -141,7 +141,7 @@ static resizeCanvas(canvas, setIsResize) {
               <>
                 {gameInfo.fase === "select-word" ? (
                   gameInfo.threeWords?.map((word, index) => (
-                    <button key={index} onClick={() => ComponentLogic.selectFinalWord(word, room, setIsButtonDisabled)} disabled={isButtonDisabled}>
+                    <button key={index} onClick={() => RoomLogic.selectFinalWord(word, room, setIsButtonDisabled)} disabled={isButtonDisabled}>
                         {word}
                     </button>
                   ))
@@ -159,7 +159,7 @@ static resizeCanvas(canvas, setIsResize) {
         </>
       );
     } else {
-      return <button onClick={ComponentLogic.startGame}>Start</button>;
+      return <button onClick={RoomLogic.startGame}>Start</button>;
     }
   }
 //MESSAGES
@@ -206,26 +206,14 @@ static async handleNicknameSubmission(playerNickname, room, setMyState) {
       setPlayersLength(playerCount);
   }
   //ROOM
-  static async handleUnload(myState) {
-    const { playerId } = myState;
-      if (playerId) {
-        await AxiosRoutes.deletePlayer({ playerId });
-      }
-    }
-
-  static initializeSocketConnection(roomSocket, room) {
-    roomSocket.on("connect", () => {
-      console.log(`socket_id: ${roomSocket.id}, roomtype: ${typeof room}`);
-      roomSocket.emit("join_table", room);
-    });
-
-    roomSocket.on("disconnect", () => {
-      // Handle disconnect event if needed
+  static socketConnection(socket, roomId) {
+    socket.on("connect", () => {
+      socket.emit("room:join", roomId);
     });
   }
 
-  static cleanupSocketConnection(roomSocket) {
-    roomSocket.disconnect();
+  static socketDisconnection(socket) {
+    socket.disconnect();
   }
 };
 
