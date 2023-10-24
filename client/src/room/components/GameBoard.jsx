@@ -12,7 +12,7 @@ const GameBoard = () => {
 
 const Canvas = () => {
   const canvasRef = useRef(null);
-  const { tableSocket, room, gameInfo } = useContext(TableContext);
+  const { tableSocket, gameInfo } = useContext(TableContext);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isResize, setIsResize] = useState(false);
   const [lastX, setLastX] = useState(0);
@@ -25,10 +25,10 @@ const Canvas = () => {
         ComponentLogic.resizeCanvas(canvas, setIsResize);
       }
 
-      const onMouseDown = (event) => ComponentLogic.onMouseDown(event, tableSocket, room, setIsDrawing);
-      const onMouseMove = (event) => ComponentLogic.onMouseMove(event, tableSocket, room);
+      const onMouseDown = (event) => ComponentLogic.onMouseDown(event, tableSocket, setIsDrawing);
+      const onMouseMove = (event) => ComponentLogic.onMouseMove(event, tableSocket);
       const onMouseUp = () => ComponentLogic.onMouseUp(setIsDrawing);
-      const onMouseOver = (event) => ComponentLogic.onMouseOver(event, tableSocket, room);
+      const onMouseOver = (event) => ComponentLogic.onMouseOver(event, tableSocket);
 
       canvas.addEventListener('mousedown', onMouseDown);
       canvas.addEventListener('mousemove', onMouseMove);
@@ -49,7 +49,7 @@ const Canvas = () => {
         tableSocket.off('mouseover', ComponentLogic.socketMouseOver);
       };
     }
-  }, [canvasRef, tableSocket, isResize, isDrawing, lastX, lastY, gameInfo, room]);
+  }, [canvasRef, tableSocket, isResize, isDrawing, lastX, lastY, gameInfo]);
 
   return (
     <div className="boardContainer">

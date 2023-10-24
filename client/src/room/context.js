@@ -1,25 +1,10 @@
-import { createContext, useState } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const PlayerContext = createContext(null);
 const GameContext = createContext(null);
 const RoomContext = createContext(null);
 
-
-export default function MyProviders({ children, room, }) {
-  const [game, setGame] = useState(initialGame);
-  const [player, setPlayer] = useState(initialPlayer);
-    return (
-      <RoomContext.Provider value={{ room }}>
-        <PlayerContext.Provider value={{ player, setPlayer }}>
-          <GameContext.Provider value={{ game, setGame }}>
-            {children}
-          </GameContext.Provider>
-        </PlayerContext.Provider>
-      </RoomContext.Provider>
-    );
-}
-
-const initialGame = {
+const initialGameContext = {
   isGamePlaying: false,
   word: null,
   phase: null,
@@ -27,8 +12,7 @@ const initialGame = {
   turn: 0,
 };
 
-
-const initialPlayer = {
+const initialPlayerContext = {
   playerNickname: null,
   playerId: null,
   scoreTurn: false,
@@ -36,3 +20,38 @@ const initialPlayer = {
   score: 0,
   artistTurn: false,
 };
+
+export default function MyProviders({ children, roomContext }) {
+  const [gameContext, setGameContext] = useState(initialGameContext);
+  const [playerContext, setPlayerContext] = useState(initialPlayerContext);
+  
+  return (
+    <RoomContext.Provider value={{ roomContext }}>
+      <PlayerContext.Provider value={{ playerContext, setPlayerContext }}>
+        <GameContext.Provider value={{ gameContext, setGameContext }}>
+          {children}
+        </GameContext.Provider>
+      </PlayerContext.Provider>
+    </RoomContext.Provider>
+  );
+}
+
+export function usePlayerContext() {
+  const { playerContext } = useContext(PlayerContext);
+  return playerContext;
+}
+export function useGameContext() {
+  const { gameContext } = useContext(GameContext);
+  return gameContext;
+}
+export function useSetPlayerContext() {
+  const { setPlayerContext } = useContext(PlayerContext);
+  return setPlayerContext;
+}
+export function useSetGameContext() {
+  const { setGameContext } = useContext(GameContext);
+  return setGameContext;
+}
+export function useRoomContext() {
+  return useContext(RoomContext);
+}

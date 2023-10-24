@@ -1,52 +1,69 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import TableContext from '../../../react_context/TableContext.js';
-import ComponentLogic from '../../../room_components/components_logic.js';
+import React, { useEffect, useState, useRef, useReducer } from 'react';
+import { chatReducer } from './chatReducer'; // Import your chatReducer
+import { usePlayerContext, useGameContext, useRoomContext } from "../context";
 
-const Chat = () => {
+export const Chat = () => {
+  const textRef = useRef(null);
+  const { isGamePlaying,
+          word,
+          phase,
+          round,
+          turn 
+        } = useGameContext();
+  const { playerNickname,
+          playerId,
+          scoreTurn,
+          wordGroup,
+          score,
+          artistTurn, 
+        } = usePlayerContext();
+  const { playerNickname,
+    playerId,
+    scoreTurn,
+    wordGroup,
+    score,
+    artistTurn, 
+  } = usePlayerContext();
+  const [state, dispatch] = useReducer(chatReducer, {
+    messages: [],
+  });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const text = textRef.current.value;
+    if (text != '') {
+      if (text.toUpperCase() === word.toUpperCase() && gamePhase === "guess" && !scoreTurn) {
+        socket.emit("chat:player_scored", {
+          playerId,
+        });
+      } else {
+        socket.emit("chat:add_message", {
+          playerNickname,
+          text,
+        });
+      };
+      textRef.current.value = '';
+    };
+  };
+
   return (
     <div className="chat">
-      <Messages />
-      <ChatInput />
+      <Messages messages={state.messages} />
+      <ChatInput handleSubmit={handleSubmit} textRef={textRef} />
     </div>
   );
 };
 
-const ChatInput = () => {
-  const { myState, tableSocket, gameInfo } = useContext(TableContext);
-  const messageInputRef = useRef(null);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    ComponentLogic.handleMessageInput(myState, tableSocket, messageInputRef.current.value, gameInfo);
-    messageInputRef.current.value = '';
-  };
-
-  return (
-    <form className="input" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        ref={messageInputRef}
-        placeholder='Type something...'
-      />
-    </form>
-  );
-};
-
-const Message = (props) => {
-  return (
-    <li className='message'>
-      <p>{props.data.nickname}: {props.data.message}</p>
-    </li>
-  );
-};
-
-const Messages = () => {
+const Messages = ({ messages }) => {
   const { tableSocket } = useContext(TableContext);
-  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const handleReceivedMessage = (data) => {
-      ComponentLogic.handleReceivedMessage(data, messages, setMessages);
+      const { text, playerNickname } = data;
+      dispatch({
+        type: 'ADD_MESSAGE',
+        playerNickname,
+        text,
+      }); 
     };
 
     if (tableSocket) {
@@ -66,5 +83,10 @@ const Messages = () => {
     </ul>
   );
 };
-
-export default Chat;
+const Message = (props) => {
+  return (
+    <li className='message'>
+      <p>{props.data.nickname}: {props.data.message}</p>
+    </li>
+  );
+};

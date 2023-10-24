@@ -1,21 +1,6 @@
 import AxiosRoutes from "./axios_routes";
 
 export class RoomLogic {
-//CHAT INPUT
-static handleMessageInput = (myState, tableSocket, messageInput, gameInfo) => {
-    if (myState) {
-        const { playerId, playerNickname } = myState;
-        const { fase, word } = gameInfo;
-
-        tableSocket.emit("chat-message", {
-            playerId,
-            playerNickname,
-            messageInput,
-            fase,
-            word,
-        });
-    }
-};
 //GAMEBOARD
 static onMouseDown(event, tableSocket, room, setIsDrawing, gameInfo) {
     if (gameInfo.mainPlayer && gameInfo.word) {
@@ -161,12 +146,6 @@ static resizeCanvas(canvas, setIsResize) {
     } else {
       return <button onClick={RoomLogic.startGame}>Start</button>;
     }
-  }
-//MESSAGES
-static handleReceivedMessage(data, messages, setMessages) {
-    console.log(data);
-    const { messageInput, playerNickname } = data;
-    setMessages([...messages, { messageInput, playerNickname }]);
   }
 //NICKNAMEINPUT
 static async handleNicknameSubmission(playerNickname, room, setMyState) {
