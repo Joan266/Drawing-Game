@@ -1,40 +1,78 @@
-import React, { useEffect, useState, useRef, useReducer } from 'react';
-import { chatReducer } from './chatReducer'; // Import your chatReducer
-import { usePlayerContext, useGameContext, useRoomContext } from "../context";
+import React, { useEffect, useRef, useReducer } from 'react';
+import { usePlayerContext, useGameContext, useRoomContext,useSetPlayerContext } from "../context";
+
+function chatReducer(messages, action) {
+  switch (action.type) {
+    case 'ADD_MESSAGE':
+      // Create a new message object
+      const newMessage = {
+        playerNickname: action.playerNickname,
+        text: action.text,
+      };
+
+      // Only add the message if it has playerNickname and text properties
+      if (newMessage.playerNickname && newMessage.text) {
+        // Check if the number of messages exceeds the limit (15)
+        if (messages.length >= 15) {
+          // Remove the oldest message by slicing the array
+          messages = messages.slice(1);
+        }
+        // Add the new message to the end of the array
+        return [...messages, newMessage];
+      }
+      // If the message does not have the required properties, return the current state
+      return messages;
+
+    case 'CLEAR_MESSAGES':
+      return [];
+
+    default:
+      return messages;
+  }
+}
 
 export const Chat = () => {
   const textRef = useRef(null);
   const { isGamePlaying,
           word,
-          phase,
-          round,
-          turn 
+          gamePhase,
         } = useGameContext();
   const { playerNickname,
           playerId,
           scoreTurn,
-          wordGroup,
-          score,
           artistTurn, 
         } = usePlayerContext();
-  const { playerNickname,
-    playerId,
-    scoreTurn,
-    wordGroup,
-    score,
-    artistTurn, 
-  } = usePlayerContext();
-  const [state, dispatch] = useReducer(chatReducer, {
-    messages: [],
+  const { socket } = useRoomContext();
+  const { setPlayerContext } = useSetPlayerContext();
+
+  const [messages, dispatch] = useReducer(chatReducer, {
+    initialMessages: [],
   });
+
+  useEffect(() => {
+    const handleReceivedMessage = (data) => {
+      const { playerNickname, text } = data;
+      dispatch({
+        type: 'ADD_MESSAGE',
+        playerNickname,
+        text,
+      }); 
+    };
+    socket.on('chat:add_message', handleReceivedMessage);
+    return () => {
+      socket.off('chat:add_message', handleReceivedMessage);
+    };
+  }, [socket]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const text = textRef.current.value;
-    if (text != '') {
-      if (text.toUpperCase() === word.toUpperCase() && gamePhase === "guess" && !scoreTurn) {
+    if (text !== '') {
+      if (text.toUpperCase() === word.toUpperCase() && gamePhase === "guess" && !scoreTurn && !artistTurn && isGamePlaying) {
         socket.emit("chat:player_scored", {
           playerId,
         });
+        setPlayerContext({ scoreTurn:false })
       } else {
         socket.emit("chat:add_message", {
           playerNickname,
@@ -47,46 +85,29 @@ export const Chat = () => {
 
   return (
     <div className="chat">
-      <Messages messages={state.messages} />
-      <ChatInput handleSubmit={handleSubmit} textRef={textRef} />
+      <Messages messages={messages} />
+      <form className="input" onSubmit={handleSubmit}>
+        <label>
+          <input type="text" placeholder="Join the game.."  textRef={textRef} />
+        </label>
+      </form>
     </div>
   );
 };
 
 const Messages = ({ messages }) => {
-  const { tableSocket } = useContext(TableContext);
-
-  useEffect(() => {
-    const handleReceivedMessage = (data) => {
-      const { text, playerNickname } = data;
-      dispatch({
-        type: 'ADD_MESSAGE',
-        playerNickname,
-        text,
-      }); 
-    };
-
-    if (tableSocket) {
-      tableSocket.on('update-chat-messages', handleReceivedMessage);
-
-      return () => {
-        tableSocket.off('update-chat-messages', handleReceivedMessage);
-      };
-    }
-  }, [tableSocket, messages]);
-
   return (
     <ul className="messages">
-      {messages.map((data, index) => (
-        <Message data={data} key={index} />
-      )}
+      {messages.map((message, index) => (
+        <Message key={index} message={message} />
+      ))}
     </ul>
   );
 };
-const Message = (props) => {
+const Message = ({message, index}) => {
   return (
-    <li className='message'>
-      <p>{props.data.nickname}: {props.data.message}</p>
+    <li className='message' key={index}>
+      <p>{message.playerNickname}: {message.text}</p>
     </li>
   );
 };
