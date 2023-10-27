@@ -9,7 +9,16 @@ import { MyProviders } from "./room/context";
 const Room = () => {
   const params = useParams();
   const [ room, setRoom ] = useState({id: params.room});
+  useEffect(() => {
+    const updateGameInfo = (gameData) =>{
+      ComponentLogic.updateGameInfo(gameData, gameInfo, setGameInfo);
+    }
+    socket.on('game:', updateGameInfo);
 
+    return () => {
+      socket.off('update-game-info', updateGameInfo);
+    };
+  }, [socket, gameInfo, setGameInfo, myState]);
   useEffect(() => {
     const currentURL = window.location.href;
     const socket = io(currentURL);

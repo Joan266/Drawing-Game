@@ -59,3 +59,10 @@ const Canvas = () => {
 };
 
 export default GameBoard;
+static selectFinalWord(word, room, setIsButtonDisabled) {
+  setIsButtonDisabled(true);
+  AxiosRoutes.saveWord({
+    finalWord: word,
+    room,
+  });
+}

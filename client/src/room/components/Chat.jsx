@@ -50,37 +50,36 @@ export const Chat = () => {
   });
 
   useEffect(() => {
-    const handleReceivedMessage = (data) => {
-      const { playerNickname, text } = data;
+    const handleAddMessage = (message) => {
+      const { playerNickname, text } = message;
       dispatch({
         type: 'ADD_MESSAGE',
         playerNickname,
         text,
       }); 
     };
-    socket.on('chat:add_message', handleReceivedMessage);
+    socket.on('chat:add_message', handleAddMessage);
     return () => {
-      socket.off('chat:add_message', handleReceivedMessage);
+      socket.off('chat:add_message', handleAddMessage);
     };
   }, [socket]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const text = textRef.current.value;
-    if (text !== '') {
-      if (text.toUpperCase() === word.toUpperCase() && gamePhase === "guess" && !scoreTurn && !artistTurn && isGamePlaying) {
-        socket.emit("chat:player_scored", {
-          playerId,
-        });
-        setPlayerContext({ scoreTurn:false })
-      } else {
-        socket.emit("chat:add_message", {
-          playerNickname,
-          text,
-        });
-      };
-      textRef.current.value = '';
+    if (text === '') return;
+    if (text.toUpperCase() === word.toUpperCase() && gamePhase === "guess" && !scoreTurn && !artistTurn && isGamePlaying) {
+      socket.emit("chat:player_scored", {
+        playerId,
+      });
+      setPlayerContext({ scoreTurn:false })
+    } else {
+      socket.emit("chat:add_message", {
+        playerNickname,
+        text,
+      });
     };
+    textRef.current.value = '';
   };
 
   return (

@@ -13,6 +13,7 @@ const initialGameContext = {
 };
 
 const initialPlayerContext = {
+  isPlayerCreated: false,
   playerNickname: null,
   playerId: null,
   scoreTurn: false,

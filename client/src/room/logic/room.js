@@ -77,113 +77,13 @@ static resizeCanvas(canvas, setIsResize) {
     setIsResize(true);
 }
 //GAMEHEADER
-  static updateGameInfo(gameData, gameInfo, setGameInfo) {
-    setGameInfo({ ...gameInfo, ...gameData.updatedFields });
-  }
 
-  static restartGame(tableSocket) {
-    return () => {
-      if (tableSocket) {
-        tableSocket.emit('restart-game');
-      }
-    };
-  }
-
-  static stopGame(tableSocket) {
-    return () => {
-      if (tableSocket) {
-        tableSocket.emit('stop-game');
-      }
-    };
-  }
-
-  static startGame(tableSocket) {
-    if (tableSocket) {
-      tableSocket.emit('start-game');
-    }
-  }
-
-  static selectFinalWord(word, room, setIsButtonDisabled) {
-    setIsButtonDisabled(true);
-    AxiosRoutes.saveWord({
-      finalWord: word,
-      room,
-    });
-  }
-  static renderGameContent(gameInfo,
-    isButtonDisabled, 
-    setIsButtonDisabled,
-    room,) {
-    if (gameInfo.gameOn) {
-      return (
-        <>
-          <div>
-            <h4>Round: {gameInfo.round}</h4>
-            <h4>Turn: {gameInfo.turn}</h4>
-          </div>
-          <div>
-            {gameInfo.mainPlayer ? (
-              <>
-                {gameInfo.fase === "select-word" ? (
-                  gameInfo.threeWords?.map((word, index) => (
-                    <button key={index} onClick={() => RoomLogic.selectFinalWord(word, room, setIsButtonDisabled)} disabled={isButtonDisabled}>
-                        {word}
-                    </button>
-                  ))
-                ) : gameInfo.fase === "guess-word" ? (
-                  <p>word: {gameInfo.word}</p>
-                ) : null}
-              </>
-            ) : null}
-          </div>
-          {gameInfo.fase === "select-word" || gameInfo.fase === "guess-word" ? (
-            <p>timeLeftMax: {Math.round(gameInfo.timeLeftMax)}</p>
-          ) : (
-            <h1>{gameInfo.fase}</h1>
-          )}
-        </>
-      );
-    } else {
-      return <button onClick={RoomLogic.startGame}>Start</button>;
-    }
-  }
 //NICKNAMEINPUT
-static async handleNicknameSubmission(playerNickname, room, setMyState) {
-    if (playerNickname === '') return;
 
-    try {
-      const res = await AxiosRoutes.createPlayer({
-        room,
-        playerNickname,
-      });
-
-      const newPlayerId = res.data.newPlayerId;
-      console.log(newPlayerId);
-      setMyState({ playerNickname, playerId: newPlayerId });
-    } catch (error) {
-      // Handle error, if any
-      console.error(error);
-    }
-  }
 //SIDEBAR
-  static async checkPlayers(setPlayers, setPlayersLength, room) {
-      try {
-      const response = await AxiosRoutes.checkPlayers({ room });
-      const { playerArray, playerCount } = response;
-      if (playerArray) {
-          setPlayers(playerArray);
-          setPlayersLength(playerCount);
-      }
-      } catch (error) {
-      console.error('Error checking players:', error);
-      }
-  }
+  
 
-  static updatePlayersList(data, setPlayers, setPlayersLength,) {
-      const { playerArray, playerCount } = data;
-      setPlayers(playerArray);
-      setPlayersLength(playerCount);
-  }
+
   //ROOM
   static socketConnection(socket, roomId) {
     socket.on("connect", () => {
@@ -196,3 +96,6 @@ static async handleNicknameSubmission(playerNickname, room, setMyState) {
   }
 };
 
+static updateGameInfo(gameData, gameInfo, setGameInfo) {
+  setGameInfo({ ...gameInfo, ...gameData.updatedFields });
+}
