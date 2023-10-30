@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { usePlayerContext, useRoomContext, useGameContext } from "../context";
-import { AxiosRoutes } from '../../http_router';
+import { AxiosRoutes } from '../../DB_services';
 
 const GameHeader = () => {
   const { isGamePlaying, word, gamePhase, round, turn } = useGameContext();
