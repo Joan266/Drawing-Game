@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import { usePlayerContext, useRoomContext,useSetPlayerContext } from "../context";
+import React, { useState, useContext, useEffect, useRef, useReducer } from 'react';
+import { usePlayerContext, useRoomContext, useSetPlayerContext } from "../context";
 import { AxiosRoutes } from '../../http_router';
 
 function playersReducer(players, action) {
@@ -49,19 +49,36 @@ const Players = () => {
   const { isPlayerCreated } = usePlayerContext();
   const { socket, room } = useRoomContext();
   const { setPlayerContext } = useSetPlayerContext();
-  const initialPlayers = async () => {
-    return await AxiosRoutes.initialPlayers({ room });
-  };
-  const [players, dispatch] = useReducer(playersReducer, initialPlayers());
+  
+  // Load initial players from your API when the component mounts.
+  useEffect(() => {
+    async function loadInitialPlayers() {
+      const initialPlayers = await AxiosRoutes.initialPlayers({ room });
+      dispatch({ type: 'SET_INITIAL_PLAYERS', players: initialPlayers });
+    }
+    loadInitialPlayers();
+  }, [room]);
+
+  const [players, dispatch] = useReducer(playersReducer, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const playerNickname = playerNicknameRef.current.value;
     if (playerNickname === '') return;
-    await AxiosRoutes.createPlayer({
-      playerNickname,
-    });
+    
+    // Call the API to create a player and update the context when it's done.
+    const player = await AxiosRoutes.createPlayer({ playerNickname });
     setPlayerContext({ playerNickname, isPlayerCreated: true });
+    
+    // Add the newly created player to the list of players.
+    dispatch({
+      type: 'ADD_PLAYER',
+      playerNickname: player.playerNickname,
+      id: player.id
+    });
+    
+    // Clear the input field.
+    playerNicknameRef.current.value = '';
   };
 
   useEffect(() => {
@@ -71,7 +88,7 @@ const Players = () => {
         type: 'ADD_PLAYER',
         playerNickname,
         id
-      }); 
+      });
     };
     socket.on('players:update', handleAddPlayer);
     return () => {
@@ -91,7 +108,7 @@ const Players = () => {
   );
 };
 
-const PlayersList = ({players}) => {
+const PlayersList = ({ players }) => {
   return (
     <ul className="playersList">
       {players.map((player, index) => (
@@ -101,9 +118,9 @@ const PlayersList = ({players}) => {
   );
 };
 
-const Player = ({player, index}) => {
+const Player = ({ player }) => {
   return (
-    <li className='player' key={index}>
+    <li className='player'>
       <p>{player.playerNickname}: {player.score}</p>
     </li>
   );
