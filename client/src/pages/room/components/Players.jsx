@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect, useRef, useReducer } from 'react';
-import { usePlayerContext, useRoomContext, useSetPlayerContext } from "../context";
+import React, { useEffect, useRef, useReducer } from 'react';
+import { usePlayerContext, useRoomContext } from "../context";
 import { AxiosRoutes } from '../../http_router';
 
 function playersReducer(players, action) {
@@ -48,7 +48,6 @@ const Players = () => {
   const playerNicknameRef = useRef(null);
   const { isPlayerCreated } = usePlayerContext();
   const { socket, room } = useRoomContext();
-  const { setPlayerContext } = useSetPlayerContext();
   
   // Load initial players from your API when the component mounts.
   useEffect(() => {
@@ -68,7 +67,6 @@ const Players = () => {
     
     // Call the API to create a player and update the context when it's done.
     const player = await AxiosRoutes.createPlayer({ playerNickname });
-    setPlayerContext({ playerNickname, isPlayerCreated: true });
     
     // Add the newly created player to the list of players.
     dispatch({
