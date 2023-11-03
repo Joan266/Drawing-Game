@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useReducer } from 'react';
-import { usePlayerContext, useRoomContext } from "../context";
+import React, { useEffect, useReducer } from 'react';
+import { useRoomContext } from "../context";
 import { AxiosRoutes } from '../../http_router';
 
 function playersReducer(players, action) {
@@ -10,24 +10,19 @@ function playersReducer(players, action) {
         id: action.id,
         score: 0,
       };
-
-      if (newPlayer.playerNickname && players.length < 8) {
-        return [...players, newPlayer];
-      }
-      return players;
+        
+      return [...players, newPlayer];
 
     case 'UPDATE_PLAYER_SCORE':
-      const { score, id } = action;
       return players.map(player => {
-        if (player.id === id) {
-          return { ...player, score: player.score + score };
+        if (player.id === action.id) {
+          return { ...player, score: player.score + action.score };
         }
         return player;
       });
 
     case 'DELETE_PLAYER':
-      const { id } = action;
-      return players.filter(player => player.id !== id);
+      return players.filter(player => player.id !== action.id);
 
     case 'CLEAR_PLAYERS':
       return [];
@@ -45,8 +40,6 @@ function playersReducer(players, action) {
 }
 
 const Players = () => {
-  const playerNicknameRef = useRef(null);
-  const { isPlayerCreated } = usePlayerContext();
   const { socket, room } = useRoomContext();
   
   // Load initial players from your API when the component mounts.
@@ -60,25 +53,6 @@ const Players = () => {
 
   const [players, dispatch] = useReducer(playersReducer, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const playerNickname = playerNicknameRef.current.value;
-    if (playerNickname === '') return;
-    
-    // Call the API to create a player and update the context when it's done.
-    const player = await AxiosRoutes.createPlayer({ playerNickname });
-    
-    // Add the newly created player to the list of players.
-    dispatch({
-      type: 'ADD_PLAYER',
-      playerNickname: player.playerNickname,
-      id: player.id
-    });
-    
-    // Clear the input field.
-    playerNicknameRef.current.value = '';
-  };
-
   useEffect(() => {
     const handleAddPlayer = (player) => {
       const { playerNickname, id } = player;
@@ -88,20 +62,15 @@ const Players = () => {
         id
       });
     };
-    socket.on('players:update', handleAddPlayer);
+    socket.on('players:addplayer', handleAddPlayer);
     return () => {
-      socket.off('players:update', handleAddPlayer);
+      socket.off('players:addplayer', handleAddPlayer);
     };
   }, [socket]);
 
   return (
     <div className="players">
       <PlayersList players={players} />
-      <form className="input" onSubmit={handleSubmit}>
-        <label>
-          <input type="text" placeholder="Join the game.." ref={playerNicknameRef} />
-        </label>
-      </form>
     </div>
   );
 };

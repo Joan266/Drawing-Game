@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLocation } from "react";
 import { Sidebar, Chat, Game, Navbar } from "./components";
-import './style_sheet/room'; // Assuming this is the correct path to your stylesheet
+import './style_sheet/room'; 
 import { io } from "socket.io-client";
 import { useParams } from 'react-router-dom';
 import MyProviders from './context';
 
 const Room = () => {
   const params = useParams();
-  const [room, setRoom] = useState({ id: params.room, socket: null }); // Initialize socket as null
+  const [socket, setSocket] = useState(null);
+  const location = useLocation();
+  const { playerId, playerNickname } = location.state;
 
   useEffect(() => {
     const currentURL = window.location.href;
-    const socket = io(currentURL);
-    socket.on("connect", () => {
-      socket.emit("room:join", params.room);
+    const roomSocket = io(currentURL);
+    roomSocket.on("connect", () => {
+      roomSocket.emit("room:join", {roomId: params.roomId, playerId});
     });
 
-    setRoom({ id: params.room, socket }); // Update the room state
-
+    setSocket(roomSocket); 
     return () => {
-      socket.disconnect();
+      roomSocket.disconnect();
     };
-  }, [params.room]); // Add params.room as a dependency
+  }, [params.roomId, playerId]); 
 
   return (
-    <MyProviders room={room}>
-      <div className="table">
+    <MyProviders roomId={params.roomId} socket={socket} playerNickname={playerNickname} playerId={playerId}>
+      <div className="room">
         <Navbar />
-        <div className="container">
+        <div className="componentsContainer">
           <Sidebar />
           <Game />
           <Chat />

@@ -12,20 +12,21 @@ const initialGameContext = {
   turn: 0,
 };
 
-const initialPlayerContext = {
-  isPlayerCreated: false,
-  playerNickname: null,
-  playerId: null,
-  scoreTurn: false,
-  wordGroup: [],
-  score: 0,
-  artistTurn: false,
-};
-
-export default function MyProviders({ children, roomContext }) {
+function MyProviders({ children, socket, roomId, playerNickname, playerId }) {
   const [gameContext, setGameContext] = useState(initialGameContext);
+  const initialPlayerContext = {
+    playerNickname,
+    playerId,
+    scoreTurn: false,
+    wordGroup: [],
+    score: 0,
+    artistTurn: false,
+  };
   const [playerContext, setPlayerContext] = useState(initialPlayerContext);
-  const { socket } = roomContext;
+  const roomContext = {
+    roomId,
+    socket
+  };
   useEffect(() => {
     const updateGameInfo = (gameData) => {
       setGameContext((prevGameContext) => ({
@@ -84,3 +85,5 @@ export function useSetGameContext() {
 export function useRoomContext() {
   return useContext(RoomContext);
 }
+
+export default MyProviders;
