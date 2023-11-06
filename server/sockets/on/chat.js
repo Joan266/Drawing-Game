@@ -38,7 +38,7 @@ export default async (roomId, socket, io) => {
           );
         }
       } else {
-        io.of('/table').to(roomId).emit('chat:message', { messageInput, playerNickname });
+        io.to(roomId).emit('chat:message', { messageInput, playerNickname });
       }
     } catch (error) {
       console.error(error);
