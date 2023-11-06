@@ -1,7 +1,7 @@
 import Players from '../../DB/models/schemas/players';
 import Game from '../../DB/models/schemas/game';
 
-export default async (room, socket, io) => {
+export default async (roomId, socket, io) => {
   const chatMessage = async (data) => {
     const {
       playerId,
@@ -12,8 +12,8 @@ export default async (room, socket, io) => {
     } = data;
     try {
       if (messageInput && messageInput.toUpperCase() === word?.toUpperCase() && gamePhase === "guess") {
-        // Find players in the room
-        const { playerArray, turnScoreCount, playerCount } = await Players.findById(room);
+        // Find players in the roomId
+        const { playerArray, turnScoreCount, playerCount } = await Players.findById(roomId);
         // Find the current player
         const player = playerArray.find((obj) => obj._id.toString() === playerId);
         const { scoreTurn } = player;
@@ -22,14 +22,14 @@ export default async (room, socket, io) => {
           // Filter players who can score
           if (turnScoreCount === (playerCount - 2)) {
             await Game.findByIdAndUpdate(
-              room,
+              roomId,
               { fase: "guess-end-phase" },
             );
           }
 
           // Update the player's score and set their turn to true
           await Players.findByIdAndUpdate(
-            room,
+            roomId,
             {
               "playerArray.$[player].scoreTurn": true,
               $inc: { turnScoreCount: 1 },
@@ -38,7 +38,7 @@ export default async (room, socket, io) => {
           );
         }
       } else {
-        io.of('/table').to(room).emit('chat:message', { messageInput, playerNickname });
+        io.to(roomId).emit('chat:message', { messageInput, playerNickname });
       }
     } catch (error) {
       console.error(error);

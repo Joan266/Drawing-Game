@@ -1,16 +1,16 @@
 import Players from '../../DB/models/schemas/players';
 import Game from '../../DB/models/schemas/game';
 
-export default async (room, socket) => {
+export default async (roomId, socket) => {
   const gameStart = async () => {
     await Game.findByIdAndUpdate(
-      room,
+      roomId,
       { gamePhase: true },
     );
   };
   const gameRestart = async () => {
     await Players.findByIdAndUpdate(
-      room,
+      roomId,
       {
         $set: {
           "playerArray.$[].artistTurn": false, "playerArray.$[].scoreTurn": false,
@@ -20,7 +20,7 @@ export default async (room, socket) => {
       },
     );
     await Game.findByIdAndUpdate(
-      room,
+      roomId,
       {
         artistId: null,
         turn: 0,
@@ -34,7 +34,7 @@ export default async (room, socket) => {
   };
   const gameStop = async () => {
     await Game.findByIdAndUpdate(
-      room,
+      roomId,
       { gameStatus: false },
     );
   };
