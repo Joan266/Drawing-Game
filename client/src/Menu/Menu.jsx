@@ -1,5 +1,5 @@
 import React, { useReducer } from "react";
-import '../pages_style/menu.scss';
+import './style_sheet/menu.scss';
 import Navbar from "./Navbar";
 import JoinGame from './components/JoinGame';
 import CreateGame from './components/CreateGame';
