@@ -1,14 +1,19 @@
 import React, { useRef, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
-import '../pages_style/join_table.scss';
-import { AxiosRoutes } from '../../http_router';
+import AxiosRoutes from '../../services/api'; // Assuming the correct path
+import Col from 'react-bootstrap/Col';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
 
 function joinGameReducer(state, action) {
   switch (action.type) {
     case 'WAITING':
       return { ...state, loading: true, error: null };
     case 'SUCCESS':
-      return { ...state, loading: false, room: action.payload.roomId };
+      return { ...state, loading: false, roomId: action.payload.roomId };
     case 'FAILURE':
       return { ...state, loading: false, error: action.payload.error };
     default:
@@ -33,7 +38,12 @@ const JoinGame = () => {
     dispatch({ type: 'WAITING' });
 
     try {
-      const { valid, msg, roomId, playerNickname, playerId } = await AxiosRoutes.joinGame({ roomId:codeRef.current.value, code:codeRef.current.value, playerNickname:playerNicknameRef.current.value });
+      const { valid, msg, roomId, playerNickname, playerId } = await AxiosRoutes.joingame({
+        roomId: roomRef.current.value, // Change to roomRef
+        code: codeRef.current.value,
+        playerNickname: playerNicknameRef.current.value,
+      });
+
       if (valid) {
         dispatch({ type: 'SUCCESS', payload: { roomId } });
         navigate(`/room/${roomId}`, { state: { playerId, playerNickname } });
@@ -47,41 +57,55 @@ const JoinGame = () => {
   };
 
   return (
-    <div className="joinGameContainer">
-      <>
-        <form onSubmit={handleSubmit}>
-          <label>
-            <p>Join the game</p>
-            <input
-              type="text"
-              name="room"
-              placeholder="Enter the game number"
-              ref={roomRef}
-              required
-            ></input>
-            <input
-              type="text"
-              name="code"
-              placeholder="Enter game code"
-              ref={codeRef}
-              required
-            ></input>
-            <input
-              type="text"
-              name="playerNicknameRef"
-              placeholder="Type a nickname.."
-              ref={playerNicknameRef}
-              required
-            ></input>
-          </label>
-          <button type="submit" disabled={state.loading}>
-            {state.loading ? 'Sending...' : 'Send'}
-          </button>
-          {state.error && <div className="error">{state.error}</div>}
-        </form>
-      </>
-    </div>
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <fieldset disabled={state.loading}>
+          <Row className="g-2">
+            <Col md>
+              <FloatingLabel controlId="room" label="Game Number">
+                <Form.Control
+                  type="text"
+                  name="room"
+                  placeholder="Enter the game number"
+                  ref={roomRef}
+                  required
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel controlId="code" label="Game Code">
+                <Form.Control
+                  type="text"
+                  name="code"
+                  placeholder="Enter game code"
+                  ref={codeRef}
+                  required
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel controlId="playerNickname" label="Nickname">
+                <Form.Control
+                  type="text"
+                  name="playerNickname"
+                  placeholder="Type a nickname.."
+                  ref={playerNicknameRef}
+                  required
+                />
+              </FloatingLabel>
+            </Col>
+            <div className="d-grid gap-2">
+              <Button variant="light" size="lg" type="submit">
+                {state.loading ? 'Sending...' : 'Send'}
+              </Button>
+            </div>
+          </Row>
+        </fieldset>
+        {state.error && <div className="error">{state.error}</div>}
+      </Form>
+    </Container>
   );
 };
 
 export default JoinGame;
+

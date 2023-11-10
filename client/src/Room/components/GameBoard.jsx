@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useReducer } from 'react';
-import { usePlayerContext, useGameContext, useRoomContext } from "../context";
+import { usePlayerContext, useGameContext, useRoomContext } from "../context/RoomContext";
 
 const Canvas = () => {
   const canvasRef = useRef(null);

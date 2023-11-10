@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useLocation } from "react";
-import { Sidebar, Chat, Game, Navbar } from "./components";
-import './style_sheet/room'; 
+import Chat from "./components/Chat";
+import GameBoard from "./components/GameBoard";
+import GameHeader from "./components/GameHeader";
+import Players from "./components/Players"
+import styles from './Room.module.scss'; 
 import { io } from "socket.io-client";
 import { useParams } from 'react-router-dom';
-import MyProviders from './context';
+import MyProviders from './context/RoomContext';
 
 const Room = () => {
   const params = useParams();
@@ -26,13 +29,11 @@ const Room = () => {
 
   return (
     <MyProviders roomId={params.roomId} socket={socket} playerNickname={playerNickname} playerId={playerId}>
-      <div className="room">
-        <Navbar />
-        <div className="componentsContainer">
-          <Sidebar />
-          <Game />
+      <div className="style.room">
+          <Players />
+          <GameBoard />
+          <GameHeader />
           <Chat />
-        </div>
       </div>
     </MyProviders>
   );
