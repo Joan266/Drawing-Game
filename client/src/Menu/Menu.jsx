@@ -2,11 +2,7 @@ import React, { useReducer } from "react";
 import styles from './Menu.module.scss'; 
 import JoinGame from './components/JoinGame';
 import CreateGame from './components/CreateGame';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import { Tabs, Tab } from 'react-bootstrap';
 
 const initialState = {
   showJoinGame: false,
@@ -26,26 +22,28 @@ const reducer = (state, action) => {
 
 function FillExample() {
   return (
-    <Container className={styles.menu}  fluid="md">
-      <Row>
-        <h1>DoodleCharm</h1>
-      </Row>
-      <Row>
-        <Tabs
-          defaultActiveKey="create"
-          id="fill-tab-example"
-          className="mb-3"
-          fill
-        >
-          <Tab eventKey="create" title="CreateGame">
-            <CreateGame />
-          </Tab>
-          <Tab eventKey="join" title="JoinGame">
-            <JoinGame />
-          </Tab>
-        </Tabs>
-      </Row>
-    </Container>
+    <>
+      <div className={styles.menu}>
+        <div className={styles.menuTitle}>
+          <h1>DoodleCharm</h1>
+        </div>
+        <div className={styles.menuForms}>
+            <Tabs
+              defaultActiveKey="create"
+              id="fill-tab-example"
+              className="mb-3"
+              fill
+            >
+              <Tab eventKey="create" title="CreateGame">
+                <CreateGame />
+              </Tab>
+              <Tab eventKey="join" title="JoinGame">
+                <JoinGame />
+              </Tab>
+            </Tabs>
+        </div>
+      </div>
+    </>
   );
 }
 

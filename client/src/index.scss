@@ -10,6 +10,17 @@
     --terciary-color: #1BE7FF;
    
 }
+html {
+    height: 100%;
+}
+    
+body {
+    display: flex; /* Enable flexbox on the body */
+    justify-content: center; /* Horizontally center the child container */
+    align-items: center; /* Vertically center the child container */
+    height: 100vh; /* Set the body's height to the viewport height */
+    margin: 0; /* Remove default margin */
+}
 
 
 // body {

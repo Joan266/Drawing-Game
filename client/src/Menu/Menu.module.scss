@@ -1,2 +1,48 @@
 .menu {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.menuTitle, .menuForms {
+  width: 100%;
+  flex: 1; /* Make both components occupy 50% of the available space */
+  display: flex;
+}
+.menuTitle {
+  background-image: url("https://static.vecteezy.com/system/resources/previews/020/204/385/original/colorful-seamless-pattern-fun-colorful-line-doodle-shape-background-yellow-green-violet-pink-red-blue-colors-mosaic-vector.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Optional: Fixed background */
+  background-position: center; /* Center the background image */
+  justify-content: center;
+  align-items: center;
+  margin:0 auto;
+  h1 {
+    color: white; /* Make the text color transparent */
+    font-size: 270px;
+    font-weight: bold;
+    -webkit-text-stroke: 5px rgba(255, 0, 0, 0.8); /* WebKit-based browsers */
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.2); /* Standard property for other browsers */
+  }
+}
+.menuForms {
+  flex-direction: column; 
+  .nav-tabs .nav-item {
+    font-size: 20px; /* Increase the font size as needed */
+  }
+
+  .nav-tabs .nav-link {
+    padding: 15px 25px; /* Adjust the padding as needed to make the tab items bigger */
+    border: 2px solid #FF5733; /* Change the border color to your desired color */
+    border-radius: 10px; /* Add rounded corners to the tab items */
+  }
+
+  /* Modify the active tab item */
+  .nav-tabs .nav-link.active {
+    background-color: #FF5733; /* Change the background color for the active tab item */
+    color: #fff; /* Change the text color for the active tab item */
+ }
 }
