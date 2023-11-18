@@ -1,5 +1,5 @@
-/* The following block can be included in a custom.scss */
+// Override default variables before the import
 
-/* make the customizations */
 
-/* import bootstrap to set changes */
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';

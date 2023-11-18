@@ -2,6 +2,7 @@ import React, { useRef, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import AxiosRoutes from '../../services/api'; // Assuming the correct path
 import Form from 'react-bootstrap/Form';
+import styles from '../Menu.module.scss';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
@@ -30,10 +31,11 @@ const JoinGame = () => {
   };
 
   return (
-    <Container>
+    <>
       <Form onSubmit={handleSubmit}>
         <fieldset disabled={state.loading}>
-          <Form.Group>
+        <div className={styles.formGroupContainer}>
+            <div className={styles.formGroup}>
             <FloatingLabel controlId="room" label="Game Number">
               <Form.Control
                 type="text"
@@ -43,8 +45,8 @@ const JoinGame = () => {
                 required
               />
             </FloatingLabel>
-          </Form.Group>
-          <Form.Group>
+          </div>
+          <div className={styles.formGroup}>
             <FloatingLabel controlId="code" label="Game Code">
               <Form.Control
                 type="text"
@@ -54,8 +56,8 @@ const JoinGame = () => {
                 required
               />
             </FloatingLabel>
-          </Form.Group>
-          <Form.Group>
+          </div>
+          <div className={styles.formGroup}>
             <FloatingLabel controlId="playerNickname" label="Nickname">
               <Form.Control
                 type="text"
@@ -65,14 +67,16 @@ const JoinGame = () => {
                 required
               />
             </FloatingLabel>
-          </Form.Group>
-          <Button variant="light" size="lg" type="submit">
-            {state.loading ? 'Sending...' : 'Send'}
-          </Button>
+          </div>
+          <Button variant="primary" type="submit" disabled={state.loading}>
+          {state.loading ? 'Joining...' : 'Join Game'}
+        </Button>
+          </div>
         </fieldset>
         {state.error && <div className="error">{state.error}</div>}
+        
       </Form>
-    </Container>
+    </>
   );
 };
 

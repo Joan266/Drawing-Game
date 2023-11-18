@@ -1,5 +1,5 @@
 /* The following line can be included in a src/App.scss */
-@import '~bootstrap/scss/bootstrap';
+@import './custom.scss';
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Gloria+Hallelujah&family=Roboto+Mono:wght@100&display=swap');
 
 :root {
@@ -8,7 +8,18 @@
     --primary-color: #000000;
     --secondary-color: #6EEB83;
     --terciary-color: #1BE7FF;
-   
+    --purple:#b787c5;
+    --blue:#0caaad;
+    --pink: #fe68b0;
+    --yellow: #f0c00d;
+    --green: #24a15d;
+    --red:#d94948;
+    --purple-darker: #9e6eaa;
+    --blue-darker: #0a8f9b;
+    --pink-darker: #e05398;
+    --yellow-darker: #d3a30b;
+    --green-darker: #1f844f;
+    --red-darker: #c53b3a;
 }
 html {
     height: 100%;
@@ -20,6 +31,8 @@ body {
     align-items: center; /* Vertically center the child container */
     height: 100vh; /* Set the body's height to the viewport height */
     margin: 0; /* Remove default margin */
+    width: 100%;
+    background-color: #6EEB83;
 }
 
 

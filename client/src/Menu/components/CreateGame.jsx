@@ -1,9 +1,9 @@
 import React, { useRef, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import AxiosRoutes from '../../services/api'; // Assuming the correct path
+import styles from '../Menu.module.scss';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 
 function createGameReducer(state, action) {
@@ -29,40 +29,42 @@ const CreateGame = () => {
   };
 
   return (
-    <Container>
+    <>
       <Form onSubmit={handleSubmit}>
         <fieldset disabled={state.loading}>
-          <Form.Group>
-            <FloatingLabel controlId="code" label="Game Code">
-              <Form.Control
-                type="text"
-                name="code"
-                placeholder="Enter code"
-                ref={codeRef}
-                required
-              />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group>
-            <FloatingLabel controlId="playerNickname" label="Nickname">
-              <Form.Control
-                type="text"
-                name="playerNickname"
-                placeholder="Type a nickname.."
-                ref={playerNicknameRef}
-                required
-              />
-            </FloatingLabel>
-          </Form.Group>
-          <Button variant="light" size="lg" type="submit">
-            {state.loading ? 'Sending...' : 'Send'}
-          </Button>
+          <div className={styles.formGroupContainer}>
+            <div className={styles.formGroup}>
+              <FloatingLabel controlId="code" label="Secret word">
+                <Form.Control
+                  type="text"
+                  name="code"
+                  placeholder=""
+                  ref={codeRef}
+                  required
+                />
+              </FloatingLabel>
+            </div>
+            <div className={styles.formGroup}>
+              <FloatingLabel controlId="playerNickname" label="Name">
+                <Form.Control
+                  type="text"
+                  name="playerNickname"
+                  placeholder=""
+                  ref={playerNicknameRef}
+                  required
+                />
+              </FloatingLabel>
+            </div>
+            <Button variant="primary" type="submit" disabled={state.loading}>
+          {state.loading ? 'Joining...' : 'Join Game'}
+        </Button>
+          </div>
         </fieldset>
         {state.error && <div className="error">{state.error}</div>}
+       
       </Form>
-    </Container>
+    </>
   );
 };
 
 export default CreateGame;
-
