@@ -96,8 +96,9 @@ const MenuForm = () => {
             onChange={(e) => dispatch({ type: 'SET_USERNAME', payload: e.target.value })}
             isInvalid={!!state.usernameError}
           />
-          <Form.Control.Feedback type="invalid">
-            {state.usernameError}
+    
+          <Form.Control.Feedback type="invalid" tooltip="true">
+              {state.usernameError}
           </Form.Control.Feedback>
         </InputGroup>
 
@@ -111,8 +112,8 @@ const MenuForm = () => {
             onChange={(e) => dispatch({ type: 'SET_ROOM_CODE', payload: e.target.value })}
             isInvalid={!!state.roomCodeError}
           />
-          <Form.Control.Feedback type="invalid">
-            {state.roomCodeError}
+          <Form.Control.Feedback type="invalid" tooltip="true">
+            {state.roomCodeError} 
           </Form.Control.Feedback>
         </InputGroup>
 
