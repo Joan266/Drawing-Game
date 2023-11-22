@@ -9,11 +9,11 @@ import { useParams } from 'react-router-dom';
 import MyProviders from './context/RoomContext';
 
 const Room = () => {
+
   const params = useParams();
   const [socket, setSocket] = useState(null);
   const location = useLocation();
   const { playerId, playerNickname } = location.state;
-
   useEffect(() => {
     const currentURL = window.location.href;
     const roomSocket = io(currentURL);
@@ -29,7 +29,8 @@ const Room = () => {
 
   return (
     <MyProviders roomId={params.roomId} socket={socket} playerNickname={playerNickname} playerId={playerId}>
-      <div className="style.room">
+      <div className={styles.room}>
+        <h1>Hello</h1>
           <Players />
           <GameBoard />
           <GameHeader />

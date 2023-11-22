@@ -1,4 +1,3 @@
-
 .menu {
   position: relative;
   display: flex;
@@ -10,9 +9,8 @@
   background: url("https://static.vecteezy.com/system/resources/previews/020/204/385/original/colorful-seamless-pattern-fun-colorful-line-doodle-shape-background-yellow-green-violet-pink-red-blue-colors-mosaic-vector.jpg") center/cover no-repeat fixed;
 }
 
-
-.menuTitle {
-  flex: 1;
+.titleContainer {
+  flex: 4;
   background: transparent;
   align-items: center;
   justify-content: center;
@@ -27,21 +25,60 @@
   }
 }
 
-.menuForms {
-  flex:1;
+.leftSideContainer {
+  flex: 1;
   height: 100%;
-  background-color: #ffffffd8;
-}
-.formGroupContainer {
-  align-items: center;
-  display: flex;
+  background-color: #ffffff;
   flex-direction: column;
-  margin: 10px 20px;
-  justify-content: center;
-  height: 100%;
+  display: flex;
+  padding: 0 80px;
 }
 
-.formGroup {
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   flex: 1;
-  margin: 5px 0;
+}
+
+.buttonsContainer {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.labelContainer {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.createRoomButton,
+.joinRoomButton {
+  flex: 1; 
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: transparent; /* Default grey background */
+  border: none; /* Use transparent initially */
+  color: #ccc; /* Text color */
+  transition: 0.2s;
+  font-weight: bold;
+}
+.disabledButton {
+  flex: 1; 
+  padding: 10px;
+  font-size: 16px;
+  background-color: transparent; /* Default grey background */
+  border: none; /* Use transparent initially */
+  color: #ccc; /* Text color */
+  font-weight: bold;
+}
+.createRoomButtonOn,
+.joinRoomButtonOn {
+  color: #0f0f0f; /* Text color */
+}
+.createRoomButton:hover, .joinRoomButton:hover {
+  color: darkred;
 }
