@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from 'react';
-import { useRoomContext } from "../context";
-import { AxiosRoutes } from '../../http_router';
+import { useRoomContext } from "../context/RoomContext";
+import AxiosRoutes from '../../services/api';
 
 function playersReducer(players, action) {
   switch (action.type) {

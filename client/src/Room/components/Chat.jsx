@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useReducer } from 'react';
-import { usePlayerContext, useGameContext, useRoomContext,useSetPlayerContext } from "../context";
+import { usePlayerContext, useGameContext, useRoomContext,useSetPlayerContext } from "../context/RoomContext";
 
 function chatReducer(messages, action) {
   switch (action.type) {
@@ -31,7 +31,7 @@ function chatReducer(messages, action) {
   }
 }
 
-export const Chat = () => {
+function Chat() {
   const textRef = useRef(null);
   const { isGamePlaying,
           word,
@@ -110,3 +110,5 @@ const Message = ({message, index}) => {
     </li>
   );
 };
+
+export default Chat;
