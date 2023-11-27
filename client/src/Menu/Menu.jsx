@@ -46,6 +46,7 @@ const MenuForm = () => {
         navigate(`/room/${response.room}`);
       } else {
         dispatch({ type: 'SET_USERNAME', payload: '' });
+        dispatch({ type: 'SET_ROOM_CODE', payload: '' });
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     });
@@ -53,12 +54,12 @@ const MenuForm = () => {
 
   const handleJoinRoom = () => {
     // Validation checks
-    if (state.username.length === 0 || state.username.length > 12) {
-      dispatch({ type: 'SET_USERNAME_ERROR', payload: 'Username must be between 1 and 12 characters' });
+    if (state.username.length === 0 || state.username.length > 8) {
+      dispatch({ type: 'SET_USERNAME_ERROR', payload: 'The name created should be between 1 and 8 characters long' });
     }
     
     if (!(/^[A-Z0-9]{6}$/.test(state.roomCode))) {
-      dispatch({ type: 'SET_ROOM_CODE_ERROR', payload: 'Room code must be 6 characters and a combination of numbers and uppercase letters' });
+      dispatch({ type: 'SET_ROOM_CODE_ERROR', payload: 'Ask the owner the room code' });
     }
 
     if (state.username.length === 0 || state.username.length > 12 || !(/^[A-Z0-9]{6}$/.test(state.roomCode))) {
@@ -67,7 +68,7 @@ const MenuForm = () => {
 
     dispatch({ type: 'SET_LOADING', payload: true });
 
-    AxiosRoutes.createGame({ username: state.username, roomCode: state.roomCode }).then((response) => {
+    AxiosRoutes.joinGame({ username: state.username, roomCode: state.roomCode }).then((response) => {
       if (response.success) {
         navigate(`/room/${response.room}`);
       } else {
@@ -80,17 +81,13 @@ const MenuForm = () => {
 
   return (
       <fieldset disabled={state.loading} className={styles.formContainer}>
-        <div className={styles.labelContainer}><ColoredText />{state.loading && (
-        <div className={styles.spinnerOverlay}>
-          <Spinner animation="border" role="status">
-          </Spinner>
-        </div>
-      )}</div>
+        <div className={styles.labelContainer}><ColoredText /></div>
+        <p style={{color:'#0f0f0f', fontWeight:'bold'}}>Room</p>
         <InputGroup className="mb-3">
           <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
           <Form.Control
-            placeholder="Username"
-            aria-label="Username"
+            placeholder="Name"
+            aria-label="Name"
             aria-describedby="basic-addon1"
             value={state.username}
             onChange={(e) => dispatch({ type: 'SET_USERNAME', payload: e.target.value })}
@@ -105,8 +102,8 @@ const MenuForm = () => {
         <InputGroup className="mb-3">
           <InputGroup.Text id="basic-addon2">#</InputGroup.Text>
           <Form.Control
-            placeholder="Room code"
-            aria-label="Room code"
+            placeholder="Code"
+            aria-label="Code"
             aria-describedby="basic-addon2"
             value={state.roomCode}
             onChange={(e) => dispatch({ type: 'SET_ROOM_CODE', payload: e.target.value })}
@@ -118,27 +115,36 @@ const MenuForm = () => {
         </InputGroup>
 
         <div className={styles.buttonsContainer}>
-          <button
-            className={`${state.usernameError || state.loading ? styles.disabledButton : styles.createRoomButton} ${state.username && !state.usernameError ? styles.createRoomButtonOn : ''}`}
-            onClick={handleCreateRoom}
-            disabled={state.loading }
-          >
-            Create
-          </button>
-          <button
-            className={`${state.usernameError || state.roomCodeError|| state.loading ? styles.disabledButton : styles.joinRoomButton} ${state.username && state.roomCode && !state.usernameError && !state.roomCodeError ? styles.joinRoomButtonOn : ''}`}
-            onClick={handleJoinRoom}
-            disabled={state.loading}
-          >
-            Join
-          </button>
+        {state.loading ? 
+            <Spinner
+          as="span"
+          animation="border"
+          size="sm"
+          role="status"
+          aria-hidden="true"
+          style={{color:'#ccc'}}
+        /> : <><button
+        className={`${state.usernameError || state.loading ? styles.disabledButton : styles.createRoomButton} ${state.username && !state.usernameError ? styles.createRoomButtonReady : ''}`}
+        onClick={handleCreateRoom}
+        disabled={state.loading }
+      >
+        Create
+      </button>
+      <button
+        className={`${state.usernameError || state.roomCodeError|| state.loading ? styles.disabledButton : styles.joinRoomButton} ${state.username && state.roomCode && !state.usernameError && !state.roomCodeError ? styles.joinRoomButtonReady : ''}`}
+        onClick={handleJoinRoom}
+        disabled={state.loading}
+      >
+        Join
+      </button></> }
+          
         </div>
       </fieldset>
   );
 };
 
 const ColoredText = () => {
-  const text = "Doodle";
+  const text = "DoodleCharm";
 
   const getLetterStyle = (letter, index) => {
     const colors = [
@@ -151,7 +157,7 @@ const ColoredText = () => {
     ];
     const fontSize = `${42 + index}px`;
     const fontWeight = index % 2 === 0 ? 'bold' : 'normal'; 
-    const color = colors[5 - (index % colors.length)];
+    const color = colors[ (index % colors.length)];
     return { color, fontSize, fontWeight };
   };
 
@@ -163,7 +169,7 @@ const ColoredText = () => {
     ));
   };
 
-  return <h1>{renderColoredText()} Room</h1>;
+  return <p>{renderColoredText()}</p>;
 };
 
 const Menu = () => {

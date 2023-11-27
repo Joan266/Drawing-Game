@@ -37,18 +37,22 @@
 .formContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   flex: 1;
 }
 
 .buttonsContainer {
-  margin-top: 50px;
+  margin-top: 250px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  span {
+    margin-left: auto; 
+    margin-right: auto; 
+  }
 }
 .labelContainer {
-  margin-bottom: 20px;
+  margin-top: 110px;
+  margin-bottom: 140px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -58,7 +62,7 @@
 .joinRoomButton {
   flex: 1; 
   padding: 10px;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   background-color: transparent; /* Default grey background */
   border: none; /* Use transparent initially */
@@ -75,8 +79,8 @@
   color: #ccc; /* Text color */
   font-weight: bold;
 }
-.createRoomButtonOn,
-.joinRoomButtonOn {
+.createRoomButtonReady,
+.joinRoomButtonReady {
   color: #0f0f0f; /* Text color */
 }
 .createRoomButton:hover, .joinRoomButton:hover {
