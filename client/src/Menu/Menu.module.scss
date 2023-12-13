@@ -10,7 +10,7 @@
 }
 
 .titleContainer {
-  flex: 4;
+  flex: 5;
   background: transparent;
   align-items: center;
   justify-content: center;
@@ -24,7 +24,6 @@
     text-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
   }
 }
-
 .leftSideContainer {
   flex: 1;
   height: 100%;
@@ -37,28 +36,29 @@
 .formContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   flex: 1;
+  justify-content: space-around;
 }
-
 .buttonsContainer {
-  margin-top: 50px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  span {
+    margin-left: auto; 
+    margin-right: auto; 
+  }
 }
-.labelContainer {
-  margin-bottom: 20px;
+.inputGroupContainer {
+  height: 14%;
   display: flex;
-  flex-direction: row;
-  align-items: center;
   justify-content: space-between;
+  flex-direction: column;
 }
 .createRoomButton,
 .joinRoomButton {
   flex: 1; 
   padding: 10px;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   background-color: transparent; /* Default grey background */
   border: none; /* Use transparent initially */
@@ -75,10 +75,11 @@
   color: #ccc; /* Text color */
   font-weight: bold;
 }
-.createRoomButtonOn,
-.joinRoomButtonOn {
-  color: #0f0f0f; /* Text color */
+.createRoomButtonReady,
+.joinRoomButtonReady {
+  color: #0f0f0f;
+  
 }
 .createRoomButton:hover, .joinRoomButton:hover {
-  color: darkred;
+  color: hotpink; /* Text color */
 }

@@ -1,21 +1,14 @@
 import mongoose from 'mongoose';
 
-const gameSchema = new mongoose.Schema({
+const turnSchema = new mongoose.Schema({
   _id: {
     type: Number,
   },
-  isGamePlaying: {
-    type: Boolean,
-    default: false,
-  },
-  gamePhase: {
+  roomId: {
     type: String,
+    required: true,
   },
-  round: {
-    type: Number,
-    default: 0,
-  },
-  turn: {
+  phase: {
     type: Number,
     default: 0,
   },
@@ -31,4 +24,4 @@ const gameSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model('Game', gameSchema);
+export default mongoose.model('Game', turnSchema);

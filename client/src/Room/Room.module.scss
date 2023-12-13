@@ -1,7 +1,328 @@
 .room {
-width:100%;
-background-color: aquamarine;
-height: 100%;
-position: relative;
-display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: whitesmoke;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  .topBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 15%;
+    background: url("https://static.vecteezy.com/system/resources/previews/020/204/385/original/colorful-seamless-pattern-fun-colorful-line-doodle-shape-background-yellow-green-violet-pink-red-blue-colors-mosaic-vector.jpg") center/cover no-repeat fixed;
+  }
+}
+.container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 49%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: 85%; 
+  height: 95%;
+  background-color: #ccc; 
+  .roomInfoContainer {
+    flex:1;
+    background-color: bisque;
+   }
+  .down {
+    flex:9;
+    background-color: lightpink;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    .playersContainer {
+      flex:1;
+      position: relative;
+      background-color: cyan;
+    }
+    .right {
+      position: relative;
+      flex:4;
+      .gameInfoContainer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 80%;
+        height: 10%;
+        background-color: red;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        button {
+          background-color: #ff69b4; /* Hot pink color */
+          color: #fff; /* Text color (white) */
+          font-weight: bold;
+          padding: 15px 30px; /* Adjust padding for the button size */
+          font-size: 28px; /* Adjust font size */
+          border: none; /* Remove border */
+          border-radius: 8px; /* Add rounded corners */
+          width: 60%;
+          cursor: pointer; /* Add cursor pointer on hover */
+          transition: background-color 0.3s ease; /* Add transition effect */
+        }
+        button:hover {
+          background-color: #ff4f9a; /* Darker hot pink on hover */
+        }     
+      }
+      .boardContainer {
+        position: absolute;
+        top: 10%;
+        right:0;
+        width: 80%;
+        height: 80%;
+        background-color: lightgoldenrodyellow;
+      }
+      .chatContainer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20%;
+        height: 90%;
+        background-color: white;
+        padding:0  5px ;
+        display:flex;
+        flex-direction: column;
+        justify-content: end;
+        .block1{
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 95%;
+          height: 2%;
+          background-color: white;
+          opacity: 0.5;
+        }
+        .block2{
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 95%;
+          height: 2%;
+          background-color: white;
+          opacity: 0.5;
+        }
+        .content {
+          width: 100%;
+          height: 100%;
+          padding: 10px;
+          font-size: 14px;
+          border: none;
+          border-radius: 4px;
+          margin-bottom: 10px;
+          overflow-y: auto;
+          cursor: default;
+          white-space: pre-wrap;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          display: flex;
+          flex-direction: column-reverse; 
+          padding-top: 10px; 
+          padding-bottom: 10px; 
+          .content:focus {
+            outline: none; 
+          }
+          
+          .message {
+            margin-top: 8px;
+            padding-right: 5px;
+          }
+          
+          &::-webkit-scrollbar {
+            width: 5px;
+          }
+        
+          &::-webkit-scrollbar-thumb {
+            background-color: hotpink; /* Adjust the color as needed */
+            border-radius: 4px;
+          }
+        
+          &::-webkit-scrollbar-track {
+            background-color: lightpink;
+            border-radius: 4px;
+          }
+        } 
+       }
+       .chatInput {
+         position: absolute;
+         bottom: 0;
+         left: 0;
+         width: 100%;
+         height: 10%;
+         background-color: lightgreen;
+         align-items: center;
+         justify-content: center;
+         display: flex;
+         input {
+           background-color: white;
+           width: 80%;
+           height: 80%;
+           padding: 0 .5em;
+           position: relative;
+           font-size: 1.1em;
+           appearance: none;
+           border: none;
+           outline: none;
+           input::placeholder {
+             margin-left: 2em; 
+           }
+         }
+       }
+    }
+  }
+}
+
+
+// .headerContainer {
+//   flex:1;
+//   background-color: lightgrey;
+// }
+
+// .boardContainer {
+//   flex:12;
+//   display: flex;
+//   flex-direction: row;
+//   background-color: white;
+// }
+// .chatContainer {
+//   position: relative;
+//   width: 100%;
+//   height: 100%;
+//   z-index: 2;
+//   .chatInput {
+//     position: absolute;
+//     bottom: 0;
+//     left: 0;
+//     width: 100%;
+//     height: 10%;
+//     padding:.5em 1.5em .5em 1.5em;
+//     label{
+//       position:relative; 
+//       width:100%;
+//       height: 100%;
+//       padding: 0 .8em;
+//       border:none;
+//       border-radius: 5px ;
+//       padding:.5em;
+//       border:1px solid #CDCDCA;
+//       box-shadow: 0   0   2px 0  #CDCDCA inset;
+//       white-space:nowrap; 
+//       input{
+//         position: relative;
+//         font-size:1.1em;
+//         width:100%;
+//         appearance:none;
+//         border:none;     
+//         outline:none;
+//       }
+//       input::placeholder {
+//         padding-left: 0.25em; 
+//       }
+//     }
+//   }
+// }
+
+// .playersContainer {
+//   flex:1;
+//   background-color: lightcoral;
+//   width: 100%;
+//   height: 100%;
+// }
+
+.characterContainer {
+  display: inline-block;
+  margin-right: 10px; /* Adjust spacing between character containers */
+  width: 80%;
+}
+.word {
+  display: flex;
+  flex-direction: row;
+  align-self: flex-start; 
+}
+.character {
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  font-size: 40px;
+  height: 75%;
+  width: 35px;
+}
+
+.lowBar {
+  width: 100%;
+  height: 4px;
+  background-color: white; /* Color of the low bar */
+  margin-top: 5px; /* Adjust spacing between character and low bar */
+}
+
+.wordContainer {
+  display: flex;
+  justify-content: center; /* Center the character containers */
+  width: 80%;
+  height: 100%;
+  background-color: #ff69b4;
+  z-index: 2;
+}   
+
+.timer{
+  display: flex;
+  justify-content: center; /* Center the character containers */
+  width: 40%;
+  height: 100%;
+  background-color: #ff69b4;
+  z-index: 2;
+  .time {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    color: #fff;
+  }
+  
+  svg{
+    display: inline-block;
+    vertical-align: middle;
+  }
+  circle{
+    stroke-width: 5px;
+    fill: transparent;
+    stroke-linecap: round;
+  }
+  
+  #circle1{
+    stroke: rgba(0,0,0, .4);
+  }
+  
+  #circle2{
+    stroke:#bbe1fa;
+    transition: 1s linear;
+  }
+  
+  button{
+    vertical-align: middle;
+    width: 80px;
+    padding: 10px;
+    margin: 0;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    background-color: #0f4c75;
+  }
+  
+  button:focus{
+    outline:none;
+  }
+  
+  button:active{
+    box-shadow: inset 0px 0px 1px 2px #1b262c;
+  }
 }
