@@ -1,13 +1,32 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import './index.scss'; 
-ReactDOM.render(
-  <React.StrictMode>
+import React, { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { StrictMode } from 'react';
+import './index.scss';
+import Menu from './Menu/Menu.jsx';
+import Room from './Room/Room.jsx';
+
+function App() {
+  useEffect(() => {
+    console.log('rendered');
+  }, []);
+
+  return (
     <BrowserRouter>
-      <App />
+      <Routes>
+        <Route path="/">
+          <Route path="room" element={<Room />} />
+          <Route path="menu" element={<Menu />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
-  </React.StrictMode>,
-  document.body
+  );
+}
+
+const container = document.getElementById('app');
+const root = createRoot(container);
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>
 );

@@ -8,12 +8,12 @@ const http = axios.create({
 });
 
 export default class AxiosRoutes {
-    static async createGame(data) {
+    static async createRoom(data) {
         try {
-            const response = await http.post("/creategame", data);
+            const response = await http.post("/createroom", data);
             return response.data;
         } catch (error) {
-            console.error("Error creating game:", error);
+            console.error("Error creating room:", error);
             throw error;
         }
     }

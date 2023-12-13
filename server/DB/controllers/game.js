@@ -1,4 +1,4 @@
-import Game from '../model/game.js';
+import Game from '../schemas/game.js';
 
 export const gameController = {
   gameinfo: async (req, res) => {

@@ -1,8 +1,7 @@
-import Game from '../models/game.js';
-import { DrawingGame } from './game-logic.js';
-import { io } from '../../index.js';
+import Game from '../schemas/game.js';
+import { DrawingGame } from './logic.js';
 
-export default async () => {
+export default async (io) => {
   const changeStream = Game.watch(
     [{ $match: { operationType: 'update' } }],
     { fullDocument: 'updateLookup' },

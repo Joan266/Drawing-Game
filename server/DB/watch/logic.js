@@ -1,24 +1,11 @@
 /* eslint-disable no-case-declarations */
 import randomWords from 'random-words';
-import Players from './models/players.js';
-import Game from './models/game.js';
-import { io } from './index.js';
+import Game from '../schemas/game.js';
 
 export class DrawingGame {
   static async roundHandler({ room, round }) {
-    await Players.findByIdAndUpdate(
-      room,
-      {
-        $set: { "players.$[].artistTurn": false },
-        roundArtistCount: 0,
-      },
-    );
-    if (round < 3) {
-      await DrawingGame.prepareTurn(room);
-    } else {
-      console.log('END OF THE GAME');
-      await DrawingGame.gameRestart(room);
-    }
+   
+    
   }
   static async gamePhaseHandler({
     room,
@@ -42,13 +29,7 @@ export class DrawingGame {
           if (!word) {
             body.word = wordGroup[Math.floor(Math.random() * 3)];
           }
-          await Players.findByIdAndUpdate(
-            room,
-            {
-              $set: { "playerArray.$[].scoreTurn": false },
-              turnScoreCount: 0,
-            },
-          );
+       
           await DrawingGame.updateGame({
             room,
             body,
@@ -60,13 +41,7 @@ export class DrawingGame {
           break;
 
         case 'guess-end-phase':
-          const { turnScoreCount, playerCount } = await Players.findById(room);
-          const points = Math.round((turnScoreCount / playerCount) * 20);
-          await Players.findByIdAndUpdate(
-            room,
-            { $inc: { 'playerArray.$[player].score': points } },
-            { arrayFilters: [{ 'player._id': artistId }] },
-          );
+     
           await DrawingGame.prepareTurn(room);
           break;
 
@@ -86,45 +61,10 @@ export class DrawingGame {
   }
 
   static async prepareTurn(room) {
-    const { playerArray, roundArtistCount, playersCount } = await Players.findById(room);
-    if (roundArtistCount !== playersCount) {
-      const playersWhichCanBeArtist = playerArray.filter((obj) => obj.artistTurn === false);
-      const artistId = playersWhichCanBeArtist[0]._id;
-      await Players.findByIdAndUpdate(
-        room,
-        {
-          $set: {
-            "playerArray.$[player].artistTurn": true,
-          },
-          $inc: { roundArtistCount: 1 },
-        },
-        { arrayFilters: [{ "player._id": artistId }] },
-      );
-      const wordGroup = randomWords({
-        exactly: 3,
-        formatter: (word) => word.toUpperCase(),
-      });
-      await DrawingGame.updateGame({
-        room,
-        body: {
-          artistId,
-          $inc: { turn: 1 },
-          wordGroup,
-          gamePhase: 'select',
-        },
-      });
-    } else if (roundArtistCount === playersCount) {
-      await DrawingGame.updateGame({
-        room,
-        body: {
-          $inc: { round: 1 },
-          turn: 0,
-        },
-      });
-    }
+  
   }
 
-  static selectPhaseClock(count, room) {
+  static selectPhaseClock(count, room, io) {
     io.of('/table').to(room).emit('update-game-clock', { count });
     setTimeout(async () => {
       if (count === 1) {
@@ -141,7 +81,7 @@ export class DrawingGame {
     }, 1000);
   }
 
-  static guessPhaseClock(count, room, turn) {
+  static guessPhaseClock(count, room, turn, io) {
     io.of('/table').to(room).emit('update-game-clock', { count });
     setTimeout(() => {
       if (count === 1) {
