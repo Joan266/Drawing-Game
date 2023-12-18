@@ -1,29 +1,14 @@
 import mongoose from 'mongoose';
 
-const gameSchema = new mongoose.Schema({
-  roomId: {
-    type: String,
-  },
-  play: {
-    type: Boolean,
-    default: true,
-  },
-  phase: {
-    type: Number,
-    default: 0,
-  },
-  totalRounds: {
-    type: Number,
-    default: 3,
-  },
-  turn: {
-    type: Number,
-    default: 0,
-  },
-  round: {
-    type: Number,
-    default: 0,
-  },
+const { Schema } = mongoose;
+
+const gameSchema = Schema({
+  _id: Schema.Types.ObjectId,
+  room: { type: Schema.Types.ObjectId, ref: 'Room' },
+  title: String,
+  artits: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
+  scores: [{ type: Schema.Types.ObjectId, ref: 'Score' }],
+  words: [{ type: String }],
 });
 
 export default mongoose.model('Game', gameSchema);

@@ -1,13 +1,13 @@
 import React, { useReducer } from "react";
 import styles from './Menu.module.scss';
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AxiosRoutes from '../services/api';
 import { Form, InputGroup, Spinner, Alert } from 'react-bootstrap';
 const initialState = {
-  playernickname: '',
+  userName: '',
   roomCode: '',
   loading: false,
-  playernicknameError: '',
+  userNameError: '',
   roomCodeError: '',
   roomServerError: '',
 };
@@ -15,11 +15,11 @@ const initialState = {
 const reducer = (state, action) => {
   switch (action.type) {
     case 'SET_PLAYER_NICKNAME':
-      return { ...state, playernickname: action.payload, playernicknameError: '' };
+      return { ...state, userName: action.payload, userNameError: '' };
     case 'SET_ROOM_CODE':
-      return { ...state, roomCode: action.payload, roomCodeError: '' };
+      return { ...state, roomCode: action.payload.toUpperCase(), roomCodeError: '' };
     case 'SET_PLAYER_NICKNAME_ERROR':
-      return { ...state, playernicknameError: action.payload };
+      return { ...state, userNameError: action.payload };
     case 'SET_ROOM_CODE_ERROR':
       return { ...state, roomCodeError: action.payload };
     case 'SET_ROOM_SERVER_ERROR':
@@ -33,18 +33,20 @@ const reducer = (state, action) => {
 
 const MenuForm = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const navigate = useNavigate();
 
   const handleCreateRoom = () => {
     // Validation checks
-    if (state.playernickname.length === 0 || state.playernickname.length > 12) {
+    if (state.userName.length === 0 || state.userName.length > 12) {
       dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name must be at top 12 characters' });
       return;
     }
 
     dispatch({ type: 'SET_LOADING', payload: true });
-    AxiosRoutes.createRoom({ playerNickname: state.playernickname }).then((response) => {
-      if (response.success) {
-        return <Navigate to={`/room`} state={{ players:null , player: response.player, room:response.room }} />;
+    AxiosRoutes.createRoom({ userName: state.userName }).then((response) => {
+      if (!response.error) {
+        console.log(response);
+        return navigate("/room", { state: { users: response.users , user: response.user, room: response.room } });
       } else {
         dispatch({ type: 'SET_PLAYER_NICKNAME', payload: '' });
         dispatch({ type: 'SET_ROOM_CODE', payload: '' });
@@ -55,7 +57,7 @@ const MenuForm = () => {
   };
 
   const handleJoinRoom = () => {
-    if (state.playernickname.length === 0 || state.playernickname.length > 8) {
+    if (state.userName.length === 0 || state.userName.length > 8) {
       dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name has to be between 1 and 8 characters.' });
     }
     
@@ -63,15 +65,16 @@ const MenuForm = () => {
       dispatch({ type: 'SET_ROOM_CODE_ERROR', payload: 'The entry code is incorrect.' });
     }
 
-    if (state.playernickname.length === 0 || state.playernickname.length > 12 || !(/^[A-Z0-9]{6}$/.test(state.roomCode))) {
+    if (state.userName.length === 0 || state.userName.length > 12 || !(/^[A-Z0-9]{6}$/.test(state.roomCode))) {
       return;
     }
 
     dispatch({ type: 'SET_LOADING', payload: true });
 
-    AxiosRoutes.joinGame({ playerNickname: state.playernickname, code: state.roomCode }).then((response) => {
-      if (response.success) {
-        return <Navigate to={`/room`} state={{ players: response.players, player: response.player, room: response.room }} />;
+    AxiosRoutes.joinGame({ userName: state.userName, roomCode: state.roomCode }).then((response) => {
+      if (!response.error) {
+        console.log(response);
+        return navigate("/room", { state: { users: response.users , user: response.user, room: response.room } });
       } else {
         dispatch({ type: 'SET_PLAYER_NICKNAME', payload: '' });
         dispatch({ type: 'SET_ROOM_CODE', payload: '' });
@@ -97,12 +100,12 @@ const MenuForm = () => {
             placeholder="Player name"
             aria-label="Player name"
             aria-describedby="basic-addon1"
-            value={state.playernickname} 
+            value={state.userName} 
             onChange={(e) => dispatch({ type: 'SET_PLAYER_NICKNAME', payload: e.target.value })}
-            isInvalid={!!state.playernicknameError}
+            isInvalid={!!state.userNameError}
           />
-          <Form.Control.Feedback type="invalid" tooltip='true'>
-            {state.playernicknameError}
+          <Form.Control.Feedback type="invalid" tooltip={true}>
+            {state.userNameError}
           </Form.Control.Feedback>
         </InputGroup>
 
@@ -116,7 +119,7 @@ const MenuForm = () => {
             onChange={(e) => dispatch({ type: 'SET_ROOM_CODE', payload: e.target.value })}
             isInvalid={!!state.roomCodeError}
           />
-          <Form.Control.Feedback type="invalid" tooltip='true'>
+          <Form.Control.Feedback type="invalid" tooltip={true}>
             {state.roomCodeError}
           </Form.Control.Feedback>
         </InputGroup>
@@ -132,20 +135,19 @@ const MenuForm = () => {
           variant="light"
         />
          : <><button
-      className={`${state.playernicknameError || state.loading ? styles.disabledButton : styles.createRoomButton} ${state.playernickname && !state.playernicknameError ? styles.createRoomButtonReady : ''}`}
+      className={`${state.userNameError || state.loading ? styles.disabledButton : styles.createRoomButton} ${state.userName && !state.userNameError ? styles.createRoomButtonReady : ''}`}
       onClick={handleCreateRoom}
       disabled={state.loading }
     >
       Create
     </button>
     <button
-      className={`${state.playernicknameError || state.roomCodeError|| state.loading ? styles.disabledButton : styles.joinRoomButton} ${state.playernickname && state.roomCode && !state.playernicknameError && !state.roomCodeError ? styles.joinRoomButtonReady : ''}`}
+      className={`${state.userNameError || state.roomCodeError|| state.loading ? styles.disabledButton : styles.joinRoomButton} ${state.userName && state.roomCode && !state.userNameError && !state.roomCodeError ? styles.joinRoomButtonReady : ''}`}
       onClick={handleJoinRoom}
       disabled={state.loading}
     >
       Join
     </button></> }
-        
       </div>
     </fieldset>
   );

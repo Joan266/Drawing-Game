@@ -12,21 +12,21 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/">
-          <Route path="room" element={<Room />} />
-          <Route path="menu" element={<Menu />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <StrictMode>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/">
+            <Route path="room" element={<Room />} />
+            <Route path="menu" element={<Menu />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </StrictMode>
   );
 }
 
 const container = document.getElementById('app');
 const root = createRoot(container);
 root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+  <App />
 );

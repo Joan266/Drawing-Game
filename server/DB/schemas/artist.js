@@ -2,10 +2,9 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-const scoreSchema = Schema({
+const artistSchema = Schema({
   game: { type: Schema.Types.ObjectId, ref: 'Game' },
-  user: { type: Schema.Types.ObjectId, ref: 'User' },
   title: String,
 });
 
-export default mongoose.model('Score', scoreSchema);
+export const Artist = mongoose.model('Artist', artistSchema);
