@@ -8,7 +8,7 @@ const RoomContext = createContext(null);
 
 
 function MyProviders({children, initialState}) {
- const {room, player, socket} = initialState;
+ const {room, user, socket} = initialState;
  const initialRoomContext = {
   ...room, 
   socket,
@@ -20,9 +20,9 @@ function MyProviders({children, initialState}) {
   artist:false,
   word:[[],[],[]],
   samples:["","",""],
-  playerId: player.id,
-  playerColor: player.color,
-  playerName: player.name,
+  userId: user._id,
+  userColor: user.color,
+  userName: user.name,
 };
  const [state, dispatch] = useReducer(
   gameReducer,
@@ -57,7 +57,7 @@ const gameReducer = (state, action) => {
         ? {
             ...state,
             phase: 1,
-            ...(state.playerId === action.artistId
+            ...(state.userId === action.artistId
                 ? { artist: true, samples: action.samples }
                 : { artist: false }
                 ),

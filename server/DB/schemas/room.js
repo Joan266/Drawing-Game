@@ -1,21 +1,18 @@
 import mongoose from 'mongoose';
 
-const roomSchema = new mongoose.Schema({
-  password: {
+const { Schema } = mongoose;
+
+const roomSchema = Schema({
+  _id: Schema.Types.ObjectId,
+  code: {
     type: String,
     required: true,
+    unique: true,
+    unmutable: true,
   },
-  roomOwner: {
-    type: String,
-    required: true,
-  },
-  play: {
-    type: Boolean,
-    default: false,
-  },
-  gameId: {
-    type: String,
-  },
+  owner: { type: Schema.Types.ObjectId, ref: 'User' },
+  games: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
+  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
 export default mongoose.model('Room', roomSchema);

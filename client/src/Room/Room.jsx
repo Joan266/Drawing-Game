@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useState } from "react";
 import Board from "./components/Board";
 import GameInfo from "./components/GameInfo";
 import RoomInfo from "./components/RoomInfo";
-import Players from "./components/Players"
+import Users from "./components/Users"
 import ChatInput from "./components/ChatInput"
 import Chat from "./components/Chat"
 import { io } from "socket.io-client";
@@ -14,10 +14,7 @@ import { Spinner } from 'react-bootstrap';
 const initialState = {
   loading: true,
   error: null,
-  room: null,
-  player: null,
   socket: null,
-  players: [],
 };
 
 // Define actions for the reducer
@@ -44,7 +41,7 @@ const reducer = (state, action) => {
 const Room = () => {
   const location = useLocation();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { loading, error, room, player, players, socket } = state;
+  const { user, users, room } = location.state;
 
   useEffect(() => {
     if (!room) {
@@ -52,9 +49,9 @@ const Room = () => {
       return;
     }
 
-    const newSocket = io("http://localhost");
+    const newSocket = io("http://localhost:8000");
     newSocket.on("connect", () => {
-      newSocket.emit("room:join", { id: room.id });
+      newSocket.emit("room:join", { code: room.code, user });
       dispatch({ type: actionTypes.CONNECT_SOCKET, payload: newSocket });
     });
 
@@ -63,7 +60,9 @@ const Room = () => {
     };
   }, [room]);
 
-  if (loading) {
+  
+
+  if (state.loading) {
     // Loading screen
     return <div className={styles.room}><div className={styles.topBackground}></div>
     <Spinner
@@ -76,20 +75,20 @@ const Room = () => {
         /></div>;
   }
 
-  if (error) {
+  if (state.error) {
     // Error screen
     return <div className={styles.room}><div className={styles.topBackground}></div>
-    <span style={{fontSize: "36px", fontWeight:"bold"}}>Error: {error}</span></div>;
+    <span style={{fontSize: "36px", fontWeight:"bold"}}>Error: {state.error}</span></div>;
   }
 
   return (
-    <MyProviders initialState={{ room, player, socket }} >
+    <MyProviders initialState={{ room, user, socket: state.socket }} >
       <div className={styles.room}>
         <div className={styles.topBackground}></div>
         <div className={styles.container}>
           <RoomInfo />
           <div className={styles.down}>
-            <Players initialPlayers={players}/>
+            <Users initialUsers={ users } owner={ room.owner }/>
             <div className={styles.right}>
               <GameInfo />
               <Board />

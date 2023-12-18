@@ -4,17 +4,30 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import router from './express_router.js';
-import registerCanvasHandlers from './sockets/canvas.js';
-import registerChatHandlers from './sockets/chat.js';
-import registerGameHandlers from './sockets/game.js';
+// import registerCanvasHandlers from './sockets/canvas.js';
+// import registerChatHandlers from './sockets/chat.js';
+// import registerGameHandlers from './sockets/game.js';
+import { MONGODB_URI, PORT } from './dotenv.js';
 
 const onConnection = async (socket, io) => {
-  socket.on('room:join', ({ roomId, playerId }) => {
-    socket.join(roomId);
-    socket.join(playerId);
-    registerCanvasHandlers(roomId, socket, io);
-    registerChatHandlers(roomId, socket, io);
-    registerGameHandlers(roomId, socket, io);
+  socket.on('room:join', ({ code, user }) => {
+    console.log(`${socket.id} listenning to room ${code}`);
+    socket.join(code);
+    socket.to(code).emit("user:join", { user });
+    // registerCanvasHandlers(code, socket, io);
+    // registerChatHandlers(code, socket, io);
+    // registerGameHandlers(code, socket, io);
+  });
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+    // Handle disconnect logic here
+  });
+  socket.on('room:leave', ({ code, user }) => {
+    console.log(`${socket.id} stopped listenning to room ${code}`);
+    socket.to(code).emit("user:leave", { user });
+    // registerCanvasHandlers(code, socket, io);
+    // registerChatHandlers(code, socket, io);
+    // registerGameHandlers(code, socket, io);
   });
 };
 
@@ -35,8 +48,8 @@ const configExpress = async () => {
 
   const httpServer = createServer(app);
 
-  httpServer.listen(process.env.PORT || 3000, () => {
-    console.log(`Listening on port ${process.env.PORT || 3000}`);
+  httpServer.listen(PORT || 5000, () => {
+    console.log(`Listening on port ${process.env.PORT || 5000}`);
   });
 
   const io = new Server(httpServer, {
@@ -52,7 +65,7 @@ const configExpress = async () => {
 
 const configDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

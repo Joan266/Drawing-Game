@@ -34,7 +34,7 @@ const ColoredText = () => {
 const RoomInfo = () => {
   // const { isGamePlaying, word, gamePhase, round, turn } = useGameContext();
   // const { playerNickname, playerId, scoreTurn, artistTurn, wordGroup } = usePlayerContext();
-  // const { socket, room } = useRoomContext(); 
+  const { code } = useRoomContext(); 
 
   // const restartGame = () => {
   //   socket.emit('game:restart');
@@ -60,8 +60,7 @@ const RoomInfo = () => {
   return (
     <div className={styles.roomInfoContainer}>
       <ColoredText/> 
-      <h2>Albert</h2>
-      <strong>#3F23F2</strong>
+      <strong>#{code}</strong>
       {/* <div className="d-flex flex-row">
         {playerNickname !== null && <h3>Player {playerNickname}</h3>}
         <h4>Room number {room}</h4>
