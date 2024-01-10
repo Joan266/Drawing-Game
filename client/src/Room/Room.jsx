@@ -1,11 +1,11 @@
 import React, { useEffect, useReducer, useState } from "react";
-import Board from "./components/Board";
+import Board from "./components/Board.jsx";
 import GameInfo from "./components/GameInfo";
 import RoomInfo from "./components/RoomInfo";
 import Users from "./components/Users"
 import ChatInput from "./components/ChatInput"
 import Chat from "./components/Chat"
-import { io } from "socket.io-client";
+import { socket } from "../socket.js";
 import { useLocation } from 'react-router-dom';
 import MyProviders from './context.js';
 import styles from './Room.module.scss';
@@ -14,7 +14,7 @@ import { Spinner } from 'react-bootstrap';
 const initialState = {
   loading: true,
   error: null,
-  socket: null,
+  socketConnected: false,
 };
 
 // Define actions for the reducer
@@ -28,7 +28,7 @@ const actionTypes = {
 const reducer = (state, action) => {
   switch (action.type) {
     case actionTypes.CONNECT_SOCKET:
-      return { ...state, socket: action.payload, loading: false };
+      return { ...state, socketConnected: action.payload, loading: false };
     case actionTypes.SET_DATA:
       return { ...state, ...action.payload, loading: false };
     case actionTypes.SET_ERROR:
@@ -40,61 +40,69 @@ const reducer = (state, action) => {
 
 const Room = () => {
   const location = useLocation();
-  const [state, dispatch] = useReducer(reducer, initialState);
   const { user, users, room } = location.state;
-
+  const [state, dispatch] = useReducer(reducer, initialState);
   useEffect(() => {
     if (!room) {
       dispatch({ type: actionTypes.SET_ERROR, payload: 'Room not found' });
       return;
     }
-
-    const newSocket = io("http://localhost:8000");
-    newSocket.on("connect", () => {
-      newSocket.emit("room:join", { code: room.code, user });
-      dispatch({ type: actionTypes.CONNECT_SOCKET, payload: newSocket });
+    if (!socket.connected) {
+      // Connect the socket only if it's not already connected
+      socket.connect();
+    }
+    socket.on("connect", () => {
+      socket.emit("room:join", { code: room.code, user });
+      dispatch({ type: actionTypes.CONNECT_SOCKET, payload: true });
     });
-
+    socket.on("connect_error", (error) => {
+      dispatch({ type: actionTypes.SET_ERROR, payload: `Socket connection: ${error.message}` });
+    });
     return () => {
-      newSocket.disconnect();
+      socket.disconnect();
     };
-  }, [room]);
-
-  
+  }, [ room, user ]);
 
   if (state.loading) {
     // Loading screen
     return <div className={styles.room}><div className={styles.topBackground}></div>
     <Spinner
-          as="span"
-          animation="border"
-          size="sm"
-          role="status"
-          aria-hidden="true"
-          variant="light"
-        /></div>;
+      as="span"
+      animation="border"
+      size="sm"
+      role="status"
+      aria-hidden="true"
+      variant="light"
+    /></div>;
   }
 
-  if (state.error) {
+  if (state.error || !state.socketConnected) {
     // Error screen
-    return <div className={styles.room}><div className={styles.topBackground}></div>
-    <span style={{fontSize: "36px", fontWeight:"bold"}}>Error: {state.error}</span></div>;
-  }
-
-  return (
-    <MyProviders initialState={{ room, user, socket: state.socket }} >
+    return (
       <div className={styles.room}>
         <div className={styles.topBackground}></div>
-        <div className={styles.container}>
-          <RoomInfo />
-          <div className={styles.down}>
-            <Users initialUsers={ users } owner={ room.owner }/>
-            <div className={styles.right}>
-              <GameInfo />
-              <Board />
-              <Chat />
-              <ChatInput />
-            </div>
+        <span style={{ fontSize: "36px", fontWeight: "bold", color: "red" }}>
+          {state.error}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <MyProviders initialState={{ room, user }} >
+      <div className={styles.room}>
+        <div className={styles.topBackground}></div>
+          <div className={styles.container}>
+          <div className={styles.leftContainer}>
+            <RoomInfo />
+            <Users initialUsers={ users }/>
+          </div>
+          <div className={styles.centerContainer}>
+            <GameInfo />
+            <Board/>
+          </div>
+          <div className={styles.rightContainer}>
+            <Chat />
+            <ChatInput />
           </div>
         </div>
       </div>

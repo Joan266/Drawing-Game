@@ -1,56 +1,40 @@
 import React, { useReducer, useEffect } from 'react';
-import { useGameContext, useRoomContext } from "../context.js";
-import AxiosRoutes from '../../services/api.js';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Toast from 'react-bootstrap/Toast';
-import ToastContainer from 'react-bootstrap/ToastContainer';
+import { usePhaseContext,  useRoomContext, useGameContext, useTimerDispatch } from "../context.js";
+import { socket } from '../../socket.js';
 import styles from '../Room.module.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCrown, faPaintBrush } from '@fortawesome/free-solid-svg-icons';
+import PlayButton from './PlayButton.jsx';
 
 const ADD_USER = 'ADD_USER';
 const REMOVE_USER = 'REMOVE_USER';
-const SET_OWNER = 'SET_OWNER';
-const SET_ARTIST = 'SET_ARTIST';
-const SET_POSITION = 'SET_POSITION';
-const UPDATE_SCORE = 'UPDATE_SCORE';
-const RESET_USERS = 'RESET_USERS';
+const ADD_SCORE = 'ADD_SCORE';
+const RESET_USERS_SCORES = 'RESET_USERS_SCORES';
 
 // Reducer function
 const usersReducer = (state, action) => {
   switch (action.type) {
     case ADD_USER:
-      const newUser = { ...action.user, position: 0, score: 0, artist: false, owner: false };
+    // Check if a user with the same ID already exists
+    const existingUser = state.usersArray.find(user => user._id === action.user._id);
+
+    if (existingUser) {
+      // User with the same ID already exists, return the state as it is
+      return state;
+    } else {
+      // No user with the same ID, add the new user
+      const newUser = { ...action.user, score: 0 };
       return {
         ...state,
         usersArray: [...state.usersArray, newUser],
       };
+   }
     case REMOVE_USER:
       return {
         ...state,
-        usersArray: state.usersArray.filter(user => user.id !== action.userId),
+        usersArray: state.usersArray.filter(user => user._id !== action.userId),
       };
-    case SET_OWNER:
-      return {
-        ...state,
-        usersArray: state.usersArray.map(user =>
-          user.id === action.userId ? { ...user, owner: true } : { ...user, owner: false }
-        ),
-      };
-    case SET_ARTIST:
-      return {
-        ...state,
-        usersArray: state.usersArray.map(user =>
-          user.id === action.userId ? { ...user, artist: true } : { ...user, artist: false }
-        ),
-      };
-    case SET_POSITION:
-      return {
-        ...state,
-        usersArray: state.usersArray.map(user =>
-          user.id === action.userId ? { ...user, position: action.position } : user
-        ),
-      };
-    case UPDATE_SCORE:
+    case ADD_SCORE:
       if (action.score <= 0) {
         // Validation for positive score
         return state;
@@ -58,17 +42,15 @@ const usersReducer = (state, action) => {
       return {
         ...state,
         usersArray: state.usersArray.map(user =>
-          user.id === action.userId ? { ...user, score: user.score + action.score } : user
+          user._id === action.userId ? { ...user, score: user.score + action.score } : user
         ),
       };
-    case RESET_USERS:
+    case RESET_USERS_SCORES:
       return {
         ...state,
         usersArray: state.usersArray.map(user => ({
           ...user,
-          position: 0,
           score: 0,
-          artist: false,
         })),
       };
     default:
@@ -76,84 +58,97 @@ const usersReducer = (state, action) => {
   }
 };
 
-const Users = ({ initialUsers, owner }) => {
-  const { socket } = useRoomContext();
+const Users = ({ initialUsers }) => {
   const [state, dispatch] = useReducer(usersReducer, {
     usersArray: initialUsers.map((user, index) => ({
       ...user,
-      position: index + 1,
       score: 0,
-      artist: false,
-      owner: user._id === owner,
     })),
   });
-  const { phase } = useGameContext();
+  const { phase } = usePhaseContext();
+  const room = useRoomContext();
+  const game = useGameContext();
+  const timerDispatch = useTimerDispatch();
   useEffect(() => {
     const handleUserJoin = (data) => {
-      console.log('User joined:', data.user);
+      const { user } = data;
+      console.log('User joined:', user);
       dispatch({
         type: ADD_USER,
-        user: data.user,
+        user: user,
       });
+      console.log('State:', state);
     };
     const handleUserLeave = (data) => {
-      console.log('User leaved:', data.user);
+      const { userId } = data;
+      console.log('User leaved:', userId);
       dispatch({
         type: REMOVE_USER,
-        userId: data.user._id,
+        userId: userId,
       });
+      console.log('State:', state);
+    };
+    const handleUserScored = (data) => {
+      const { score, userId } = data;
+      console.log(`User ${userId} scored: ${score}`);
+      dispatch({
+        type: ADD_SCORE,
+        score: score,
+        userId: userId,
+      });
+      console.log('State:', state);
     };
 
     if (socket) {
       socket.on('user:join', handleUserJoin);
       socket.on('user:leave', handleUserLeave);
+      socket.on('game_server:user_scored', handleUserScored);
     }
 
     return () => {
       if (socket) {
         socket.off('user:join', handleUserJoin);
         socket.off('user:leave', handleUserLeave);
+        socket.off('game_server:user_scored', handleUserScored);
       }
     };
-  }, [socket]);
+  }, [state]);
 
+  useEffect(()=>{
+    const clockTimePhase2 = (state.usersArray.length - 1) * 30;
+    timerDispatch({type:'SET_CLOCK_TIME_PHASE_2', clockTimePhase2})
+  },[state.usersArray, timerDispatch])
+
+  const sortUsers = (a, b) => {
+    if (phase === 0) {
+      // Sort by owner first in phase 0
+      return a._id === room.owner ? -1 : 1;
+    } else if (phase >= 1 && phase <= 3) {
+      return b.score - a.score;
+    }
+  };
   return (
     <div
       aria-live="polite"
       aria-atomic="true"
       className={styles.usersContainer}
     >
-      <div className="p-3" style={{ zIndex: 1 }}>
-  {state.usersArray
-    .sort((a, b) => {
-      // Sort users based on phase and properties
-      if (phase === 0) {
-        // Sort by owner first in phase 0
-        return a.owner ? -1 : 1;
-      } else if (phase >= 1 && phase <= 3) {
-        // Sort by artist first in phase 1, 2, or 3
-        if (a.artist && !b.artist) {
-          return -1;
-        } else if (!a.artist && b.artist) {
-          return 1;
-        }
+      {state.usersArray
+        .sort((a, b) => sortUsers(a, b))
+        .map((user, index) => (
+          <div key={index} className={styles.customToast}>
+            <div className={styles.customToastHeader}>
+              <div className={`${styles.nameContainer}`} style={{ bacgroundColor: user.color }}>
+                {user.name}
+              </div>
+              {(phase >= 1 && phase <= 3) && game.artistId === user._id ? <FontAwesomeIcon icon={faPaintBrush} className="rounded me-2" /> : ""}
+              {user._id === room.owner && phase === 0 ? <FontAwesomeIcon icon={faCrown} className="rounded me-2" /> : ''}
+              {phase >= 1 && phase <= 3 ? user.score : ""}
+            </div>
+          </div>
+        ))
       }
-      // Sort by position for other phases
-      return a.position - b.position;
-    })
-    .map((user, index) => (
-      <div key={index} className={styles.customToast}>
-        <div className={styles.customToastHeader}>
-          <strong className={`${styles.meAuto} ${styles.customStrong}`} style={{ color: user.color }}>
-            {user.name}
-          </strong>
-          {user.owner && phase === 0 ? <FontAwesomeIcon icon={faCrown} className="rounded me-2" /> : ''}
-          {(phase >= 1 && phase <= 3) && user.artist ? <FontAwesomeIcon icon={faPaintBrush} className="rounded me-2" /> : ""}
-          {phase >= 1 && phase <= 3 ? user.score : ""}
-        </div>
-      </div>
-    ))}
-</div>
+      <PlayButton/>
     </div>
   );
 };

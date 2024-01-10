@@ -2,19 +2,18 @@ import mongoose from 'mongoose';
 import Room from '../schemas/room.js';
 import User from '../schemas/user.js';
 
-function generateRandomHexColor() {
-  // Generate random values for RGB (Red, Green, Blue)
-  const red = Math.floor(Math.random() * 256);
-  const green = Math.floor(Math.random() * 256);
-  const blue = Math.floor(Math.random() * 256);
+function getRandomColor() {
+  const colors = [
+    // Pastel versions
+    "#FFC0CB", "#98FB98", "#ADD8E6", "#FFDAB9", "#DB7093", "#00FF7F",
+    "#FF6347", "#FFEC8B", "#C1FFC1", "#00CED1", "#E6E6FA", "#FF69B4",
+    // Darker versions
+    "#800000", "#008000", "#000080", "#FF4500", "#4B0082", "#006400",
+    "#FF4500", "#DAA520", "#556B2F", "#008B8B", "#4B0082", "#8A2BE2",
+  ];
 
-  // Convert RGB to hex format
-  const hexRed = red.toString(16).padStart(2, '0');
-  const hexGreen = green.toString(16).padStart(2, '0');
-  const hexBlue = blue.toString(16).padStart(2, '0');
-
-  // Return the hex color code
-  return `#${hexRed}${hexGreen}${hexBlue}`;
+  const randomIndex = Math.floor(Math.random() * colors.length);
+  return colors[randomIndex];
 }
 
 const generateRandomCode = () => {
@@ -45,9 +44,9 @@ export default {
         code = generateRandomCode();
       } while (codes.includes(code));
       // Generate a random color for the user
-      const color = generateRandomHexColor();
+      const color = getRandomColor();
       // Create a new Room
-      const room = new Room({_id: new mongoose.Types.ObjectId(), code });
+      const room = new Room({ _id: new mongoose.Types.ObjectId(), code });
       // Create a new User
       const owner = new User({ _id: new mongoose.Types.ObjectId(), name: userName, color });
       // Set the owner of the room to the created user
@@ -64,7 +63,7 @@ export default {
         user: { _id: owner._id, color: owner.color, name: owner.name },
         users: [{
           _id: owner._id,
-          userName: owner.name,
+          name: owner.name,
           color: owner.color,
         }],
       });
@@ -89,7 +88,7 @@ export default {
         return res.status(400).json({ error: 'Unexisting room' });
       }
       // Create a new User
-      const color = generateRandomHexColor();
+      const color = getRandomColor();
 
       const newUser = new User({ _id: new mongoose.Types.ObjectId(), name: userName, color });
       room.users.push(newUser._id);

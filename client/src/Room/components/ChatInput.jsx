@@ -1,57 +1,43 @@
-import React, { useEffect, useRef, useReducer,useState } from 'react';
-import { faComment, faQuestion, faCheck, faPallete, faPaintRoller, faBrush, faHippo, faOtter, faDog, faFishFins, faHorse, faFrog, faCrow ,faCat, faBugs, faDragon, faShrimp, faLocust, faKiwiBird } from '@fortawesome/free-solid-svg-icons'
+import React, { useRef } from 'react';
 import styles from '../Room.module.scss'; 
+import { socket } from '../../socket.js';
+import { useUserContext, useGameContext, usePhaseContext, useGameDispatch } from '../context.js';
 
-import Form from 'react-bootstrap/Form';
 const ChatInput = () => {
-  // const textRef = useRef(null);
-  // const { isGamePlaying,
-  //         word,
-  //         gamePhase,
-  //       } = useGameContext();
-  // const { socket } = useRoomContext();
-  // const { setPlayerContext } = useSetPlayerContext();
+  const textRef = useRef(null);
+  const userContext = useUserContext();
+  const gameContext = useGameContext();
+  const phaseContext = usePhaseContext();
+  const gameDispatch = useGameDispatch();
 
-  // const [messages, dispatch] = useReducer(chatReducer, {
-  //   initialMessages: [],
-  // });
-
-  // useEffect(() => {
-  //   const handleAddMessage = (message) => {
-  //     const { playerNickname, text } = message;
-  //     dispatch({
-  //       type: 'ADD_MESSAGE',
-  //       playerNickname,
-  //       text,
-  //     }); 
-  //   };
-  //   socket.on('chat:add_message', handleAddMessage);
-  //   return () => {
-  //     socket.off('chat:add_message', handleAddMessage);
-  //   };
-  // }, [socket]);
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   const text = textRef.current.value;
-  //   if (text === '') return;
-  //   if (text.toUpperCase() === word.toUpperCase() && gamePhase === "guess" && !scoreTurn && !artistTurn && isGamePlaying) {
-  //     socket.emit("chat:player_scored", {
-  //       playerId,
-  //     });
-  //     setPlayerContext({ scoreTurn:false })
-  //   } else {
-  //     socket.emit("chat:add_message", {
-  //       playerNickname,
-  //       text,
-  //     });
-  //   };
-  //   textRef.current.value = '';
-  // };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const text = textRef.current.value.trim(); // Convert to lowercase and remove leading/trailing spaces
+    textRef.current.value = '';
+    if (text === '') return;
+    
+    if ( phaseContext.phase === 2 && !phaseContext.loading) {
+      const lowercaseWord = gameContext.word.name.toLowerCase();
+      const lowercaseText = text.toLowerCase();
+      const isWord = lowercaseWord === lowercaseText;
+      if(isWord) {
+        if(!gameContext.isWord && userContext._id !== gameContext.artistId) {
+        gameDispatch({ type: 'SET_IS_WORD', payload: true });
+        socket.emit("game_client:user_scored", { userId: userContext._id, gameId: gameContext.gameId } );
+        } 
+        return;
+      }
+    }
+    socket.emit("chat_client:add_message", { ...userContext, text } );
+  };
 
   return (
-    <form className={styles.chatInput} >
-      <input type="text" placeholder="Join the game.."  />
+    <form className={styles.chatInput} onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Write something"
+        ref={textRef}
+      />
     </form>
   );
 };

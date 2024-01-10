@@ -1,5 +1,6 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import styles from '../Room.module.scss';
+import { socket } from '../../socket.js';
 
 const ADD_MESSAGE = 'ADD_MESSAGE';
 
@@ -9,7 +10,7 @@ const chatReducer = (state, action) => {
     case ADD_MESSAGE:
       return {
         ...state,
-        chatText: [ ...state.chatText, action.payload ], // Use spread operator to correctly add new message
+        chatText: [ action.payload, ...state.chatText ], // Use spread operator to correctly add new message
       };
     default:
       return state;
@@ -19,34 +20,39 @@ const chatReducer = (state, action) => {
 const Chat = () => {
   const [state, dispatch] = useReducer(chatReducer, { chatText: [] }); // Initialize chatText as an array
 
-  // Sample usage of dispatch to add a message
-  const addMessage = () => {
-    const newMessage = {
-      playerNickname: 'Juan',
-      text: 'Hello, how are youdddddddddddddddddddddddddddddd?',
-      color: 'blue',
+  useEffect(() => {
+    const handleAddMessage = (data) => {
+      const { color, name, text } = data;
+      console.log('New chat:', data);
+      const message = {color, name, text};
+      dispatch({
+        type: ADD_MESSAGE,
+        payload: message,
+      });
+      console.log('State:', state);
     };
 
-    dispatch({
-      type: ADD_MESSAGE,
-      payload: newMessage,
-    });
-  };
+    if (socket) {
+      socket.on('chat_server:add_message', handleAddMessage);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('chat_server:add_message', handleAddMessage);
+      }
+    };
+  }, [state]);
 
   return (
     <div className={styles.chatContainer}>
-      <div className={styles.block1}></div>
       <div className={styles.content}>
-        {/* Display messages */}
         {state.chatText.map((message, index) => (
           <div key={index} className={styles.message} >
-            <strong style={{ color: message.color }}>{message.playerNickname} </strong>
-            <br/>
+            <strong style={{ color: message.color }}>{message.name}: </strong>
             {message.text}
           </div>
         ))}
       </div>
-      <div className={styles.block2}></div>
     </div>
   );
 };

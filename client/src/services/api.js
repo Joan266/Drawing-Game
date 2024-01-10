@@ -27,4 +27,24 @@ export default class AxiosRoutes {
             throw error;
         }
     }
+
+    static async addWord(data) {
+        try {
+            const response = await http.post("/addword", data);
+            return response.data;
+        } catch (error) {
+            console.error("Error adding word:", error);
+            throw error;
+        }
+    }
+
+    static async randomWords(data) {
+        try {
+            const response = await http.post("/randomwords", data);
+            return response.data;
+        } catch (error) {
+            console.error("Error generating random words:", error);
+            throw error;
+        }
+    }
 }
