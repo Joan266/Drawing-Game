@@ -5,10 +5,12 @@ const { Schema } = mongoose;
 const gameSchema = Schema({
   _id: Schema.Types.ObjectId,
   room: { type: Schema.Types.ObjectId, ref: 'Room' },
-  title: String,
-  artits: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
-  scores: [{ type: Schema.Types.ObjectId, ref: 'Score' }],
-  words: [{ type: String }],
+  total_rounds: { type: Number, default: 3 },
+  round: { type: Number, default: 1 },
+  phase: { type: Number, default: 1 },
+  artists: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  scores: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  words: [{ type: Schema.Types.ObjectId, ref: 'Word' }],
 });
 
 export default mongoose.model('Game', gameSchema);

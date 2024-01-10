@@ -53,7 +53,7 @@ const MenuForm = () => {
         dispatch({ type: 'SET_LOADING', payload: false });
         dispatch({ type: 'SET_ROOM_SERVER_ERROR', payload: response.error });
       }
-    });
+    });  
   };
 
   const handleJoinRoom = () => {
@@ -101,7 +101,7 @@ const MenuForm = () => {
             aria-label="Player name"
             aria-describedby="basic-addon1"
             value={state.userName} 
-            onChange={(e) => dispatch({ type: 'SET_PLAYER_NICKNAME', payload: e.target.value })}
+            onChange={(e) => dispatch({ type: 'SET_PLAYER_NICKNAME', payload: e.target.value.trim() })}
             isInvalid={!!state.userNameError}
           />
           <Form.Control.Feedback type="invalid" tooltip={true}>
@@ -116,7 +116,7 @@ const MenuForm = () => {
             aria-label="Room entry code"
             aria-describedby="basic-addon2"
             value={state.roomCode}
-            onChange={(e) => dispatch({ type: 'SET_ROOM_CODE', payload: e.target.value })}
+            onChange={(e) => dispatch({ type: 'SET_ROOM_CODE', payload: e.target.value.trim() })}
             isInvalid={!!state.roomCodeError}
           />
           <Form.Control.Feedback type="invalid" tooltip={true}>
