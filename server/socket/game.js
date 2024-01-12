@@ -1,15 +1,38 @@
 import gameController from '../DB/controllers/game.js';
 
+function wordIndicesGenerator(wordName) {
+  // Convert the word into an array of characters
+  const letters = wordName.split('');
+
+  // Calculate the number of letters to replace (30% of the length)
+  const numOfWordIndices = Math.ceil(0.3 * letters.length);
+
+  // Generate an array of indices to replace without duplicates
+  const wordIndices = [];
+
+  while (wordIndices.length < numOfWordIndices) {
+    const randomIndex = Math.floor(Math.random() * letters.length);
+
+    // Check if the index is not already in the array
+    if (!wordIndices.includes(randomIndex)) {
+      wordIndices.push(randomIndex);
+    }
+  }
+
+  return wordIndices;
+}
+
+
 export default async (socket, code, io) => {
   const startPhase1 = async (data) => {
     const { roomId } = data;
     console.log(`game_client:start_phase_1, roomId: ${roomId}`);
     io.to(code).emit("game_server:start_phase_1");
-    gameController.createGame(roomId, (result) => {
+    gameController.startGame(roomId, (result) => {
       console.log(result.message);
       if (result.success) {
         console.log(result.artistId);
-        io.to(code).emit("game_server:start_phase_1", { artistId: result.artistId, gameId: result.gameId });
+        io.to(code).emit("game_server:start_phase_1", { artistId: result.artistId });
       }
     });
   };
@@ -19,7 +42,8 @@ export default async (socket, code, io) => {
     gameController.addWordToGameList({ word, gameId }, (result) => {
       console.log(result.message);
       if (result.success) {
-        io.to(code).emit("game_server:start_phase_2", { word });
+        const wordIndices = wordIndicesGenerator(word.name);
+        io.to(code).emit("game_server:start_phase_2", { word, wordIndices });
       }
     });
   };

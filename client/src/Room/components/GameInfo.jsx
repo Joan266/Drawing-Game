@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   usePhaseContext,
   useTimerContext,
@@ -12,12 +12,12 @@ import { socket } from '../../socket.js';
 const RandomWords = ({ randomWords }) => {
   const phaseDispatch = usePhaseDispatch();
   const [selectedWord, setSelectedWord] = useState(null);
-  const { gameId } = useGameContext();
+  const game = useGameContext();
   const handleSelectedWord = (word) => {
     if (selectedWord === word.name) return;
     setSelectedWord(word.name);
     phaseDispatch({ type: 'SET_LOADING', payload: true });
-    socket.emit('game_client:start_phase_2', { word, gameId });
+    socket.emit('game_client:start_phase_2', { word, gameId: game._id });
   };
 
   return (
@@ -35,13 +35,32 @@ const RandomWords = ({ randomWords }) => {
   );
 };
 
-const HiddenCharacters = ({ wordName }) => {
-  const characters = wordName.split('');
+const HiddenCharacters = ({wordName}) => {
+  const [indicesCount, setIndicesCount] = useState(0);
+  const [renderArray, setRenderArray] = useState(Array(wordName.length).fill(''));
+  const { wordIndices } = useGameContext();
+  const { clockTimePhase2, count } = useTimerContext();
+  const timeCheck = (clockTimePhase2 / wordIndices.length);
+  const characters = wordName.toUpperCase().split('');
+
+  useEffect(()=>{
+   if(count%timeCheck === 0 && count !== 0 && count !== clockTimePhase2 && indicesCount< wordIndices.length){
+      const updatedArray = renderArray.map((element, index) => {
+        if (index === wordIndices[indicesCount]) {
+          return characters[index];
+        }
+        return element; // Keep the original value if the condition is not met
+      });
+      
+      setRenderArray(updatedArray);
+      setIndicesCount(indicesCount+1);
+    }
+  },[ count ]);
 
   const renderWord = () => {
-    return characters.map((character, index) => (
+    return renderArray.map((character, index) => (
       <div key={index} className={styles.characterContainer}>
-        <div className={styles.character}></div>
+        <div className={styles.character}>{character}</div>
         <div className={styles.lowBar}></div>
       </div>
     ));
@@ -79,7 +98,7 @@ const GameInfo = () => {
   const renderPhase2 = () => (
     <>
       <Timer />
-      {artistId !== user._id && !isWord ? <HiddenCharacters wordName={word.name} />:<h4>{word.name}</h4>}
+      {artistId !== user._id && !isWord ? <HiddenCharacters wordName={word.name}/>:<h4>{word.name}</h4>}
     </>
   );
 

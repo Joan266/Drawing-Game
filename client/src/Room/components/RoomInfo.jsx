@@ -33,9 +33,9 @@ const ColoredText = () => {
 };
 const RoomInfo = () => {
   const { code } = useRoomContext(); 
-  const userContext = useUserContext();
-  const phaseContext = usePhaseContext();
-  const gameContext = useGameContext();
+  const { name } = useUserContext();
+  const { phase } = usePhaseContext();
+  const {round} = useGameContext();
   
   return (
     <div className={styles.roomInfoContainer}>
@@ -44,9 +44,9 @@ const RoomInfo = () => {
       </div>
       <div className={styles.infoContainer}>
         <p>Code: {code}</p>
-        <p>Name: {userContext.name}</p>
-        <p>Phase: {phaseContext.phase}</p>
-        {phaseContext.phase !== 0 && <p>Round: {gameContext.round}</p>}
+        <p>Name: {name}</p>
+        <p>Phase: {phase}</p>
+        {phase !== 0 && <p>Round: {round}</p>}
       </div>
     </div>
   );

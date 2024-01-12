@@ -25,23 +25,8 @@
 
 #app {
     display: flex; /* Enable flexbox on the body */
-    justify-content: center; /* Horizontally center the child container */
-    align-items: center; /* Vertically center the child container */
     height: 100vh; /* Set the body's height to the viewport height */
     margin: 0; /* Remove default margin */
     width: 100%;
-    background-color: #6EEB83;
 }
 
-
-// body {
-//     font-family: var(--normal-font); /* Use the normal font for body text */
-//     background-color: var(--terciary-color); /* Use the secondary color for the background */
-//     font-weight: 400;
-//     color: var(--primary-color); /* Use the primary color for text */
-// }
-
-// h1, h2, h3, h4, h5, h6 {
-//     font-family: var(--heading-font); /* Use the heading font for headings */
-//     color: var(--secondary-color); /* Use the primary color for text */
-// }

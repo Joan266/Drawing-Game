@@ -7,79 +7,76 @@
   align-items: center;
   justify-content: space-between;
   background: url("https://static.vecteezy.com/system/resources/previews/020/204/385/original/colorful-seamless-pattern-fun-colorful-line-doodle-shape-background-yellow-green-violet-pink-red-blue-colors-mosaic-vector.jpg") center/cover no-repeat fixed;
-}
-
-.titleContainer {
-  flex: 5;
-  background: transparent;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-  h1 {
-    color: white;
-    font-size: 180px;
-    font-weight: bold;
-    -webkit-text-stroke: 3px rgba(255, 0, 0, 0.9);
-    text-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
+  @media only screen and (max-width: 768px) {
+    flex-direction: column; /* Change flex direction to column on smaller screens */
   }
-}
-.leftSideContainer {
-  flex: 1;
-  height: 100%;
-  background-color: #ffffff;
-  flex-direction: column;
-  display: flex;
-  padding: 0 80px;
-}
-
-.formContainer {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: space-around;
-}
-.buttonsContainer {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  span {
-    margin-left: auto; 
-    margin-right: auto; 
+  .rightSideContainer {
+    flex: 5;
+    background: transparent;
+    height: 100%;
+    width: 100%;
+    @media only screen and (max-width: 768px) {
+      flex: 1; 
+    }
   }
-}
-.inputGroupContainer {
-  height: 14%;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-}
-.createRoomButton,
-.joinRoomButton {
-  flex: 1; 
-  padding: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  background-color: transparent; /* Default grey background */
-  border: none; /* Use transparent initially */
-  color: #ccc; /* Text color */
-  transition: 0.2s;
-  font-weight: bold;
-}
-.disabledButton {
-  flex: 1; 
-  padding: 10px;
-  font-size: 16px;
-  background-color: transparent; /* Default grey background */
-  border: none; /* Use transparent initially */
-  color: #ccc; /* Text color */
-  font-weight: bold;
-}
-.createRoomButtonReady,
-.joinRoomButtonReady {
-  color: #0f0f0f;
-  
-}
-.createRoomButton:hover, .joinRoomButton:hover {
-  color: hotpink; /* Text color */
+
+  .leftSideContainer {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    flex-direction: column;
+    display: flex;
+    padding: 0 5%; /* Use percentage for responsive padding */
+    @media only screen and (max-width: 768px) {
+      flex: 3; 
+    }
+    .formContainer {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      justify-content: space-around;
+      .labelContainer {
+        display: flex;
+        justify-content: center;
+      }
+      .buttonsContainer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .createRoomButton,
+        .joinRoomButton,
+        .disabledButton {
+          flex: 1;
+          padding: 2% 0; /* Use percentage for responsive padding */
+          font-size: 17px; /* Use vw for responsive font size */
+          cursor: pointer;
+          background-color: transparent;
+          border: none;
+          color: #ccc;
+          transition: 0.2s;
+          font-weight: bold;
+        }
+
+        .createRoomButtonReady,
+        .joinRoomButtonReady {
+          color: #0f0f0f;
+        }
+
+        .createRoomButton:hover,
+        .joinRoomButton:hover {
+          color: hotpink;
+        }
+      }
+
+      .inputGroupContainer {
+        height: 14%;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+      }
+    }
+  }
 }

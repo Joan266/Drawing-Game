@@ -67,8 +67,15 @@ const Users = ({ initialUsers }) => {
   });
   const { phase } = usePhaseContext();
   const room = useRoomContext();
-  const game = useGameContext();
+  const { artistId } = useGameContext();
   const timerDispatch = useTimerDispatch();
+  useEffect(()=>{
+    if(phase === 0){
+      dispatch({
+        type: RESET_USERS_SCORES,
+      });
+    }
+  },[phase])
   useEffect(() => {
     const handleUserJoin = (data) => {
       const { user } = data;
@@ -77,7 +84,6 @@ const Users = ({ initialUsers }) => {
         type: ADD_USER,
         user: user,
       });
-      console.log('State:', state);
     };
     const handleUserLeave = (data) => {
       const { userId } = data;
@@ -86,7 +92,6 @@ const Users = ({ initialUsers }) => {
         type: REMOVE_USER,
         userId: userId,
       });
-      console.log('State:', state);
     };
     const handleUserScored = (data) => {
       const { score, userId } = data;
@@ -96,7 +101,6 @@ const Users = ({ initialUsers }) => {
         score: score,
         userId: userId,
       });
-      console.log('State:', state);
     };
 
     if (socket) {
@@ -112,12 +116,12 @@ const Users = ({ initialUsers }) => {
         socket.off('game_server:user_scored', handleUserScored);
       }
     };
-  }, [state]);
+  }, []);
 
   useEffect(()=>{
     const clockTimePhase2 = (state.usersArray.length - 1) * 30;
     timerDispatch({type:'SET_CLOCK_TIME_PHASE_2', clockTimePhase2})
-  },[state.usersArray, timerDispatch])
+  },[state.usersArray.length, timerDispatch])
 
   const sortUsers = (a, b) => {
     if (phase === 0) {
@@ -141,7 +145,7 @@ const Users = ({ initialUsers }) => {
               <div className={`${styles.nameContainer}`} style={{ bacgroundColor: user.color }}>
                 {user.name}
               </div>
-              {(phase >= 1 && phase <= 3) && game.artistId === user._id ? <FontAwesomeIcon icon={faPaintBrush} className="rounded me-2" /> : ""}
+              {(phase >= 1 && phase <= 3) && artistId === user._id ? <FontAwesomeIcon icon={faPaintBrush} className="rounded me-2" /> : ""}
               {user._id === room.owner && phase === 0 ? <FontAwesomeIcon icon={faCrown} className="rounded me-2" /> : ''}
               {phase >= 1 && phase <= 3 ? user.score : ""}
             </div>

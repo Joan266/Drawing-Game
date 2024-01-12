@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Room from '../schemas/room.js';
 import User from '../schemas/user.js';
+import Game from '../schemas/game.js';
 
 function getRandomColor() {
   const colors = [
@@ -55,12 +56,17 @@ export default {
       room.users.push(owner._id);
       // Set the room for the user
       owner.room = room._id;
+      const game = new Game({ _id: new mongoose.Types.ObjectId() });
+      game.room = room._id;
+      room.game = game._id;
       // Save the user and update the room
+      await game.save();
       await owner.save();
       await room.save();
       res.status(200).json({
         room: { _id: room._id, code: room.code, owner: room.owner },
         user: { _id: owner._id, color: owner.color, name: owner.name },
+        game: { _id: game._id },
         users: [{
           _id: owner._id,
           name: owner.name,
@@ -105,6 +111,7 @@ export default {
         .exec();
       res.status(200).json({
         room: { _id: room._id, code: room.code, owner: room.owner },
+        game: { _id: room.game },
         user: { _id: newUser._id, color: newUser.color, name: newUser.name },
         users: populatedRoom.users,
       });

@@ -46,7 +46,7 @@ const MenuForm = () => {
     AxiosRoutes.createRoom({ userName: state.userName }).then((response) => {
       if (!response.error) {
         console.log(response);
-        return navigate("/room", { state: { users: response.users , user: response.user, room: response.room } });
+        return navigate("/room", { state: { users: response.users , user: response.user, room: response.room, game: response.game } });
       } else {
         dispatch({ type: 'SET_PLAYER_NICKNAME', payload: '' });
         dispatch({ type: 'SET_ROOM_CODE', payload: '' });
@@ -74,7 +74,7 @@ const MenuForm = () => {
     AxiosRoutes.joinGame({ userName: state.userName, roomCode: state.roomCode }).then((response) => {
       if (!response.error) {
         console.log(response);
-        return navigate("/room", { state: { users: response.users , user: response.user, room: response.room } });
+        return navigate("/room", { state: { users: response.users , user: response.user, room: response.room, game: response.game } });
       } else {
         dispatch({ type: 'SET_PLAYER_NICKNAME', payload: '' });
         dispatch({ type: 'SET_ROOM_CODE', payload: '' });
@@ -86,7 +86,7 @@ const MenuForm = () => {
     
   return (
     <fieldset disabled={state.loading} className={styles.formContainer}>
-        <div className={styles.labelContainer}><ColoredText /></div>
+      <div className={styles.labelContainer}><ColoredText /></div>
       <div className={styles.inputGroupContainer}>
         {state.roomServerError ? (
         <Alert variant="danger" onClose={() => dispatch({ type: 'SET_ROOM_SERVER_ERROR', payload: '' })} dismissible>
@@ -189,7 +189,7 @@ const Menu = () => {
       <div className={styles.leftSideContainer}>
         <MenuForm />
       </div>
-      <div className={styles.titleContainer}></div>
+      <div className={styles.rightSideContainer}></div>
     </div>
   );
 };

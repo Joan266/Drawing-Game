@@ -25,10 +25,8 @@ function App() {
     // <StrictMode>
       <BrowserRouter>
         <Routes>
-          <Route path="/">
-            <Route path="room" element={<Room />} />
-            <Route path="menu" element={<Menu />} />
-          </Route>
+          <Route path="/" element={<Menu />}/>
+          <Route path="room" element={<Room />} />
         </Routes>
       </BrowserRouter>
     // </StrictMode>

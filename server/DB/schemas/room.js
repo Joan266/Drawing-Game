@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 
 const roomSchema = Schema({
   _id: Schema.Types.ObjectId,
+  game: { type: Schema.Types.ObjectId, ref: 'Game' },
   code: {
     type: String,
     required: true,
@@ -11,7 +12,6 @@ const roomSchema = Schema({
     unmutable: true,
   },
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
-  games: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 

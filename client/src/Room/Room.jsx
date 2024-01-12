@@ -40,9 +40,11 @@ const reducer = (state, action) => {
 
 const Room = () => {
   const location = useLocation();
-  const { user, users, room } = location.state;
+  const { user, users, room, game } = location.state;
   const [state, dispatch] = useReducer(reducer, initialState);
+  const screenWidth = window.innerWidth;
   useEffect(() => {
+    console.log(`screenWidth: ${screenWidth}`)
     if (!room) {
       dispatch({ type: actionTypes.SET_ERROR, payload: 'Room not found' });
       return;
@@ -61,7 +63,7 @@ const Room = () => {
     return () => {
       socket.disconnect();
     };
-  }, [ room, user ]);
+  }, [ room.code, user ]);
 
   if (state.loading) {
     // Loading screen
@@ -88,9 +90,9 @@ const Room = () => {
     );
   }
   return (
-    <MyProviders initialState={{ room, user }} >
+    <MyProviders initialState={{ room, user, game }} >
       <div className={styles.room}>
-        <div className={styles.topBackground}></div>
+        {screenWidth > 768 && <div className={styles.topBackground}></div>}
           <div className={styles.container}>
           <div className={styles.leftContainer}>
             <RoomInfo />

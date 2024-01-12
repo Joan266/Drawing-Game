@@ -23,7 +23,7 @@ const ChatInput = () => {
       if(isWord) {
         if(!gameContext.isWord && userContext._id !== gameContext.artistId) {
         gameDispatch({ type: 'SET_IS_WORD', payload: true });
-        socket.emit("game_client:user_scored", { userId: userContext._id, gameId: gameContext.gameId } );
+        socket.emit("game_client:user_scored", { userId: userContext._id, gameId: gameContext._id } );
         } 
         return;
       }
@@ -35,7 +35,7 @@ const ChatInput = () => {
     <form className={styles.chatInput} onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Write something"
+        placeholder="Type your thoughs.."
         ref={textRef}
       />
     </form>

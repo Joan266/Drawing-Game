@@ -23,13 +23,11 @@ const Chat = () => {
   useEffect(() => {
     const handleAddMessage = (data) => {
       const { color, name, text } = data;
-      console.log('New chat:', data);
       const message = {color, name, text};
       dispatch({
         type: ADD_MESSAGE,
         payload: message,
       });
-      console.log('State:', state);
     };
 
     if (socket) {
@@ -41,14 +39,14 @@ const Chat = () => {
         socket.off('chat_server:add_message', handleAddMessage);
       }
     };
-  }, [state]);
+  }, []);
 
   return (
     <div className={styles.chatContainer}>
       <div className={styles.content}>
         {state.chatText.map((message, index) => (
           <div key={index} className={styles.message} >
-            <strong style={{ color: message.color }}>{message.name}: </strong>
+            <strong style={{ color: message.color }}> {message.name}: </strong>
             {message.text}
           </div>
         ))}

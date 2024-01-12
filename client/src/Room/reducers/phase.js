@@ -1,6 +1,6 @@
 const SET_PHASE_1 = 'SET_PHASE_1';
 const SET_PHASE_2 = 'SET_PHASE_2';
-const SET_PHASE_3 = 'SET_PHASE_3';
+const SET_PHASE_0 = 'SET_PHASE_0';
 const SET_LOADING = 'SET_LOADING';
 
 const initialPhaseState = {
@@ -14,8 +14,8 @@ const phaseReducer = (state, action) => {
       return { ...state, phase: state.phase === 2 || state.phase === 0 ? 1 : state.phase };
     case SET_PHASE_2:
       return { ...state, phase: state.phase === 1 ? 2 : state.phase };
-    case SET_PHASE_3:
-      return { ...state, phase: state.phase === 2 ? 3 : state.phase };
+    case SET_PHASE_0:
+      return { ...state, phase: state.phase === 2 ? 0 : state.phase };
     case SET_LOADING:
       return { ...state, loading: action.payload };
     default:
@@ -26,7 +26,7 @@ const phaseReducer = (state, action) => {
 export {
   SET_PHASE_1,
   SET_PHASE_2,
-  SET_PHASE_3,
+  SET_PHASE_0,
   SET_LOADING,
   phaseReducer,
   initialPhaseState,

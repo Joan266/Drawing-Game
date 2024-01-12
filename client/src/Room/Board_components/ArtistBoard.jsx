@@ -158,6 +158,9 @@ const ArtistBoard = () => {
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
           >
             <Layer>
               {renderLines([...lines, line])}

@@ -1,10 +1,8 @@
-import mongoose from 'mongoose';
 import Game from '../schemas/game.js';
-// import Artist from '../schemas/artist.js';
 import Room from '../schemas/room.js';
 
 export default {
-  createGame: async (roomId, callback) => {
+  startGame: async (roomId, callback) => {
     try {
       // Get the users from the room
       const room = await Room.findById(roomId);
@@ -16,23 +14,18 @@ export default {
         });
         return;
       }
-      // Create a new Game
-      const game = new Game({ _id: new mongoose.Types.ObjectId() });
-      game.room = roomId;
+      const game = await Game.findOne({ room: roomId });
 
       game.artists = users;
-
-      // Save the game and update the room
+      game.scores = [];
+      game.round = 1;
+      // Save the game
       await game.save();
-      room.games.push(game._id);
-      await room.save();
       const artistId = game.artists[0];
-      console.log(`artistId: ${artistId}, artistId: ${game.artists[0]}`);
       callback({
         success: true,
-        message: 'Game created successfully',
+        message: 'Game started successfully',
         artistId,
-        gameId: game._id,
       });
     } catch (error) {
       console.error(error);
@@ -136,7 +129,7 @@ export default {
             message: 'No more artists left to play in the last round. End of the game.',
             data: { },
           });
-          game.phase = 3;
+          game.phase = 0;
           await game.save();
           return;
         }

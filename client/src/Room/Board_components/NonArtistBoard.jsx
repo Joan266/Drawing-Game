@@ -1,5 +1,5 @@
 // Import statements
-import React, { useEffect, useReducer, useRef } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { Stage, Layer } from 'react-konva';
 import { socket } from '../../socket.js';
 import { usePhaseContext } from '../context.js';
@@ -27,7 +27,8 @@ const NonArtistBoard = () => {
   const initialState = {
     lines:[],
   };
-
+  const [xScale,setxSCale] = useState(null);
+  const [yScale,setySCale] = useState(null);
   const [state, dispatch] = useReducer(nonArtistReducer, initialState);
   const {  lines } = state;
   const phaseContext = usePhaseContext();
@@ -51,6 +52,7 @@ const NonArtistBoard = () => {
       window.removeEventListener('resize', resizeHandler);
     };
   }, [phaseContext]);
+
   useEffect(()=>{
      const handleCleanCanvas = () => {
       console.log("Other user clean canvas")
@@ -69,7 +71,6 @@ const NonArtistBoard = () => {
 
   useEffect(() => {
     const handleBoardDrawing = ({ buffer, linesArr }) => {
-      console.log(`board_server:add_buffer_points`, buffer, linesArr)
       let updatedLines = [];
   
       if (lines.length === buffer.lg) {
