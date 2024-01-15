@@ -9,7 +9,7 @@ import DrawingTools from './DrawingTools.jsx';
 import { renderLines } from './canvasUtils.js';
 
 // Constants
-const BUFFER_UPDATE_DELAY = 300;
+const BUFFER_UPDATE_DELAY = 400;
 
 // Reducer function to handle state updates
 const artistReducer = (state, action) => {
@@ -32,6 +32,8 @@ const artistReducer = (state, action) => {
       return { ...state, color: action.color };
     case 'SET_TIMER':
       return { ...state, timer: action.timer };
+    case 'SWITCH_TIMER':
+      return { ...state, timer: !state.timer };
     case 'CLEAN_CANVAS':
       return { ...state, lines:[], line: { points: [] } };
     default:
@@ -86,29 +88,65 @@ const ArtistBoard = () => {
     };
   }, [phaseContext]);
   useEffect(() => {
-    // Buffer update logic
-    const { points } = line;
-    const { lg, point_i } = buffer;
-    if (timer || (lg === lines.length && (point_i === points.length || points.length < 3))) return;
-  
-    dispatch({ type: 'SET_TIMER', timer: true });
-  
-    setTimeout(() => {
-      let linesArr=[];
-      if(lg<lines.length){
-         linesArr = lines.slice(lg);
-        if(points.length > 2){
-          linesArr = [...linesArr, line];
+    const newLinesCheck = ({ lg, point_i }, callback) => {
+        let linesArr = [...lines.slice(lg)];
+
+        if (line.points.length > 3) {
+            linesArr = [...linesArr, line];
         }
-      }else {
-        linesArr = [line];
-      }
-      linesArr[0]= {...linesArr[0], points: linesArr[0].points.slice(point_i)};
-      socket.emit("board_client:add_buffer_points", { buffer, linesArr });
-      dispatch({ type: 'UPDATE_BUFFER', lg: lines.length, point_i: points.length });
-      dispatch({ type: 'SET_TIMER', timer: false });
+
+        console.log(`board_client:add_buffer_points => buffer:${lg}, linesArr.length: ${linesArr.length}, line.points: ${line.points}, lines.length: ${lines.length}`);
+
+        if (linesArr.length === 0) {
+            return callback({
+                success: false,
+                message: 'There is no new Lines.',
+            });
+        }
+
+        console.log(`slice operation on linesArr[0] before => ${linesArr[0].points}`);
+        linesArr[0] = { ...linesArr[0], points: linesArr[0].points.slice(point_i) };
+        console.log(`slice operation on linesArr[0] after => ${linesArr[0].points}`);
+
+        linesArr.forEach((line, index) => {
+            console.log(`board_client:add_buffer_points=> line_index: ${index} line.points ${line.points}`);
+            if (line.points.length < 4) {
+                return callback({
+                    success: false,
+                    message: 'Added empty line',
+                });
+            }
+        });
+
+        return callback({
+            success: true,
+            message: 'There are new lines, and they are clean.',
+            linesArr,
+        });
+    };
+
+    newLinesCheck(buffer, (result) => {
+        console.log(result.message);
+        if (result.success) {
+            socket.emit("board_client:add_buffer_points", { buffer, linesArr: result.linesArr });
+            dispatch({ type: 'UPDATE_BUFFER', lg: lines.length, point_i: line.points.length });
+        }
+    });
+}, [timer]);
+
+
+useEffect(() => {
+  if (phaseContext.phase === 2 && !phaseContext.loading) {
+    const timer = setInterval(() => {
+      dispatch({ type: 'SWITCH_TIMER' });
     }, BUFFER_UPDATE_DELAY);
-  }, [buffer, timer, line, lines]);
+
+    return () => clearInterval(timer);
+  }else{
+    dispatch({ type: 'SET_TIMER', timer: false });
+  }
+}, [phaseContext]);
+
 
   const handleMouseDown = (e) => {
     // Mouse down handler logic
@@ -137,7 +175,7 @@ const ArtistBoard = () => {
   const handleMouseUp = () => {
     // Mouse up handler logic
     dispatch({ type: 'SET_IS_DRAWING', isDrawing: false });
-    if (line.points.length > 2) {
+    if (line.points.length > 3) {
       dispatch({ type: 'ADD_LINE', line });
     }    
   };

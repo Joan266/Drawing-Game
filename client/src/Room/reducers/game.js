@@ -7,7 +7,7 @@ const SET_ROUND = 'SET_ROUND';
 const initialGameState = {
   _id: String,
   artistId: String,
-  word: String,
+  word: {},
   round:1,
   isWord: false,
   randomWords: [],

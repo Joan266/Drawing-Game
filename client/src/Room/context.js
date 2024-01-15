@@ -38,92 +38,74 @@ function MyProviders({children, initialState}) {
           console.log(`Word ${index + 1}: ${word.name}`);
         });
         gameReducerDispatch({ type: SET_RANDOM_WORDS, payload: response.randomWords });
-        timerReducerDispatch({ type: START });
-        phaseReducerDispatch({ type: SET_LOADING, payload: false });
       }
     };
   
-    const handleGamePhaseOne = (data) => {
-      console.log(`game_server:start_phase_1 data:`, data);
-      if (!data) {
-        phaseReducerDispatch({ type: SET_PHASE_1 });
-        phaseReducerDispatch({ type: SET_LOADING, payload: true });
-        return;
-      }
-  
-      const { artistId } = data;
-      phaseReducerDispatch({ type: SET_PHASE_1 });
-      gameReducerDispatch({ type: SET_ARTIST_ID, payload: artistId });
-  
-      if (artistId === user._id) {
-        AxiosRoutes.randomWords({ num: 3, gameId: gameState._id }).then(handleWordResponse);
-        return;
-      }
-  
-      phaseReducerDispatch({ type: SET_LOADING, payload: false });
-      timerReducerDispatch({ type: START });
-    };
-  
-    const handleGamePhaseTwo = (data) => {
+    const handleStartPhaseTwo = (data) => {
       console.log(`game_server:start_phase_2 data:`, data);
       phaseReducerDispatch({ type: SET_LOADING, payload: true });
       timerReducerDispatch({ type: RESET, clockTimePhase2: true });
       phaseReducerDispatch({ type: SET_PHASE_2 });
-      gameReducerDispatch({ type: SET_IS_WORD, payload: false });
   
-      if (!data) return;
+      if (!data){
+        console.log("Data missing phase 2.");
+        return;
+      };
   
       const { word, wordIndices } = data; 
       console.log(`wordIndices: ${wordIndices}`);
       gameReducerDispatch({ type: SET_WORD, payload: word });
-      gameReducerDispatch({ type: SET_WORD_INDICES, payload: wordIndices });
+      if (!gameState.ArtistId === user._id) {
+        gameReducerDispatch({ type: SET_WORD_INDICES, payload: wordIndices });
+      }else{
+        gameReducerDispatch({ type: SET_RANDOM_WORDS, payload: [] });
+      }
       timerReducerDispatch({ type: START })
       phaseReducerDispatch({ type: SET_LOADING, payload: false });
     };
   
-    const handleEndPhaseTwo = (data) => {
-      console.log(`game_server: end_phase_2`, data);
-      const { nextArtistId, round } = data;
+    const handleSetGameState = (data) => {
+      console.log(`game_server: setGameState`, data);
+      if(!data){
+        console.log("game_server: setGameState error data value empty");
+        return;
+      }
+      const { nextArtistId, round, phase } = data;
       phaseReducerDispatch({ type: SET_LOADING, payload: true });
       timerReducerDispatch({ type: RESET, clockTimePhase1: true });
-      gameReducerDispatch({ type: SET_WORD, payload: null }); 
-  
-      if (!nextArtistId) {
+      if(phase === 0){
         phaseReducerDispatch({ type: SET_PHASE_0 });
-        phaseReducerDispatch({ type: SET_LOADING, payload: false });
+        gameReducerDispatch({ type: SET_ARTIST_ID, payload: null });
+      }else if (phase === 1){
+        phaseReducerDispatch({ type: SET_PHASE_1 });
+        gameReducerDispatch({ type: SET_ARTIST_ID, payload: nextArtistId });
+        if (nextArtistId === user._id) {
+          AxiosRoutes.randomWords({ num: 3, gameId: gameState._id }).then(handleWordResponse);
+        }
+        timerReducerDispatch({ type: START });
+      }else {
+        console.log("game_server: end_phase_2 error phase not 1 or 0");
         return;
       }
-  
-      phaseReducerDispatch({ type: SET_PHASE_1 });
-      gameReducerDispatch({ type: SET_ARTIST_ID, payload: nextArtistId });
-  
-      if (round) {
-        gameReducerDispatch({ type: SET_ROUND, payload: round });
-      }
-  
-      if (nextArtistId === user._id) {
-        AxiosRoutes.randomWords({ num: 3, gameId: gameState._id }).then(handleWordResponse);
-        return;
-      }
-  
-      timerReducerDispatch({ type: START });
+      gameReducerDispatch({ type: SET_WORD, payload: null }); 
+      gameReducerDispatch({ type: SET_IS_WORD, payload: false }); 
+      gameReducerDispatch({ type: SET_WORD_INDICES, payload: [] });
+      gameReducerDispatch({ type: SET_ROUND, payload: round });
       phaseReducerDispatch({ type: SET_LOADING, payload: false });
     };
   
     if (socket) {
-      socket.on('game_server:start_phase_1', handleGamePhaseOne);
-      socket.on('game_server:start_phase_2', handleGamePhaseTwo);
-      socket.on('game_server:end_phase_2', handleEndPhaseTwo);
+      socket.on('game_server:set_game_state', handleSetGameState);
+      socket.on('game_server:start_phase_2', handleStartPhaseTwo);
     }
   
     return () => {
       if (socket) {
-        socket.off('game_server:start_phase_1', handleGamePhaseOne);
-        socket.off('game_server:start_phase_2', handleGamePhaseTwo);
-        socket.off('game_server:end_phase_2', handleEndPhaseTwo);
+        socket.off('game_server:set_game_state', handleSetGameState);
+        socket.off('game_server:start_phase_2', handleStartPhaseTwo);
       }
     };
-  }, [user, gameState._id]);
+  }, [ user, gameState ]);
   
   useEffect(() => {
     if (timerState.isPlaying) {
@@ -139,7 +121,6 @@ function MyProviders({children, initialState}) {
     if (timerState.count === 0) {
       timerReducerDispatch({ type: RESET });
       console.log(`timerReducerDispatch: RESET`);
-      if(phaseState.loading) return;
       phaseReducerDispatch({
         type: SET_LOADING,
         payload: true,
@@ -150,17 +131,13 @@ function MyProviders({children, initialState}) {
         const word = gameState.randomWords[Math.floor(Math.random() * gameState.randomWords.length)];
         socket.emit("game_client:start_phase_2", { word, gameId: gameState._id });
         console.log(`game_client:start_phase_2 random word: ${word.name}`);
-        gameReducerDispatch({
-          type: SET_WORD,
-          payload: word,
-        });
-        gameReducerDispatch({ type: SET_RANDOM_WORDS, payload: [] });
       } 
       if(phaseState.phase === 2 ){
         socket.emit("game_client:end_phase_2",{ artistId:gameState.artistId, gameId:gameState._id });
       } 
     }
   }, [timerState.count]);
+
   useEffect(()=>{
     const handleUserScored = () => {
       timerReducerDispatch({

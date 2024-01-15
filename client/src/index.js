@@ -22,14 +22,12 @@ function App() {
   }, []);
 
   return (
-    // <StrictMode>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Menu />}/>
-          <Route path="room" element={<Room />} />
-        </Routes>
-      </BrowserRouter>
-    // </StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Menu />}/>
+        <Route path="room" element={<Room />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -37,15 +37,18 @@ const MenuForm = () => {
 
   const handleCreateRoom = () => {
     // Validation checks
-    if (state.userName.length === 0 || state.userName.length > 12) {
-      dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name must be at top 12 characters' });
+    if (state.userName.length > 12) {
+      dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name max 12 characters long.' });
+      return;
+    }
+    if (state.userName.length === 0 ) {
+      dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name is a required field.' });
       return;
     }
 
     dispatch({ type: 'SET_LOADING', payload: true });
     AxiosRoutes.createRoom({ userName: state.userName }).then((response) => {
       if (!response.error) {
-        console.log(response);
         return navigate("/room", { state: { users: response.users , user: response.user, room: response.room, game: response.game } });
       } else {
         dispatch({ type: 'SET_PLAYER_NICKNAME', payload: '' });
@@ -57,10 +60,12 @@ const MenuForm = () => {
   };
 
   const handleJoinRoom = () => {
-    if (state.userName.length === 0 || state.userName.length > 8) {
-      dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name has to be between 1 and 8 characters.' });
+    if (state.userName.length > 12) {
+      dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name max 12 characters long.' });
     }
-    
+    if (state.userName.length === 0 ) {
+      dispatch({ type: 'SET_PLAYER_NICKNAME_ERROR', payload: 'The player name is a required field.' });
+    }
     if (!(/^[A-Z0-9]{6}$/.test(state.roomCode))) {
       dispatch({ type: 'SET_ROOM_CODE_ERROR', payload: 'The entry code is incorrect.' });
     }
@@ -73,7 +78,6 @@ const MenuForm = () => {
 
     AxiosRoutes.joinGame({ userName: state.userName, roomCode: state.roomCode }).then((response) => {
       if (!response.error) {
-        console.log(response);
         return navigate("/room", { state: { users: response.users , user: response.user, room: response.room, game: response.game } });
       } else {
         dispatch({ type: 'SET_PLAYER_NICKNAME', payload: '' });

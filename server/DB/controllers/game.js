@@ -19,13 +19,14 @@ export default {
       game.artists = users;
       game.scores = [];
       game.round = 1;
+      game.phase = 1;
       // Save the game
       await game.save();
-      const artistId = game.artists[0];
+      const nextArtistId = game.artists[0];
       callback({
         success: true,
         message: 'Game started successfully',
-        artistId,
+        data: { round: game.round, nextArtistId, phase: game.phase },
       });
     } catch (error) {
       console.error(error);
@@ -39,11 +40,26 @@ export default {
   addWordToGameList: async ({ word, gameId }, callback) => {
     try {
       const game = await Game.findById(gameId);
-      if (!game) return;
+
+      if (!game) {
+        return callback({
+          success: false,
+          message: 'Game not found.',
+        });
+      }
+
+      if (game.phase !== 1) {
+        return callback({
+          success: false,
+          message: 'The game has to be in phase 1 when adding a word for phase 2.',
+        });
+      }
+
       game.words = [...game.words, word];
       game.phase = 2;
       await game.save();
       console.log(game);
+
       callback({
         success: true,
         message: 'Word added successfully',
@@ -124,35 +140,37 @@ export default {
       await game.save();
       if (artistIndex === game.artists.length - 1) {
         if (game.round === game.total_rounds) {
+          game.phase = 0;
+          game.round = 1;
+          await game.save();
           callback({
             success: true,
-            message: 'No more artists left to play in the last round. End of the game.',
-            data: { },
+            message: 'No more artists left to play in the last round. End of the game. Phase 0.',
+            data: { round: game.round, phase: game.phase, nextArtistId: false },
           });
-          game.phase = 0;
-          await game.save();
           return;
         }
 
         const nextArtistId = game.artists[0];
-        console.log(`nexstArtistId: ${nextArtistId}, artistIndex:${artistIndex}, nexstArtistId: ${game.artists[0]},gameRounds:${game.round}`);
         game.round += 1;
+        game.phase = 1;
         await game.save();
 
         callback({
           success: true,
-          message: 'No more artists left to play in this round. Moving to the next round.',
-          data: { round: game.round, nextArtistId },
+          message: 'No more artists left to play in this round. Moving to the next round. Phase 1.',
+          data: { round: game.round, phase: game.phase, nextArtistId },
         });
         return;
       }
 
       const nextArtistId = game.artists[artistIndex + 1];
-      console.log(`nexstArtistId: ${nextArtistId}, artistIndex:${artistIndex}, nexstArtistId: ${game.artists[artistIndex + 1]}`);
+      game.phase = 1;
+      await game.save();
       callback({
         success: true,
-        message: 'There is a next artist to play.',
-        data: { nextArtistId },
+        message: 'There is a next artist to play.Phase 1.',
+        data: { round: game.round, phase: game.phase, nextArtistId },
       });
     } catch (error) {
       console.error(error);

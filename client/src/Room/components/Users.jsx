@@ -20,6 +20,7 @@ const usersReducer = (state, action) => {
 
     if (existingUser) {
       // User with the same ID already exists, return the state as it is
+      console.log(`user: ${action.user} exist`)
       return state;
     } else {
       // No user with the same ID, add the new user
@@ -119,7 +120,7 @@ const Users = ({ initialUsers }) => {
   }, []);
 
   useEffect(()=>{
-    const clockTimePhase2 = (state.usersArray.length - 1) * 30;
+    const clockTimePhase2 = (state.usersArray.length - 1) * 15;
     timerDispatch({type:'SET_CLOCK_TIME_PHASE_2', clockTimePhase2})
   },[state.usersArray.length, timerDispatch])
 

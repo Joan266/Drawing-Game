@@ -9,11 +9,11 @@ const PlayButton = () => {
   const room = useRoomContext();
   const phaseDispatch = usePhaseDispatch();
   const handlePlayButton = () => {
-    console.log("game_client:start_phase_1");
+    console.log("game_client:start_game");
     phaseDispatch({ type: 'SET_LOADING', payload: true });
   
     try {
-      socket.emit("game_client:start_phase_1", { roomId: room._id });
+      socket.emit("game_client:start_game", { roomId: room._id });
     } catch (error) {
       console.error("Error emitting socket event:", error);
     }
