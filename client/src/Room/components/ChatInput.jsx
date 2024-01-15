@@ -35,6 +35,7 @@ const ChatInput = () => {
     <form className={styles.chatInput} onSubmit={handleSubmit}>
       <input
         type="text"
+        name="chatInput"
         placeholder="Type your thoughs.."
         ref={textRef}
       />

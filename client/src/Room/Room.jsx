@@ -44,7 +44,6 @@ const Room = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const screenWidth = window.innerWidth;
   useEffect(() => {
-    console.log(`screenWidth: ${screenWidth}`)
     if (!room) {
       dispatch({ type: actionTypes.SET_ERROR, payload: 'Room not found' });
       return;

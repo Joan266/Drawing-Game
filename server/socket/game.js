@@ -22,17 +22,15 @@ function wordIndicesGenerator(wordName) {
   return wordIndices;
 }
 
-
 export default async (socket, code, io) => {
-  const startPhase1 = async (data) => {
+  const startGame = async (data) => {
     const { roomId } = data;
-    console.log(`game_client:start_phase_1, roomId: ${roomId}`);
-    io.to(code).emit("game_server:start_phase_1");
+    console.log(`game_client:start_game, roomId: ${roomId}`);
     gameController.startGame(roomId, (result) => {
       console.log(result.message);
       if (result.success) {
-        console.log(result.artistId);
-        io.to(code).emit("game_server:start_phase_1", { artistId: result.artistId });
+        console.log(`game_client:start_game result: ${result.data}`);
+        io.to(code).emit("game_server:set_game_state", result.data);
       }
     });
   };
@@ -54,7 +52,7 @@ export default async (socket, code, io) => {
       console.log(result.message);
       if (result.success) {
         console.log(`game_client:end_phase_2 result: ${result.data}`);
-        io.to(code).emit("game_server:end_phase_2", result.data);
+        io.to(code).emit("game_server:set_game_state", result.data);
       }
     });
   };
@@ -69,7 +67,7 @@ export default async (socket, code, io) => {
       }
     });
   };
-  socket.on('game_client:start_phase_1', startPhase1);
+  socket.on('game_client:start_game', startGame);
   socket.on('game_client:start_phase_2', startPhase2);
   socket.on('game_client:end_phase_2', endPhase2);
   socket.on('game_client:user_scored', userScored);

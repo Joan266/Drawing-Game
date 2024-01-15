@@ -27,8 +27,6 @@ const NonArtistBoard = () => {
   const initialState = {
     lines:[],
   };
-  const [xScale,setxSCale] = useState(null);
-  const [yScale,setySCale] = useState(null);
   const [state, dispatch] = useReducer(nonArtistReducer, initialState);
   const {  lines } = state;
   const phaseContext = usePhaseContext();
@@ -68,25 +66,25 @@ const NonArtistBoard = () => {
       }
     };
   },[])
-
   useEffect(() => {
     const handleBoardDrawing = ({ buffer, linesArr }) => {
       let updatedLines = [];
-  
       if (lines.length === buffer.lg) {
         updatedLines = [...lines, ...linesArr];
-      } else {
+      } else if (lines.length > buffer.lg) {
         const combinedLines = [...lines, ...linesArr];
         const mergedPoints = [
-          ...combinedLines[buffer.lg].points,
-          ...combinedLines[buffer.lg + 1].points,
+          ...combinedLines[lines.length-1].points,
+          ...combinedLines[lines.length ].points,
         ];
   
         updatedLines = [
-          ...combinedLines.slice(0, buffer.lg),
-          { ...combinedLines[buffer.lg], points: mergedPoints },
-          ...combinedLines.slice(buffer.lg + 2),
+          ...combinedLines.slice(0, lines.length-1),
+          { ...combinedLines[lines.length], points: mergedPoints },
+          ...combinedLines.slice(lines.length + 1),
         ];
+      }else{
+        return
       }
   
       dispatch({ type: 'UPDATE_LINES', updatedLines });
